@@ -1,7 +1,7 @@
 
 import { cn } from '@/lib/utils';
 
-interface StatusBadgeProps {
+export interface StatusBadgeProps {
   status: 'success' | 'pending' | 'failed' | 'active' | 'inactive' | string;
   className?: string;
 }

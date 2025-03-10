@@ -62,9 +62,7 @@ const Activities = () => {
             activity.recentUserActivityType === 'AUTH' ? 'pending' : 'success'
           } 
           className="font-semibold"
-        >
-          {activity.recentUserActivityType}
-        </StatusBadge>
+        />
       ),
       sortable: true,
     },
@@ -137,9 +135,7 @@ const Activities = () => {
                           selectedActivity.recentUserActivityType === 'AUTH' ? 'pending' : 'success'
                         } 
                         className="font-semibold"
-                      >
-                        {selectedActivity.recentUserActivityType}
-                      </StatusBadge>
+                      />
                     </p>
                   </div>
                   <div>

@@ -1,256 +1,204 @@
 
 import React, { useState } from 'react';
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Eye,
-  Pencil,
-  MoreHorizontal,
-  ArrowUpDown,
-  Search
-} from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  ChevronDown, 
+  ChevronUp, 
+  Search, 
+  Edit, 
+  Eye, 
+  MoreHorizontal, 
+  Trash
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 
-interface Column<T> {
+interface Column {
   key: string;
   header: string;
-  cell?: (item: T) => React.ReactNode;
+  cell?: (item: any) => JSX.Element | string;
   sortable?: boolean;
 }
 
-interface DataTableProps<T> {
-  data: T[];
-  columns: Column<T>[];
-  onView?: (item: T) => void;
-  onEdit?: (item: T) => void;
-  className?: string;
-  pageSize?: number;
+interface DataTableProps {
+  data: any[];
+  columns: Column[];
+  onView?: (item: any) => void;
+  onEdit?: (item: any) => void;
+  onDelete?: (item: any) => void;
 }
 
-export function DataTable<T>({
+export function DataTable({ 
   data,
   columns,
   onView,
   onEdit,
-  className,
-  pageSize = 10,
-}: DataTableProps<T>) {
-  const [currentPage, setCurrentPage] = useState(1);
+  onDelete
+}: DataTableProps) {
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
-
-  // Filter data based on search term
-  const filteredData = searchTerm
-    ? data.filter((item) =>
-        Object.values(item as object).some(
-          (value) =>
-            value &&
-            value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      )
-    : data;
-
-  // Sort data if sortConfig is not null
-  const sortedData = React.useMemo(() => {
-    if (!sortConfig) return filteredData;
-
-    return [...filteredData].sort((a, b) => {
-      const aValue = (a as any)[sortConfig.key];
-      const bValue = (b as any)[sortConfig.key];
-
-      if (aValue === bValue) return 0;
-      
-      if (sortConfig.direction === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  }, [filteredData, sortConfig]);
-
-  // Pagination
-  const totalPages = Math.ceil(sortedData.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const paginatedData = sortedData.slice(startIndex, startIndex + pageSize);
-
+  
   const handleSort = (key: string) => {
-    if (sortConfig?.key === key) {
-      // Toggle direction if already sorting by this key
-      setSortConfig({
-        key,
-        direction: sortConfig.direction === 'asc' ? 'desc' : 'asc',
-      });
+    if (sortColumn === key) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // Default to ascending for new sort
-      setSortConfig({ key, direction: 'asc' });
+      setSortColumn(key);
+      setSortDirection('asc');
     }
   };
-
+  
+  const sortedData = React.useMemo(() => {
+    if (!sortColumn) return data;
+    
+    return [...data].sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+      
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortColumn, sortDirection]);
+  
+  const filteredData = React.useMemo(() => {
+    if (!searchTerm) return sortedData;
+    
+    return sortedData.filter(item => {
+      return Object.values(item).some(value => 
+        value && value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  }, [sortedData, searchTerm]);
+  
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <div className="relative max-w-sm">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search..."
+            className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
           />
         </div>
+        <div className="flex gap-2">
+          {/* Additional controls could go here */}
+        </div>
       </div>
-
-      <div className="rounded-lg border shadow-soft overflow-hidden">
+      
+      <div className="rounded-md border">
         <Table>
-          <TableHeader className="bg-muted/20">
+          <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column.key} className="font-medium text-sm">
-                  {column.sortable ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 font-medium flex items-center gap-1 -ml-3"
-                      onClick={() => handleSort(column.key)}
-                    >
-                      {column.header}
-                      <ArrowUpDown size={14} className="opacity-70" />
-                    </Button>
-                  ) : (
-                    column.header
-                  )}
+                <TableHead key={column.key} className="whitespace-nowrap">
+                  <div className="flex items-center">
+                    {column.header}
+                    {column.sortable && (
+                      <button
+                        onClick={() => handleSort(column.key)}
+                        className="ml-1 p-0.5 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <div className="flex flex-col">
+                          <ChevronUp className={`h-3 w-3 ${
+                            sortColumn === column.key && sortDirection === 'asc'
+                              ? 'text-primary'
+                              : 'text-muted-foreground'
+                          }`} />
+                          <ChevronDown className={`h-3 w-3 -mt-1 ${
+                            sortColumn === column.key && sortDirection === 'desc'
+                              ? 'text-primary'
+                              : 'text-muted-foreground'
+                          }`} />
+                        </div>
+                      </button>
+                    )}
+                  </div>
                 </TableHead>
               ))}
-              {(onView || onEdit) && <TableHead className="w-[60px]">Actions</TableHead>}
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.length === 0 ? (
+            {filteredData.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length + (onView || onEdit ? 1 : 0)}
-                  className="text-center h-32 text-muted-foreground"
-                >
+                <TableCell colSpan={columns.length + 1} className="h-24 text-center">
                   No results found.
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedData.map((item, index) => (
-                <TableRow key={index} className="hover:bg-muted/30 animate-slide-in-up" style={{ animationDelay: `${index * 30}ms` }}>
+              filteredData.map((item, index) => (
+                <TableRow key={index}>
                   {columns.map((column) => (
-                    <TableCell key={column.key}>
-                      {column.cell
-                        ? column.cell(item)
-                        : (item as any)[column.key]}
+                    <TableCell key={`${index}-${column.key}`}>
+                      {column.cell ? column.cell(item) : item[column.key]}
                     </TableCell>
                   ))}
-                  {(onView || onEdit) && (
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                          >
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {onView && (
-                            <DropdownMenuItem onClick={() => onView(item)}>
-                              <Eye size={14} className="mr-2" />
-                              View
-                            </DropdownMenuItem>
-                          )}
-                          {onEdit && (
-                            <DropdownMenuItem onClick={() => onEdit(item)}>
-                              <Pencil size={14} className="mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    <div className="flex items-center justify-end">
+                      {(onView || onEdit || onDelete) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {onView && (
+                              <DropdownMenuItem onClick={() => onView(item)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View
+                              </DropdownMenuItem>
+                            )}
+                            {onEdit && (
+                              <DropdownMenuItem onClick={() => onEdit(item)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                            )}
+                            {onDelete && (
+                              <DropdownMenuItem 
+                                onClick={() => onDelete(item)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-2">
-          <div className="text-sm text-muted-foreground">
-            Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
-            <span className="font-medium">
-              {Math.min(startIndex + pageSize, filteredData.length)}
-            </span>{' '}
-            of <span className="font-medium">{filteredData.length}</span> results
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCurrentPage(1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronsLeft size={16} />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft size={16} />
-            </Button>
-            <div className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight size={16} />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCurrentPage(totalPages)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronsRight size={16} />
-            </Button>
-          </div>
+      
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredData.length} of {data.length} items
         </div>
-      )}
+        {/* Pagination could go here */}
+      </div>
     </div>
   );
 }

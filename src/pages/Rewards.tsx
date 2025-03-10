@@ -4,56 +4,31 @@ import { useToast } from '@/hooks/use-toast';
 import { RewardData, fetchRewardData, updateReward } from '@/lib/api';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { StatusBadge } from '@/components/ui-custom/StatusBadge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-// Form schema for Rewards
-const formSchema = z.object({
-  rewardAmount: z.coerce.number().min(0),
-  rewardAmountCurrency: z.string(),
-  status: z.boolean(),
-});
+import { Switch } from '@/components/ui/switch';
 
 const Rewards = () => {
-  const [rewardsData, setRewardsData] = useState<RewardData[]>([]);
+  const [rewards, setRewards] = useState<RewardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
   const [selectedReward, setSelectedReward] = useState<RewardData | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedReward, setEditedReward] = useState<Partial<RewardData>>({});
   const { toast } = useToast();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      rewardAmount: 0,
-      rewardAmountCurrency: '',
-      status: false,
-    },
-  });
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const data = await fetchRewardData();
-        setRewardsData(data);
+        setRewards(data);
       } catch (error) {
-        console.error("Failed to load rewards data:", error);
+        console.error("Failed to load reward data:", error);
         toast({
           title: "Error",
-          description: "Failed to load rewards data",
+          description: "Failed to load reward data",
           variant: "destructive",
         });
       } finally {
@@ -63,17 +38,6 @@ const Rewards = () => {
 
     loadData();
   }, [toast]);
-
-  // Set form values when selected reward changes
-  useEffect(() => {
-    if (selectedReward) {
-      form.reset({
-        rewardAmount: selectedReward.rewardAmount,
-        rewardAmountCurrency: selectedReward.rewardAmountCurrency,
-        status: selectedReward.status,
-      });
-    }
-  }, [selectedReward, form]);
 
   const columns = [
     {
@@ -90,14 +54,13 @@ const Rewards = () => {
     {
       key: 'rewardAmountCurrency',
       header: 'Currency',
+      cell: (reward: RewardData) => <span className="font-semibold">{reward.rewardAmountCurrency}</span>,
       sortable: true,
     },
     {
       key: 'status',
       header: 'Status',
-      cell: (reward: RewardData) => (
-        <StatusBadge status={reward.status ? 'active' : 'inactive'} />
-      ),
+      cell: (reward: RewardData) => <StatusBadge status={reward.status ? 'active' : 'inactive'} />,
       sortable: true,
     },
     {
@@ -106,59 +69,91 @@ const Rewards = () => {
       cell: (reward: RewardData) => <span className="font-mono text-xs">{reward.creatorId.substring(0, 10)}...</span>,
     },
     {
-      key: 'updatedAt',
-      header: 'Updated At',
-      cell: (reward: RewardData) => new Date(reward.updatedAt).toLocaleDateString(),
+      key: 'createdAt',
+      header: 'Created At',
+      cell: (reward: RewardData) => formatDate(reward.createdAt),
       sortable: true,
     },
   ];
 
-  const formatCurrency = (amount: number, currency: string) => {
+  const formatCurrency = (amount: number, currency = 'CAD') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency,
+      currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    }).format(date);
+  };
+
   const handleView = (reward: RewardData) => {
     setSelectedReward(reward);
-    setIsEditing(false);
+    setIsEditMode(false);
   };
 
   const handleEdit = (reward: RewardData) => {
     setSelectedReward(reward);
-    setIsEditing(true);
+    setEditedReward({...reward});
+    setIsEditMode(true);
   };
 
   const handleCloseDialog = () => {
     setSelectedReward(null);
-    setIsEditing(false);
+    setIsEditMode(false);
+    setEditedReward({});
   };
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    if (!selectedReward) return;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditedReward({
+      ...editedReward,
+      [name]: name === 'rewardAmount' ? parseInt(value, 10) : value
+    });
+  };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setEditedReward({
+      ...editedReward,
+      [name]: value
+    });
+  };
+
+  const handleSwitchChange = (checked: boolean) => {
+    setEditedReward({
+      ...editedReward,
+      status: checked
+    });
+  };
+
+  const handleSave = async () => {
+    if (!selectedReward || !editedReward) return;
+    
     try {
-      const updatedReward: RewardData = {
+      // In a real app, this would save to MongoDB
+      const updatedReward = await updateReward({
         ...selectedReward,
-        ...data,
-      };
-
-      const result = await updateReward(updatedReward);
+        ...editedReward
+      } as RewardData);
       
-      // Update the rewards data array with the updated reward
-      setRewardsData(prevData => 
-        prevData.map(reward => reward._id === result._id ? result : reward)
-      );
-
-      handleCloseDialog();
+      // Update local state with the updated reward
+      setRewards(rewards.map(reward => 
+        reward._id === updatedReward._id ? updatedReward : reward
+      ));
       
       toast({
-        title: "Reward Updated",
-        description: `Reward #${result._id.substring(0, 8)} has been updated successfully.`,
+        title: "Success",
+        description: "Reward updated successfully",
       });
+      
+      handleCloseDialog();
     } catch (error) {
       console.error("Failed to update reward:", error);
       toast({
@@ -172,136 +167,129 @@ const Rewards = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Rewards Management</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Reward Management</h2>
       </div>
       
       <DataTable 
-        data={rewardsData} 
+        data={rewards} 
         columns={columns} 
         onView={handleView}
         onEdit={handleEdit}
       />
       
+      {/* View/Edit Dialog */}
       <Dialog open={!!selectedReward} onOpenChange={(open) => !open && handleCloseDialog()}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? 'Edit Reward' : 'View Reward'} 
-              <span className="font-mono text-xs ml-2">
-                #{selectedReward?._id.substring(0, 8)}
-              </span>
+              {isEditMode ? 'Edit Reward' : 'Reward Details'}
+              {selectedReward && (
+                <span className="font-mono text-xs ml-2">
+                  #{selectedReward._id.substring(0, 8)}
+                </span>
+              )}
             </DialogTitle>
+            {isEditMode && <DialogDescription>Update the reward details.</DialogDescription>}
           </DialogHeader>
           
           {selectedReward && (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="rewardAmount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Reward Amount</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            disabled={!isEditing} 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="rewardAmountCurrency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <Select
-                          disabled={!isEditing}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Currency" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="USD">USD</SelectItem>
-                            <SelectItem value="CAD">CAD</SelectItem>
-                            <SelectItem value="EUR">EUR</SelectItem>
-                            <SelectItem value="GBP">GBP</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Reward Status</FormLabel>
-                        <div className="text-sm text-muted-foreground">
-                          {field.value ? 'Active' : 'Inactive'}
-                        </div>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          disabled={!isEditing}
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
+            <div className="space-y-4">
+              <div className="bg-muted/30 p-4 rounded-lg">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground">Reward Amount</h4>
+                    {isEditMode ? (
+                      <div className="mt-1">
+                        <Input
+                          id="rewardAmount"
+                          name="rewardAmount"
+                          type="number"
+                          value={editedReward.rewardAmount || selectedReward.rewardAmount}
+                          onChange={handleInputChange}
                         />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex flex-col gap-2">
-                  <h4 className="text-sm font-medium">Additional Information</h4>
-                  <div className="grid grid-cols-2 gap-4 bg-muted/20 p-4 rounded-lg">
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground">Reward Criteria ID</div>
-                      <div className="font-mono text-xs mt-1">{selectedReward.rewardCriteraId}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground">Creator ID</div>
-                      <div className="font-mono text-xs mt-1">{selectedReward.creatorId}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground">Created At</div>
-                      <div className="text-sm mt-1">{new Date(selectedReward.createdAt).toLocaleString()}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground">Updated At</div>
-                      <div className="text-sm mt-1">{new Date(selectedReward.updatedAt).toLocaleString()}</div>
-                    </div>
+                      </div>
+                    ) : (
+                      <p className="mt-1 font-semibold">
+                        {formatCurrency(selectedReward.rewardAmount, selectedReward.rewardAmountCurrency)}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground">Currency</h4>
+                    {isEditMode ? (
+                      <Select 
+                        value={editedReward.rewardAmountCurrency || selectedReward.rewardAmountCurrency}
+                        onValueChange={(value) => handleSelectChange('rewardAmountCurrency', value)}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="CAD">CAD</SelectItem>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="mt-1 font-semibold">{selectedReward.rewardAmountCurrency}</p>
+                    )}
                   </div>
                 </div>
-                
-                <DialogFooter>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleCloseDialog}
-                  >
-                    Cancel
-                  </Button>
-                  {isEditing && (
-                    <Button type="submit">Save Changes</Button>
-                  )}
-                </DialogFooter>
-              </form>
-            </Form>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="status">Status</Label>
+                  <div className="text-sm text-muted-foreground">
+                    {editedReward.status !== undefined ? 
+                      (editedReward.status ? 'Active' : 'Inactive') : 
+                      (selectedReward.status ? 'Active' : 'Inactive')}
+                  </div>
+                </div>
+                {isEditMode ? (
+                  <Switch
+                    id="status"
+                    checked={editedReward.status !== undefined ? editedReward.status : selectedReward.status}
+                    onCheckedChange={handleSwitchChange}
+                  />
+                ) : (
+                  <StatusBadge status={selectedReward.status ? 'active' : 'inactive'} />
+                )}
+              </div>
+              
+              <div className="pt-2">
+                <h4 className="text-sm font-medium text-muted-foreground">Reward Criteria ID</h4>
+                <p className="font-mono text-sm mt-1">{selectedReward.rewardCriteraId}</p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Creator ID</h4>
+                  <p className="font-mono text-sm mt-1">{selectedReward.creatorId}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Created At</h4>
+                  <p className="mt-1">{formatDate(selectedReward.createdAt)}</p>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground">Last Updated</h4>
+                <p className="mt-1">{formatDate(selectedReward.updatedAt)}</p>
+              </div>
+              
+              <DialogFooter>
+                {isEditMode ? (
+                  <>
+                    <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleSave}>Save Changes</Button>
+                  </>
+                ) : (
+                  <Button variant="outline" onClick={handleCloseDialog}>Close</Button>
+                )}
+              </DialogFooter>
+            </div>
           )}
         </DialogContent>
       </Dialog>

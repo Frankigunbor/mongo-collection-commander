@@ -1,276 +1,257 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { fetchDashboardStats } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { fetchDashboardStats, fetchTransactionData, fetchActivityData } from '@/lib/api';
+import { StatusBadge } from '@/components/ui-custom/StatusBadge';
 import { 
   Users, 
   CreditCard, 
-  Award, 
-  UserCheck, 
-  TrendingUp, 
-  ArrowUpRight
+  BarChart, 
+  DollarSign, 
+  FileCheck, 
+  Clock
 } from 'lucide-react';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Legend
-} from 'recharts';
-
-interface DashboardStats {
-  totalUsers: number;
-  activeUsers: number;
-  totalTransactions: number;
-  transactionVolume: number;
-  totalRewards: number;
-  activeRewards: number;
-  kycVerified: number;
-  pendingKyc: number;
-  transactionsByDay: { date: string; count: number }[];
-  usersByDay: { date: string; count: number }[];
-}
+import { BarChart as ReChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const loadStats = async () => {
+    const loadData = async () => {
       try {
-        const data = await fetchDashboardStats();
-        setStats(data as DashboardStats);
+        const statsData = await fetchDashboardStats();
+        setStats(statsData);
       } catch (error) {
-        console.error('Failed to load dashboard stats:', error);
+        console.error("Failed to load dashboard data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load dashboard data",
+          variant: "destructive",
+        });
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    loadStats();
-  }, []);
+    loadData();
+  }, [toast]);
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (amount: number, currency = 'CAD') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
+    }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   };
 
-  // Format chart data
-  const formattedTransactionData = stats?.transactionsByDay.map(day => ({
-    ...day,
-    date: formatDate(day.date)
-  }));
+  // Placeholder chart data - in a real app, this would be calculated from transaction data
+  const chartData = [
+    { name: 'Jan', transfers: 2400, deposits: 4000, withdrawals: 1000 },
+    { name: 'Feb', transfers: 1398, deposits: 3000, withdrawals: 800 },
+    { name: 'Mar', transfers: 9800, deposits: 2000, withdrawals: 1700 },
+    { name: 'Apr', transfers: 3908, deposits: 2780, withdrawals: 500 },
+    { name: 'May', transfers: 4800, deposits: 1890, withdrawals: 700 },
+    { name: 'Jun', transfers: 3800, deposits: 2390, withdrawals: 900 },
+  ];
 
-  const formattedUserData = stats?.usersByDay.map(day => ({
-    ...day,
-    date: formatDate(day.date)
-  }));
-
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard Overview</h2>
-        <p className="text-muted-foreground">
-          {new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
-        </p>
-      </div>
-      
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="dashboard-card animate-pulse-soft">
-              <CardHeader className="dashboard-card-header">
-                <CardTitle className="text-sm font-medium h-4 bg-muted rounded" />
-                <div className="h-8 w-8 rounded-full bg-muted" />
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="pb-2">
+                <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
               </CardHeader>
               <CardContent>
-                <div className="h-8 bg-muted rounded w-3/4" />
-                <p className="text-xs text-muted-foreground mt-2 h-3 bg-muted rounded w-1/2" />
+                <div className="h-8 bg-gray-200 rounded w-2/3"></div>
               </CardContent>
             </Card>
           ))}
         </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard 
-              title="Total Users" 
-              value={stats?.totalUsers || 0} 
-              subtitle={`${stats?.activeUsers || 0} active users`}
-              icon={<Users className="h-6 w-6 text-blue-600" />}
-              trend={7.2}
-            />
-            <StatCard 
-              title="Transaction Volume" 
-              value={formatCurrency(stats?.transactionVolume || 0)} 
-              subtitle={`${stats?.totalTransactions || 0} transactions`}
-              icon={<CreditCard className="h-6 w-6 text-green-600" />}
-              trend={12.5}
-            />
-            <StatCard 
-              title="Total Rewards" 
-              value={formatCurrency(stats?.totalRewards || 0)} 
-              subtitle={`${stats?.activeRewards || 0} active rewards`}
-              icon={<Award className="h-6 w-6 text-purple-600" />}
-              trend={5.3}
-            />
-            <StatCard 
-              title="KYC Verified" 
-              value={stats?.kycVerified || 0} 
-              subtitle={`${stats?.pendingKyc || 0} pending verification`}
-              icon={<UserCheck className="h-6 w-6 text-orange-600" />}
-              trend={9.1}
-            />
-          </div>
+      </div>
+    );
+  }
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="dashboard-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-medium">Transaction Activity</CardTitle>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={formattedTransactionData}>
-                    <defs>
-                      <linearGradient id="colorTx" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis 
-                      dataKey="date" 
-                      tick={{ fontSize: 12 }} 
-                      tickLine={false}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 12 }} 
-                      tickLine={false}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
-                    <CartesianGrid 
-                      strokeDasharray="3 3" 
-                      vertical={false}
-                      stroke="hsl(var(--border))" 
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))',
-                        borderColor: 'hsl(var(--border))',
-                        borderRadius: 'var(--radius)',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        color: 'hsl(var(--card-foreground))'
-                      }} 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="count" 
-                      name="Transactions"
-                      stroke="hsl(var(--primary))" 
-                      fillOpacity={1} 
-                      fill="url(#colorTx)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card className="dashboard-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-medium">New Users</CardTitle>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={formattedUserData}>
-                    <XAxis 
-                      dataKey="date" 
-                      tick={{ fontSize: 12 }} 
-                      tickLine={false}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 12 }} 
-                      tickLine={false}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
-                    <CartesianGrid 
-                      strokeDasharray="3 3" 
-                      vertical={false}
-                      stroke="hsl(var(--border))" 
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))',
-                        borderColor: 'hsl(var(--border))',
-                        borderRadius: 'var(--radius)',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        color: 'hsl(var(--card-foreground))'
-                      }} 
-                    />
-                    <Legend />
-                    <Bar 
-                      dataKey="count" 
-                      name="New Users"
-                      fill="hsl(var(--primary))" 
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </>
-      )}
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <div className="text-muted-foreground">
+          Last updated: {new Date().toLocaleTimeString()}
+        </div>
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <CardDescription>Active & Inactive</CardDescription>
+            </div>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalUsers.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-500 font-medium">{stats?.activeUsers.toLocaleString()}</span> currently active
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+              <CardDescription>Across all accounts</CardDescription>
+            </div>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalTransactions.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+              <CardDescription>All currencies</CardDescription>
+            </div>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(stats?.totalAmount)}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-medium">KYC Status</CardTitle>
+              <CardDescription>Verification levels</CardDescription>
+            </div>
+            <FileCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.completedKyc} verified</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-yellow-500 font-medium">{stats?.pendingKyc}</span> pending verification
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="col-span-1 md:col-span-2">
+          <CardHeader>
+            <CardTitle>Transaction Overview</CardTitle>
+            <CardDescription>
+              Monthly transaction volume by type
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ReChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="transfers" fill="#3b82f6" name="Transfers" />
+                  <Bar dataKey="deposits" fill="#10b981" name="Deposits" />
+                  <Bar dataKey="withdrawals" fill="#f59e0b" name="Withdrawals" />
+                </ReChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Transactions</CardTitle>
+            <CardDescription>
+              Last 5 transactions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats?.recentTransactions.map((tx: any, index: number) => (
+                <div key={tx._id} className="flex items-center">
+                  <div className={`rounded-full p-2 mr-3 ${
+                    tx.transactionType === 'DEPOSIT' ? 'bg-green-100' : 
+                    tx.transactionType === 'WITHDRAW' ? 'bg-yellow-100' : 'bg-blue-100'
+                  }`}>
+                    {tx.transactionType === 'DEPOSIT' ? (
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                    ) : tx.transactionType === 'WITHDRAW' ? (
+                      <CreditCard className="h-4 w-4 text-yellow-600" />
+                    ) : (
+                      <BarChart className="h-4 w-4 text-blue-600" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between">
+                      <div className="font-medium">{tx.transactionType}</div>
+                      <div className="text-right font-semibold">{formatCurrency(tx.amount, tx.currency)}</div>
+                    </div>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <div>{formatDate(tx.createdAt)}</div>
+                      <StatusBadge status={tx.transactionStatus} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activities</CardTitle>
+            <CardDescription>
+              Last 5 user activities
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats?.recentActivities.map((activity: any, index: number) => (
+                <div key={activity._id} className="flex items-center">
+                  <div className="rounded-full p-2 mr-3 bg-blue-100">
+                    <Clock className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between">
+                      <div className="font-medium line-clamp-1">{activity.description}</div>
+                    </div>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <div>{formatDate(activity.createdAt)}</div>
+                      <StatusBadge status={activity.recentUserActivityType} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
-
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  subtitle: string;
-  icon: React.ReactNode;
-  trend?: number;
-}
-
-const StatCard = ({ title, value, subtitle, icon, trend }: StatCardProps) => (
-  <Card className="dashboard-card">
-    <CardHeader className="dashboard-card-header">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      {icon}
-    </CardHeader>
-    <CardContent>
-      <div className="dashboard-card-content">{value}</div>
-      <div className="flex items-center mt-1">
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
-        {trend && (
-          <div className="flex items-center ml-auto text-xs font-medium text-green-600">
-            <ArrowUpRight className="h-3 w-3 mr-0.5" />
-            {trend}%
-          </div>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
 
 export default Dashboard;

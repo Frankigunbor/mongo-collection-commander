@@ -4,52 +4,19 @@ import { useToast } from '@/hooks/use-toast';
 import { KycData, fetchKycData, updateKyc } from '@/lib/api';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { StatusBadge } from '@/components/ui-custom/StatusBadge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-// Form schema for KYC
-const formSchema = z.object({
-  kycLevel: z.string(),
-  currency: z.string(),
-  singleTransactionLimit: z.coerce.number().min(0),
-  dailyTransactionLimit: z.coerce.number().min(0),
-  weeklyTransactionLimit: z.coerce.number().min(0),
-  monthlyTransactionLimit: z.coerce.number().min(0),
-  accountMaximumBalance: z.coerce.number().min(0),
-});
 
 const Kyc = () => {
   const [kycData, setKycData] = useState<KycData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
   const [selectedKyc, setSelectedKyc] = useState<KycData | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedKyc, setEditedKyc] = useState<Partial<KycData>>({});
   const { toast } = useToast();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      kycLevel: '',
-      currency: '',
-      singleTransactionLimit: 0,
-      dailyTransactionLimit: 0,
-      weeklyTransactionLimit: 0,
-      monthlyTransactionLimit: 0,
-      accountMaximumBalance: 0,
-    },
-  });
 
   useEffect(() => {
     const loadData = async () => {
@@ -71,21 +38,6 @@ const Kyc = () => {
     loadData();
   }, [toast]);
 
-  // Set form values when selected KYC changes
-  useEffect(() => {
-    if (selectedKyc) {
-      form.reset({
-        kycLevel: selectedKyc.kycLevel,
-        currency: selectedKyc.currency,
-        singleTransactionLimit: selectedKyc.singleTransactionLimit,
-        dailyTransactionLimit: selectedKyc.dailyTransactionLimit,
-        weeklyTransactionLimit: selectedKyc.weeklyTransactionLimit,
-        monthlyTransactionLimit: selectedKyc.monthlyTransactionLimit,
-        accountMaximumBalance: selectedKyc.accountMaximumBalance,
-      });
-    }
-  }, [selectedKyc, form]);
-
   const columns = [
     {
       key: '_id',
@@ -93,27 +45,27 @@ const Kyc = () => {
       cell: (kyc: KycData) => <span className="font-mono text-xs">{kyc._id.substring(0, 10)}...</span>,
     },
     {
-      key: 'kycLevel',
-      header: 'KYC Level',
-      cell: (kyc: KycData) => (
-        <div className="flex items-center gap-2">
-          <StatusBadge 
-            status={
-              kyc.kycLevel === 'LEVEL_ONE' ? 'active' : 
-              kyc.kycLevel === 'LEVEL_TWO' ? 'processing' : 'success'
-            } 
-          />
-          <span>
-            {kyc.kycLevel.replace('_', ' ').toLowerCase()
-              .replace(/\b\w/g, c => c.toUpperCase())}
-          </span>
-        </div>
-      ),
-      sortable: true,
+      key: 'creatorId',
+      header: 'Creator ID',
+      cell: (kyc: KycData) => <span className="font-mono text-xs">{kyc.creatorId.substring(0, 10)}...</span>,
     },
     {
       key: 'currency',
       header: 'Currency',
+      cell: (kyc: KycData) => <span className="font-semibold">{kyc.currency}</span>,
+      sortable: true,
+    },
+    {
+      key: 'kycLevel',
+      header: 'KYC Level',
+      cell: (kyc: KycData) => (
+        <StatusBadge 
+          status={
+            kyc.kycLevel === 'LEVEL_ONE' ? 'active' : 
+            kyc.kycLevel === 'LEVEL_TWO' ? 'pending' : 'success'
+          } 
+        />
+      ),
       sortable: true,
     },
     {
@@ -126,76 +78,94 @@ const Kyc = () => {
       key: 'dailyTransactionLimit',
       header: 'Daily Limit',
       cell: (kyc: KycData) => formatCurrency(kyc.dailyTransactionLimit, kyc.currency),
+      sortable: true,
     },
     {
-      key: 'weeklyTransactionLimit',
-      header: 'Weekly Limit',
-      cell: (kyc: KycData) => formatCurrency(kyc.weeklyTransactionLimit, kyc.currency),
-    },
-    {
-      key: 'monthlyTransactionLimit',
-      header: 'Monthly Limit',
-      cell: (kyc: KycData) => formatCurrency(kyc.monthlyTransactionLimit, kyc.currency),
-    },
-    {
-      key: 'updatedAt',
-      header: 'Updated At',
-      cell: (kyc: KycData) => new Date(kyc.updatedAt).toLocaleDateString(),
+      key: 'createdAt',
+      header: 'Created At',
+      cell: (kyc: KycData) => formatDate(kyc.createdAt),
       sortable: true,
     },
   ];
 
-  const formatCurrency = (amount: number, currency: string) => {
+  const formatCurrency = (amount: number, currency = 'CAD') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency,
+      currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    }).format(date);
+  };
+
   const handleView = (kyc: KycData) => {
     setSelectedKyc(kyc);
-    setIsEditing(false);
+    setIsEditMode(false);
   };
 
   const handleEdit = (kyc: KycData) => {
     setSelectedKyc(kyc);
-    setIsEditing(true);
+    setEditedKyc({...kyc});
+    setIsEditMode(true);
   };
 
   const handleCloseDialog = () => {
     setSelectedKyc(null);
-    setIsEditing(false);
+    setIsEditMode(false);
+    setEditedKyc({});
   };
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    if (!selectedKyc) return;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditedKyc({
+      ...editedKyc,
+      [name]: name.includes('Limit') || name === 'accountMaximumBalance' 
+        ? parseInt(value, 10) 
+        : value
+    });
+  };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setEditedKyc({
+      ...editedKyc,
+      [name]: value
+    });
+  };
+
+  const handleSave = async () => {
+    if (!selectedKyc || !editedKyc) return;
+    
     try {
-      const updatedKyc: KycData = {
+      // In a real app, this would save to MongoDB
+      const updatedKyc = await updateKyc({
         ...selectedKyc,
-        ...data,
-      };
-
-      const result = await updateKyc(updatedKyc);
+        ...editedKyc
+      } as KycData);
       
-      // Update the KYC data array with the updated KYC
-      setKycData(prevData => 
-        prevData.map(kyc => kyc._id === result._id ? result : kyc)
-      );
-
-      handleCloseDialog();
+      // Update local state with the updated KYC
+      setKycData(kycData.map(kyc => 
+        kyc._id === updatedKyc._id ? updatedKyc : kyc
+      ));
       
       toast({
-        title: "KYC Updated",
-        description: `KYC #${result._id.substring(0, 8)} has been updated successfully.`,
+        title: "Success",
+        description: "KYC data updated successfully",
       });
+      
+      handleCloseDialog();
     } catch (error) {
       console.error("Failed to update KYC:", error);
       toast({
         title: "Error",
-        description: "Failed to update KYC",
+        description: "Failed to update KYC data",
         variant: "destructive",
       });
     }
@@ -214,197 +184,181 @@ const Kyc = () => {
         onEdit={handleEdit}
       />
       
+      {/* View/Edit Dialog */}
       <Dialog open={!!selectedKyc} onOpenChange={(open) => !open && handleCloseDialog()}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? 'Edit KYC' : 'View KYC'} 
-              <span className="font-mono text-xs ml-2">
-                #{selectedKyc?._id.substring(0, 8)}
-              </span>
+              {isEditMode ? 'Edit KYC Settings' : 'KYC Details'}
+              {selectedKyc && (
+                <span className="font-mono text-xs ml-2">
+                  #{selectedKyc._id.substring(0, 8)}
+                </span>
+              )}
             </DialogTitle>
+            {isEditMode && <DialogDescription>Update the KYC limits and settings.</DialogDescription>}
           </DialogHeader>
           
           {selectedKyc && (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-4">
+              <div className="bg-muted/30 p-4 rounded-lg">
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="kycLevel"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>KYC Level</FormLabel>
-                        <Select
-                          disabled={!isEditing}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select KYC Level" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="LEVEL_ONE">Level One</SelectItem>
-                            <SelectItem value="LEVEL_TWO">Level Two</SelectItem>
-                            <SelectItem value="LEVEL_THREE">Level Three</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground">Currency</h4>
+                    {isEditMode ? (
+                      <Select 
+                        value={editedKyc.currency || selectedKyc.currency}
+                        onValueChange={(value) => handleSelectChange('currency', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="CAD">CAD</SelectItem>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="mt-1 font-semibold">{selectedKyc.currency}</p>
                     )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <Select
-                          disabled={!isEditing}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Currency" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="USD">USD</SelectItem>
-                            <SelectItem value="CAD">CAD</SelectItem>
-                            <SelectItem value="EUR">EUR</SelectItem>
-                            <SelectItem value="GBP">GBP</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground">KYC Level</h4>
+                    {isEditMode ? (
+                      <Select 
+                        value={editedKyc.kycLevel || selectedKyc.kycLevel}
+                        onValueChange={(value) => handleSelectChange('kycLevel', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="LEVEL_ONE">Level One</SelectItem>
+                          <SelectItem value="LEVEL_TWO">Level Two</SelectItem>
+                          <SelectItem value="LEVEL_THREE">Level Three</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="mt-1">
+                        <StatusBadge 
+                          status={
+                            selectedKyc.kycLevel === 'LEVEL_ONE' ? 'active' :
+                            selectedKyc.kycLevel === 'LEVEL_TWO' ? 'pending' : 'success'
+                          } 
+                        />
+                      </p>
                     )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="singleTransactionLimit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Single Transaction Limit</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            disabled={!isEditing} 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="dailyTransactionLimit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Daily Transaction Limit</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            disabled={!isEditing} 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="weeklyTransactionLimit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Weekly Limit</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            disabled={!isEditing} 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="monthlyTransactionLimit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Monthly Limit</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            disabled={!isEditing} 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="accountMaximumBalance"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Max Account Balance</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            disabled={!isEditing} 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="flex flex-col gap-2">
-                  <h4 className="text-sm font-medium">KYC Requirements</h4>
-                  <div className="text-sm">
-                    {selectedKyc.kycRequirements.map((req, i) => (
-                      <div key={i} className="flex items-center gap-2 py-1">
-                        <div className="w-2 h-2 rounded-full bg-primary"></div>
-                        <span>{req}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
-                
-                <DialogFooter>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleCloseDialog}
-                  >
-                    Cancel
-                  </Button>
-                  {isEditing && (
-                    <Button type="submit">Save Changes</Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="singleTransactionLimit">Single Transaction Limit</Label>
+                  {isEditMode ? (
+                    <Input
+                      id="singleTransactionLimit"
+                      name="singleTransactionLimit"
+                      type="number"
+                      value={editedKyc.singleTransactionLimit || selectedKyc.singleTransactionLimit}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <p className="font-semibold">
+                      {formatCurrency(selectedKyc.singleTransactionLimit, selectedKyc.currency)}
+                    </p>
                   )}
-                </DialogFooter>
-              </form>
-            </Form>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dailyTransactionLimit">Daily Transaction Limit</Label>
+                  {isEditMode ? (
+                    <Input
+                      id="dailyTransactionLimit"
+                      name="dailyTransactionLimit"
+                      type="number"
+                      value={editedKyc.dailyTransactionLimit || selectedKyc.dailyTransactionLimit}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <p className="font-semibold">
+                      {formatCurrency(selectedKyc.dailyTransactionLimit, selectedKyc.currency)}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="weeklyTransactionLimit">Weekly Transaction Limit</Label>
+                  {isEditMode ? (
+                    <Input
+                      id="weeklyTransactionLimit"
+                      name="weeklyTransactionLimit"
+                      type="number"
+                      value={editedKyc.weeklyTransactionLimit || selectedKyc.weeklyTransactionLimit}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <p className="font-semibold">
+                      {formatCurrency(selectedKyc.weeklyTransactionLimit, selectedKyc.currency)}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="monthlyTransactionLimit">Monthly Transaction Limit</Label>
+                  {isEditMode ? (
+                    <Input
+                      id="monthlyTransactionLimit"
+                      name="monthlyTransactionLimit"
+                      type="number"
+                      value={editedKyc.monthlyTransactionLimit || selectedKyc.monthlyTransactionLimit}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <p className="font-semibold">
+                      {formatCurrency(selectedKyc.monthlyTransactionLimit, selectedKyc.currency)}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="accountMaximumBalance">Account Maximum Balance</Label>
+                  {isEditMode ? (
+                    <Input
+                      id="accountMaximumBalance"
+                      name="accountMaximumBalance"
+                      type="number"
+                      value={editedKyc.accountMaximumBalance || selectedKyc.accountMaximumBalance}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <p className="font-semibold">
+                      {formatCurrency(selectedKyc.accountMaximumBalance, selectedKyc.currency)}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">KYC Requirements</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedKyc.kycRequirements.map((req, index) => (
+                    <div key={index} className="px-3 py-1 bg-muted rounded-full text-xs">
+                      {req}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <DialogFooter>
+                {isEditMode ? (
+                  <>
+                    <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleSave}>Save Changes</Button>
+                  </>
+                ) : (
+                  <Button variant="outline" onClick={handleCloseDialog}>Close</Button>
+                )}
+              </DialogFooter>
+            </div>
           )}
         </DialogContent>
       </Dialog>
