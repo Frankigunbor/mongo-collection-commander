@@ -17,6 +17,17 @@ import Transactions from "./pages/Transactions";
 import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 
+// New pages
+import TransactionEntries from "./pages/TransactionEntries";
+import Users from "./pages/Users";
+import Wallets from "./pages/Wallets";
+import WalletHistory from "./pages/WalletHistory";
+import VendorResponses from "./pages/VendorResponses";
+import UserReferrals from "./pages/UserReferrals";
+import UserKycDetails from "./pages/UserKycDetails";
+import UserKycs from "./pages/UserKycs";
+import UserAuth from "./pages/UserAuth";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -70,6 +81,80 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Transactions />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* New protected routes */}
+            <Route 
+              path="/transaction-entries" 
+              element={
+                <ProtectedRoute>
+                  <TransactionEntries />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/users" 
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/wallets" 
+              element={
+                <ProtectedRoute>
+                  <Wallets />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/wallet-history" 
+              element={
+                <ProtectedRoute>
+                  <WalletHistory />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/vendor-responses" 
+              element={
+                <ProtectedRoute>
+                  <VendorResponses />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/user-referrals" 
+              element={
+                <ProtectedRoute>
+                  <UserReferrals />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/user-kyc-details" 
+              element={
+                <ProtectedRoute>
+                  <UserKycDetails />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/user-kycs" 
+              element={
+                <ProtectedRoute>
+                  <UserKycs />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/user-auth" 
+              element={
+                <ProtectedRoute>
+                  <UserAuth />
                 </ProtectedRoute>
               } 
             />

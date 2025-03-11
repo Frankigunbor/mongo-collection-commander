@@ -11,7 +11,15 @@ import {
   ChevronLeft, 
   ChevronRight,
   Settings,
-  LogOut
+  LogOut,
+  Wallet,
+  History,
+  ShoppingBag,
+  UserPlus,
+  FileCheck,
+  Shield,
+  Lock,
+  RefreshCcw
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -57,12 +65,30 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           </button>
         </div>
         
-        <nav className="flex-1 pt-5 px-3 space-y-1">
+        <nav className="flex-1 pt-5 px-3 space-y-1 overflow-y-auto">
           <NavItem to="/dashboard" icon={<LayoutDashboard size={20} />} text="Dashboard" open={open} />
-          <NavItem to="/kyc" icon={<Users size={20} />} text="KYC" open={open} />
+          
+          {/* KYC Management Section */}
+          {open && <div className="sidebar-section">KYC Management</div>}
+          <NavItem to="/kyc" icon={<Shield size={20} />} text="KYC Levels" open={open} />
+          <NavItem to="/user-kycs" icon={<Shield size={20} />} text="User KYC" open={open} />
+          <NavItem to="/user-kyc-details" icon={<FileCheck size={20} />} text="KYC Details" open={open} />
+          
+          {/* User Management Section */}
+          {open && <div className="sidebar-section">User Management</div>}
+          <NavItem to="/users" icon={<Users size={20} />} text="Users" open={open} />
           <NavItem to="/activities" icon={<Activity size={20} />} text="User Activities" open={open} />
+          <NavItem to="/user-referrals" icon={<UserPlus size={20} />} text="Referrals" open={open} />
+          <NavItem to="/user-auth" icon={<Lock size={20} />} text="Authentication" open={open} />
+          
+          {/* Financial Section */}
+          {open && <div className="sidebar-section">Financial</div>}
           <NavItem to="/rewards" icon={<Award size={20} />} text="Rewards" open={open} />
           <NavItem to="/transactions" icon={<CreditCard size={20} />} text="Transactions" open={open} />
+          <NavItem to="/transaction-entries" icon={<RefreshCcw size={20} />} text="Transaction Entries" open={open} />
+          <NavItem to="/wallets" icon={<Wallet size={20} />} text="Wallets" open={open} />
+          <NavItem to="/wallet-history" icon={<History size={20} />} text="Wallet History" open={open} />
+          <NavItem to="/vendor-responses" icon={<ShoppingBag size={20} />} text="Vendor Responses" open={open} />
         </nav>
         
         <div className="p-3 mt-auto space-y-1">
