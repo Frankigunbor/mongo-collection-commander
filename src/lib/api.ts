@@ -1,4 +1,3 @@
-
 // This file contains API utilities for interacting with MongoDB collections
 
 // Collection interfaces based on MongoDB structure
@@ -61,7 +60,110 @@ export interface TransactionData {
   completedAt: string;
 }
 
-// Mock data for testing - in a real app, this would connect to MongoDB
+// New collection interfaces
+export interface TransactionEntryData {
+  _id: string;
+  entryType: string;
+  amount: number;
+  currency: string;
+  accountId: string;
+  transactionId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userPhoneNumber: string;
+  userPhoneNumberCountryCode: string;
+  status: string;
+  userPhoneNumberActivated: boolean;
+  userEmailActivated: boolean;
+  securityQuestionEnabled: boolean;
+  transactionPinEnabled: boolean;
+  countryCurrencyCode: string;
+  verificationVendorReference: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  email: string;
+  fcmRegistrationToken: string;
+  userGroup: string;
+}
+
+export interface WalletData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  accountId: string;
+  userId: string;
+  currency: string;
+  balance: number;
+}
+
+export interface WalletHistoryData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  walletId: string;
+  transactionReference: string;
+  previousBalance: number;
+  currentBalance: number;
+}
+
+export interface VendorTransactionResponseTrailData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  vendor: string;
+  vendorReference: string;
+  processingMessage: string;
+  transactionId: string;
+  transactionStatus: string;
+}
+
+export interface UserReferralData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  referralCode: string;
+}
+
+export interface UserKycDetailData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  kycRequirement: string;
+  kycId: string;
+  verified: boolean;
+  vendor: string;
+  vendorReference: string;
+}
+
+export interface UserKycData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  currency: string;
+  kycId: string;
+}
+
+export interface UserAuthData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  passwordHash: string;
+  transactionPinHash: string;
+}
+
+// Mock data for existing collections - in a real app, this would connect to MongoDB
 // (The MongoDB connection would be handled by backend APIs)
 
 // Kyc mock data
@@ -298,7 +400,221 @@ const transactionMockData: TransactionData[] = [
   }
 ];
 
-// API Functions - These would connect to your MongoDB in a real application
+// New mock data for the additional collections
+const transactionEntryMockData: TransactionEntryData[] = [
+  {
+    _id: "fd831d7b-361a-43bf-8a45-a31e25c5d005",
+    entryType: "CREDIT",
+    amount: 1,
+    currency: "CAD",
+    accountId: "fd7a7702-0547-4b2a-a79e-3dfb727a0c18",
+    transactionId: "b5ce0bbf-1023-4c72-9ba2-3c50600cfca5",
+    createdAt: "2024-01-20T13:27:54.624+00:00",
+    updatedAt: "2024-01-20T13:27:54.624+00:00"
+  },
+  {
+    _id: "ge942e8c-472b-54cg-9b56-b42f36d6e116",
+    entryType: "DEBIT",
+    amount: 200,
+    currency: "USD",
+    accountId: "ge8b8813-6523-5d99-c321-62c5f613g75",
+    transactionId: "c6df1ccg-2134-5d83-0cb3-4d61711dgdb6",
+    createdAt: "2024-01-18T09:45:12.456+00:00",
+    updatedAt: "2024-01-18T09:45:12.456+00:00"
+  }
+];
+
+const userMockData: UserData[] = [
+  {
+    _id: "1de324c9-8c25-4e76-a87c-ce123b6864af",
+    createdAt: "2024-01-20T13:02:29.826+00:00",
+    updatedAt: "2025-03-01T11:03:31.647+00:00",
+    userPhoneNumber: "6134152384",
+    userPhoneNumberCountryCode: "+1",
+    status: "ACTIVE",
+    userPhoneNumberActivated: true,
+    userEmailActivated: true,
+    securityQuestionEnabled: false,
+    transactionPinEnabled: true,
+    countryCurrencyCode: "CAD",
+    verificationVendorReference: "+16134152384",
+    firstName: "Isaac",
+    middleName: "",
+    lastName: "Ezeh",
+    email: "dynamiteezeh@gmail.com",
+    fcmRegistrationToken: "c6qdGdASTkaVfLePWh3WxJ:APA91bHzn7U1JE4-BvW-qaL2uC7GhTZfZiVRhS0Ryv9g2s8",
+    userGroup: "SALES_FORCE"
+  },
+  {
+    _id: "2ef435da-9d36-5e87-b98d-df234c7975bg",
+    createdAt: "2024-01-18T10:15:45.123+00:00",
+    updatedAt: "2025-02-28T09:22:18.456+00:00",
+    userPhoneNumber: "4165559876",
+    userPhoneNumberCountryCode: "+1",
+    status: "ACTIVE",
+    userPhoneNumberActivated: true,
+    userEmailActivated: true,
+    securityQuestionEnabled: true,
+    transactionPinEnabled: true,
+    countryCurrencyCode: "CAD",
+    verificationVendorReference: "+14165559876",
+    firstName: "Sarah",
+    middleName: "Jane",
+    lastName: "Thompson",
+    email: "saraht@example.com",
+    fcmRegistrationToken: "d7reHeBTlbWgMzQRXi4XyK:BPA92cIzn8U2KF5-CvX-rbD8hUaYgZiWSiT1Sxv0h3t9",
+    userGroup: "USER"
+  }
+];
+
+const walletMockData: WalletData[] = [
+  {
+    _id: "213e3d4b-8277-4f60-8349-5da6db3f8c29",
+    createdAt: "2024-01-20T13:04:22.533+00:00",
+    updatedAt: "2024-08-22T15:19:52.955+00:00",
+    accountId: "62718e13-5412-4c88-b210-51b4e3502f64",
+    userId: "1de324c9-8c25-4e76-a87c-ce123b6864af",
+    currency: "CAD",
+    balance: 0
+  },
+  {
+    _id: "324f4e5c-9388-5g71-9450-6eb7ec4g9d30",
+    createdAt: "2024-01-18T11:30:15.789+00:00",
+    updatedAt: "2024-08-20T14:25:33.123+00:00",
+    accountId: "73829f24-6523-5d99-c321-62c5f613g75",
+    userId: "2ef435da-9d36-5e87-b98d-df234c7975bg",
+    currency: "USD",
+    balance: 1250
+  }
+];
+
+const walletHistoryMockData: WalletHistoryData[] = [
+  {
+    _id: "c259b947-3238-40fc-8e2c-d06f75f62a8e",
+    createdAt: "2024-01-31T14:20:57.367+00:00",
+    updatedAt: "2024-01-31T14:20:57.367+00:00",
+    userId: "48596d04-d980-4e53-b0fa-853efd308f21",
+    walletId: "bdb08754-f18e-491f-9771-07984d57e525",
+    transactionReference: "db0cf505-3a67-4339-a56d-269e554bbc7d",
+    previousBalance: 0,
+    currentBalance: 201
+  },
+  {
+    _id: "d360c058-4349-51gd-9f3d-e17g86g73b9f",
+    createdAt: "2024-01-25T10:15:33.123+00:00",
+    updatedAt: "2024-01-25T10:15:33.123+00:00",
+    userId: "2ef435da-9d36-5e87-b98d-df234c7975bg",
+    walletId: "324f4e5c-9388-5g71-9450-6eb7ec4g9d30",
+    transactionReference: "ec1dg616-4b78-5450-b67e-380g665cce8e",
+    previousBalance: 1000,
+    currentBalance: 1250
+  }
+];
+
+const vendorTransactionResponseTrailMockData: VendorTransactionResponseTrailData[] = [
+  {
+    _id: "e4de197c-cb43-4f82-b771-bfb464c77a5b",
+    createdAt: "2024-01-20T13:28:45.869+00:00",
+    updatedAt: "2024-01-20T13:28:45.869+00:00",
+    vendor: "PAYMENT_VENDOR_NOMBA",
+    vendorReference: "APP-TRANSFER-17057-1705757271536",
+    processingMessage: "SUCCESS",
+    transactionId: "b5ce0bbf-1023-4c72-9ba2-3c50600cfca5",
+    transactionStatus: "SUCCESS"
+  },
+  {
+    _id: "f5ef208d-dc54-5g93-c882-cgc575d88b6c",
+    createdAt: "2024-01-18T09:46:33.789+00:00",
+    updatedAt: "2024-01-18T09:46:33.789+00:00",
+    vendor: "PAYMENT_VENDOR_STRIPE",
+    vendorReference: "APP-TRANSFER-17056-1705645512456",
+    processingMessage: "SUCCESS",
+    transactionId: "c6df1ccg-2134-5d83-0cb3-4d61711dgdb6",
+    transactionStatus: "SUCCESS"
+  }
+];
+
+const userReferralMockData: UserReferralData[] = [
+  {
+    _id: "7c9f9063-c508-410f-a9dd-e151c53a05cd",
+    createdAt: "2024-01-20T13:03:47.162+00:00",
+    updatedAt: "2024-01-20T13:03:47.162+00:00",
+    userId: "1de324c9-8c25-4e76-a87c-ce123b6864af",
+    referralCode: "ISAA9J0E"
+  },
+  {
+    _id: "8d0g0174-d619-521g-b0ee-f262d64b16de",
+    createdAt: "2024-01-18T10:20:15.456+00:00",
+    updatedAt: "2024-01-18T10:20:15.456+00:00",
+    userId: "2ef435da-9d36-5e87-b98d-df234c7975bg",
+    referralCode: "SARA8K2T"
+  }
+];
+
+const userKycDetailMockData: UserKycDetailData[] = [
+  {
+    _id: "c8ef7c9f-644a-4258-8482-1aa961464f13",
+    createdAt: "2024-01-20T13:00:04.557+00:00",
+    updatedAt: "2024-01-20T13:00:04.733+00:00",
+    userId: "9c9e9318-e4ee-42a2-9f89-4aebd8619248",
+    kycRequirement: "PHONE",
+    kycId: "3feb1c22-1d14-4302-918c-8f283a7e34b7",
+    verified: false,
+    vendor: "TWILIO",
+    vendorReference: "+16138935286"
+  },
+  {
+    _id: "d9fg8d0g-755b-5369-9593-2bb072575g24",
+    createdAt: "2024-01-18T09:45:33.789+00:00",
+    updatedAt: "2024-01-18T09:45:33.789+00:00",
+    userId: "2ef435da-9d36-5e87-b98d-df234c7975bg",
+    kycRequirement: "ID_VERIFICATION",
+    kycId: "4e7c2d33-2e25-5413-029d-9f394a8e45c8",
+    verified: true,
+    vendor: "JUMIO",
+    vendorReference: "IDV-2024011809455"
+  }
+];
+
+const userKycMockData: UserKycData[] = [
+  {
+    _id: "648c04ee-a2a1-4ba4-917d-c350a7f0bfb1",
+    createdAt: "2024-01-20T13:04:15.015+00:00",
+    updatedAt: "2024-01-20T13:04:15.015+00:00",
+    userId: "1de324c9-8c25-4e76-a87c-ce123b6864af",
+    currency: "CAD",
+    kycId: "3feb1c22-1d14-4302-918c-8f283a7e34b7"
+  },
+  {
+    _id: "759d15ff-b3b2-5cb5-028e-d461b8g1cgc2",
+    createdAt: "2024-01-18T10:30:25.456+00:00",
+    updatedAt: "2024-01-18T10:30:25.456+00:00",
+    userId: "2ef435da-9d36-5e87-b98d-df234c7975bg",
+    currency: "USD",
+    kycId: "4e7c2d33-2e25-5413-029d-9f394a8e45c8"
+  }
+];
+
+const userAuthMockData: UserAuthData[] = [
+  {
+    _id: "70e090dc-b187-4088-bf50-fba1dd7b1e8b",
+    createdAt: "2024-01-20T13:42:17.225+00:00",
+    updatedAt: "2025-02-23T14:09:52.309+00:00",
+    userId: "e5a78e1f-df19-4b6c-97ac-0884ad98b8ec",
+    passwordHash: "$2b$10$P/XCuRRup6J.3s/23BGBu.00M3yvz3ofUIHMvQ49pixxIzfTUcGU2",
+    transactionPinHash: "$2b$10$R//QfQJJ/iB1xZ8egOmXje/3mEKPpg95wzNVgRuyJOYkc.rPlpHMm"
+  },
+  {
+    _id: "81f101ed-c298-5199-cg61-gcb2ee8c2f9c",
+    createdAt: "2024-01-18T11:15:45.789+00:00",
+    updatedAt: "2025-02-20T10:22:33.456+00:00",
+    userId: "2ef435da-9d36-5e87-b98d-df234c7975bg",
+    passwordHash: "$2b$10$Q0YDuSSuq7J4s024CGCDv.11N4yvz4pgVJINvQ50qjyyzJgUVdGV3",
+    transactionPinHash: "$2b$10$S11RgRKK0jC2t29fgPnYkf04nFLQqh06xzOWgStzKPZlc/sSmpINn"
+  }
+];
+
+// API Functions for existing collections
 export async function fetchKycData(): Promise<KycData[]> {
   return new Promise((resolve) => {
     setTimeout(() => resolve(kycMockData), 500);
@@ -323,17 +639,105 @@ export async function fetchTransactionData(): Promise<TransactionData[]> {
   });
 }
 
-// In a real application, you would also have functions to update, create, and delete data
-export async function updateKyc(kyc: KycData): Promise<KycData> {
+// New API functions for the additional collections
+export async function fetchTransactionEntryData(): Promise<TransactionEntryData[]> {
   return new Promise((resolve) => {
-    setTimeout(() => resolve({...kyc, updatedAt: new Date().toISOString()}), 500);
+    setTimeout(() => resolve(transactionEntryMockData), 500);
   });
 }
 
-export async function updateReward(reward: RewardData): Promise<RewardData> {
+export async function fetchUserData(): Promise<UserData[]> {
   return new Promise((resolve) => {
-    setTimeout(() => resolve({...reward, updatedAt: new Date().toISOString()}), 500);
+    setTimeout(() => resolve(userMockData), 500);
   });
+}
+
+export async function fetchWalletData(): Promise<WalletData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(walletMockData), 500);
+  });
+}
+
+export async function fetchWalletHistoryData(): Promise<WalletHistoryData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(walletHistoryMockData), 500);
+  });
+}
+
+export async function fetchVendorTransactionResponseTrailData(): Promise<VendorTransactionResponseTrailData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(vendorTransactionResponseTrailMockData), 500);
+  });
+}
+
+export async function fetchUserReferralData(): Promise<UserReferralData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(userReferralMockData), 500);
+  });
+}
+
+export async function fetchUserKycDetailData(): Promise<UserKycDetailData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(userKycDetailMockData), 500);
+  });
+}
+
+export async function fetchUserKycData(): Promise<UserKycData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(userKycMockData), 500);
+  });
+}
+
+export async function fetchUserAuthData(): Promise<UserAuthData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(userAuthMockData), 500);
+  });
+}
+
+// Authentication functions
+export async function login(email: string, password: string): Promise<{user: UserData, token: string} | null> {
+  // In a real app, this would verify credentials against the database
+  const user = userMockData.find(u => u.email.toLowerCase() === email.toLowerCase());
+  
+  if (!user) {
+    return null;
+  }
+  
+  // For demo purposes, just accept any password
+  return {
+    user,
+    token: `mock-jwt-token-${user._id}`
+  };
+}
+
+export async function signup(userData: Partial<UserData>): Promise<{user: UserData, token: string} | null> {
+  // In a real app, this would create a new user in the database
+  // For now, just return a mock success response
+  const newUser: UserData = {
+    _id: `user-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    userPhoneNumber: userData.userPhoneNumber || "",
+    userPhoneNumberCountryCode: userData.userPhoneNumberCountryCode || "+1",
+    status: "ACTIVE",
+    userPhoneNumberActivated: false,
+    userEmailActivated: false,
+    securityQuestionEnabled: false,
+    transactionPinEnabled: false,
+    countryCurrencyCode: userData.countryCurrencyCode || "CAD",
+    verificationVendorReference: "",
+    firstName: userData.firstName || "",
+    middleName: userData.middleName || "",
+    lastName: userData.lastName || "",
+    email: userData.email || "",
+    fcmRegistrationToken: "",
+    userGroup: "USER"
+  };
+  
+  return {
+    user: newUser,
+    token: `mock-jwt-token-${newUser._id}`
+  };
 }
 
 // Mock dashboard stats for the dashboard page

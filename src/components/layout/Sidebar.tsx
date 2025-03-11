@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, 
@@ -10,8 +10,10 @@ import {
   CreditCard, 
   ChevronLeft, 
   ChevronRight,
-  Settings
+  Settings,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   open: boolean;
@@ -19,6 +21,14 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open, setOpen }: SidebarProps) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/auth/login');
+  };
+
   return (
     <aside 
       className={cn(
@@ -48,15 +58,25 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         </div>
         
         <nav className="flex-1 pt-5 px-3 space-y-1">
-          <NavItem to="/" icon={<LayoutDashboard size={20} />} text="Dashboard" open={open} />
+          <NavItem to="/dashboard" icon={<LayoutDashboard size={20} />} text="Dashboard" open={open} />
           <NavItem to="/kyc" icon={<Users size={20} />} text="KYC" open={open} />
           <NavItem to="/activities" icon={<Activity size={20} />} text="User Activities" open={open} />
           <NavItem to="/rewards" icon={<Award size={20} />} text="Rewards" open={open} />
           <NavItem to="/transactions" icon={<CreditCard size={20} />} text="Transactions" open={open} />
         </nav>
         
-        <div className="p-3 mt-auto">
+        <div className="p-3 mt-auto space-y-1">
           <NavItem to="/settings" icon={<Settings size={20} />} text="Settings" open={open} />
+          <button
+            className={cn(
+              "sidebar-item w-full",
+              !open && "justify-center px-2"
+            )}
+            onClick={handleLogout}
+          >
+            <LogOut size={20} />
+            {open && <span>Logout</span>}
+          </button>
         </div>
       </div>
     </aside>
