@@ -1,5 +1,4 @@
 
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -7,15 +6,6 @@ import { ArrowRight } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Automatically redirect to dashboard after a short delay
-    const timer = setTimeout(() => {
-      navigate('/dashboard');
-    }, 1500);
-    
-    return () => clearTimeout(timer);
-  }, [navigate]);
 
   return (
     <AdminLayout>
