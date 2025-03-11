@@ -1,12 +1,14 @@
 
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 export interface StatusBadgeProps {
   status: 'success' | 'pending' | 'failed' | 'active' | 'inactive' | string;
   className?: string;
+  children?: React.ReactNode;
 }
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
+export function StatusBadge({ status, className, children }: StatusBadgeProps) {
   const lowerStatus = status.toLowerCase();
   
   const getColorClasses = () => {
@@ -51,7 +53,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
           'bg-blue-500': !['success', 'active', 'pending', 'processing', 'failed', 'error', 'inactive', 'true', 'false'].includes(lowerStatus),
         }
       )} />
-      {getDisplayText()}
+      {children || getDisplayText()}
     </span>
   );
 }
