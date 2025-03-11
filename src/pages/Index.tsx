@@ -1,13 +1,40 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AdminLayout } from '@/components/layout/AdminLayout';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Automatically redirect to dashboard after a short delay
+    const timer = setTimeout(() => {
+      navigate('/dashboard');
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <AdminLayout>
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <h1 className="text-4xl font-bold mb-4">Welcome to Admin Dashboard</h1>
+          <p className="text-xl text-gray-600 max-w-md mx-auto">
+            Manage your KYC verifications, activities, rewards, and transactions
+          </p>
+          <Button 
+            size="lg" 
+            onClick={() => navigate('/dashboard')} 
+            className="mt-4"
+          >
+            Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 
