@@ -4,78 +4,66 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { DataTable } from '@/components/ui-custom/DataTable';
-import { fetchVendorTransactionResponseTrailData, VendorTransactionResponseTrailData } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
+import { fetchVendorResponsesData, VendorResponseData } from '@/lib/api';
 import { ShoppingBag } from 'lucide-react';
 
 const VendorResponses = () => {
-  const { data: vendorResponses, isLoading } = useQuery({
+  const { data: responses, isLoading } = useQuery({
     queryKey: ['vendorResponses'],
-    queryFn: fetchVendorTransactionResponseTrailData
+    queryFn: fetchVendorResponsesData
   });
 
   const columns = [
     {
       key: '_id',
       header: 'ID',
-      cell: (row: VendorTransactionResponseTrailData) => row._id.substring(0, 8) + '...',
+      cell: (row: VendorResponseData) => row._id.substring(0, 8) + '...',
+    },
+    {
+      key: 'transactionId',
+      header: 'Transaction ID',
+      cell: (row: VendorResponseData) => row.transactionId.substring(0, 8) + '...',
     },
     {
       key: 'vendor',
       header: 'Vendor',
       sortable: true,
-      cell: (row: VendorTransactionResponseTrailData) => {
-        const vendorName = row.vendor.replace('PAYMENT_VENDOR_', '');
-        return <Badge variant="outline">{vendorName}</Badge>;
-      }
     },
     {
-      key: 'vendorReference',
-      header: 'Vendor Reference',
-      cell: (row: VendorTransactionResponseTrailData) => 
-        row.vendorReference.length > 20 
-          ? row.vendorReference.substring(0, 17) + '...' 
-          : row.vendorReference,
+      key: 'responseCode',
+      header: 'Response Code',
+      sortable: true,
     },
     {
-      key: 'transactionId',
-      header: 'Transaction ID',
-      cell: (row: VendorTransactionResponseTrailData) => row.transactionId.substring(0, 8) + '...',
-    },
-    {
-      key: 'transactionStatus',
+      key: 'status',
       header: 'Status',
       sortable: true,
-      cell: (row: VendorTransactionResponseTrailData) => (
+      cell: (row: VendorResponseData) => (
         <Badge variant={
-          row.transactionStatus === 'SUCCESS' ? 'success' : 
-          row.transactionStatus === 'PENDING' ? 'warning' : 
-          'destructive'
+          row.status === 'success' ? 'default' : 
+          row.status === 'failed' ? 'destructive' : 
+          'outline'
         }>
-          {row.transactionStatus}
+          {row.status}
         </Badge>
       ),
-    },
-    {
-      key: 'processingMessage',
-      header: 'Processing Message',
-      sortable: true,
     },
     {
       key: 'createdAt',
       header: 'Created At',
       sortable: true,
-      cell: (row: VendorTransactionResponseTrailData) => format(new Date(row.createdAt), 'MMM dd, yyyy HH:mm'),
+      cell: (row: VendorResponseData) => format(new Date(row.createdAt), 'MMM dd, yyyy'),
     },
   ];
 
   return (
     <AdminLayout>
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Vendor Transaction Responses</h1>
+            <h1 className="text-3xl font-bold">Vendor Responses</h1>
           </div>
         </div>
 
@@ -85,10 +73,10 @@ const VendorResponses = () => {
           </div>
         ) : (
           <DataTable 
-            data={vendorResponses || []} 
+            data={responses || []} 
             columns={columns} 
             onView={(response) => {
-              console.log("View response", response);
+              console.log("View vendor response", response);
             }}
           />
         )}

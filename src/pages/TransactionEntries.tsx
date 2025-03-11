@@ -1,31 +1,18 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { DataTable } from '@/components/ui-custom/DataTable';
-import { fetchTransactionEntryData, TransactionEntryData } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CreditCard, RefreshCcw } from 'lucide-react';
+import { fetchTransactionEntriesData, TransactionEntryData } from '@/lib/api';
+import { RefreshCcw } from 'lucide-react';
 
 const TransactionEntries = () => {
-  const [activeTab, setActiveTab] = useState('all');
-  
-  const { data: transactionEntries, isLoading } = useQuery({
+  const { data: entries, isLoading } = useQuery({
     queryKey: ['transactionEntries'],
-    queryFn: fetchTransactionEntryData
+    queryFn: fetchTransactionEntriesData
   });
-
-  const filteredEntries = React.useMemo(() => {
-    if (!transactionEntries) return [];
-    
-    if (activeTab === 'all') return transactionEntries;
-    
-    return transactionEntries.filter(entry => 
-      entry.entryType.toLowerCase() === activeTab.toLowerCase()
-    );
-  }, [transactionEntries, activeTab]);
 
   const columns = [
     {
@@ -34,14 +21,14 @@ const TransactionEntries = () => {
       cell: (row: TransactionEntryData) => row._id.substring(0, 8) + '...',
     },
     {
-      key: 'entryType',
+      key: 'transactionId',
+      header: 'Transaction ID',
+      cell: (row: TransactionEntryData) => row.transactionId.substring(0, 8) + '...',
+    },
+    {
+      key: 'type',
       header: 'Type',
       sortable: true,
-      cell: (row: TransactionEntryData) => (
-        <Badge variant={row.entryType === 'CREDIT' ? 'success' : 'destructive'}>
-          {row.entryType}
-        </Badge>
-      ),
     },
     {
       key: 'amount',
@@ -50,46 +37,36 @@ const TransactionEntries = () => {
       cell: (row: TransactionEntryData) => `${row.currency} ${row.amount.toLocaleString()}`,
     },
     {
-      key: 'accountId',
-      header: 'Account ID',
-      cell: (row: TransactionEntryData) => row.accountId.substring(0, 8) + '...',
-    },
-    {
-      key: 'transactionId',
-      header: 'Transaction ID',
-      cell: (row: TransactionEntryData) => row.transactionId.substring(0, 8) + '...',
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      cell: (row: TransactionEntryData) => (
+        <Badge variant={
+          row.status === 'completed' ? 'default' : 
+          row.status === 'failed' ? 'destructive' : 
+          'outline'
+        }>
+          {row.status}
+        </Badge>
+      ),
     },
     {
       key: 'createdAt',
       header: 'Created At',
       sortable: true,
-      cell: (row: TransactionEntryData) => format(new Date(row.createdAt), 'MMM dd, yyyy HH:mm'),
+      cell: (row: TransactionEntryData) => format(new Date(row.createdAt), 'MMM dd, yyyy'),
     },
   ];
 
   return (
     <AdminLayout>
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Transaction Entries</h1>
+          <div className="flex items-center gap-2">
+            <RefreshCcw className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Transaction Entries</h1>
+          </div>
         </div>
-
-        <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all" className="flex items-center gap-2">
-              <RefreshCcw className="h-4 w-4" />
-              All Entries
-            </TabsTrigger>
-            <TabsTrigger value="credit" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Credits
-            </TabsTrigger>
-            <TabsTrigger value="debit" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Debits
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
 
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
@@ -97,10 +74,10 @@ const TransactionEntries = () => {
           </div>
         ) : (
           <DataTable 
-            data={filteredEntries} 
+            data={entries || []} 
             columns={columns} 
             onView={(entry) => {
-              console.log("View entry", entry);
+              console.log("View transaction entry", entry);
             }}
           />
         )}

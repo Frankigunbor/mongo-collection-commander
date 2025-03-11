@@ -40,7 +40,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
   return (
     <aside 
       className={cn(
-        "h-screen bg-sidebar fixed lg:relative z-30 border-r transition-all duration-300 ease-in-out",
+        "h-screen bg-sidebar fixed z-30 border-r transition-all duration-300 ease-in-out",
         open ? "w-64" : "w-[70px]"
       )}
     >
@@ -59,7 +59,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           
           <button 
             onClick={() => setOpen(!open)}
-            className="rounded-full p-1 hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+            className="rounded-full p-1 hover:bg-sidebar-accent-bg text-sidebar-fg transition-colors"
           >
             {open ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
