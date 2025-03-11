@@ -755,3 +755,26 @@ export async function fetchDashboardStats() {
     }), 600);
   });
 }
+
+// Add the missing update functions
+export async function updateKyc(kycData: KycData): Promise<KycData> {
+  return new Promise((resolve) => {
+    // In a real app, this would update the database
+    // For now, just pretend we updated it and return the data
+    setTimeout(() => resolve({
+      ...kycData,
+      updatedAt: new Date().toISOString()
+    }), 500);
+  });
+}
+
+export async function updateReward(rewardData: RewardData): Promise<RewardData> {
+  return new Promise((resolve) => {
+    // In a real app, this would update the database
+    // For now, just pretend we updated it and return the data
+    setTimeout(() => resolve({
+      ...rewardData,
+      updatedAt: new Date().toISOString()
+    }), 500);
+  });
+}
