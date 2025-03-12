@@ -45,22 +45,22 @@ const App = () => (
             <Route path="/auth/signup" element={<AdminLayout requireAuth={false}><SignUp /></AdminLayout>} />
             
             {/* Protected routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/kyc" element={<ProtectedRoute><Kyc /></ProtectedRoute>} />
-            <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
-            <Route path="/rewards" element={<ProtectedRoute><Rewards /></ProtectedRoute>} />
-            <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<AdminLayout><Dashboard /></AdminLayout>} />
+            <Route path="/kyc" element={<AdminLayout><Kyc /></AdminLayout>} />
+            <Route path="/activities" element={<AdminLayout><Activities /></AdminLayout>} />
+            <Route path="/rewards" element={<AdminLayout><Rewards /></AdminLayout>} />
+            <Route path="/transactions" element={<AdminLayout><Transactions /></AdminLayout>} />
             
             {/* New protected routes */}
-            <Route path="/transaction-entries" element={<ProtectedRoute><TransactionEntries /></ProtectedRoute>} />
-            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-            <Route path="/wallets" element={<ProtectedRoute><Wallets /></ProtectedRoute>} />
-            <Route path="/wallet-history" element={<ProtectedRoute><WalletHistory /></ProtectedRoute>} />
-            <Route path="/vendor-responses" element={<ProtectedRoute><VendorResponses /></ProtectedRoute>} />
-            <Route path="/user-referrals" element={<ProtectedRoute><UserReferrals /></ProtectedRoute>} />
-            <Route path="/user-kyc-details" element={<ProtectedRoute><UserKycDetails /></ProtectedRoute>} />
-            <Route path="/user-kycs" element={<ProtectedRoute><UserKycs /></ProtectedRoute>} />
-            <Route path="/user-auth" element={<ProtectedRoute><UserAuth /></ProtectedRoute>} />
+            <Route path="/transaction-entries" element={<AdminLayout><TransactionEntries /></AdminLayout>} />
+            <Route path="/users" element={<AdminLayout><Users /></AdminLayout>} />
+            <Route path="/wallets" element={<AdminLayout><Wallets /></AdminLayout>} />
+            <Route path="/wallet-history" element={<AdminLayout><WalletHistory /></AdminLayout>} />
+            <Route path="/vendor-responses" element={<AdminLayout><VendorResponses /></AdminLayout>} />
+            <Route path="/user-referrals" element={<AdminLayout><UserReferrals /></AdminLayout>} />
+            <Route path="/user-kyc-details" element={<AdminLayout><UserKycDetails /></AdminLayout>} />
+            <Route path="/user-kycs" element={<AdminLayout><UserKycs /></AdminLayout>} />
+            <Route path="/user-auth" element={<AdminLayout><UserAuth /></AdminLayout>} />
             
             {/* Catch-all route */}
             <Route path="*" element={<AdminLayout requireAuth={false}><NotFound /></AdminLayout>} />
