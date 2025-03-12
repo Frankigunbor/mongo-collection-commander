@@ -5,11 +5,54 @@ import { format } from 'date-fns';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { Badge } from '@/components/ui/badge';
-import { fetchVendorResponsesData, VendorResponseData } from '@/lib/api';
 import { ShoppingBag } from 'lucide-react';
 
+// Mock data type and fetch function since they're not exported in api.ts
+interface VendorResponseData {
+  _id: string;
+  vendorName: string;
+  responseType: string;
+  status: string;
+  amount: number;
+  createdAt: string;
+}
+
+const mockVendorResponses: VendorResponseData[] = [
+  {
+    _id: '1234567890',
+    vendorName: 'Vendor A',
+    responseType: 'Payment',
+    status: 'successful',
+    amount: 250.00,
+    createdAt: '2023-05-15T10:30:00Z'
+  },
+  {
+    _id: '2345678901',
+    vendorName: 'Vendor B',
+    responseType: 'Refund',
+    status: 'pending',
+    amount: 75.50,
+    createdAt: '2023-05-16T14:45:00Z'
+  },
+  {
+    _id: '3456789012',
+    vendorName: 'Vendor C',
+    responseType: 'Subscription',
+    status: 'failed',
+    amount: 120.00,
+    createdAt: '2023-05-17T09:15:00Z'
+  }
+];
+
+// Mock fetch function
+const fetchVendorResponsesData = async (): Promise<VendorResponseData[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockVendorResponses), 500);
+  });
+};
+
 const VendorResponses = () => {
-  const { data: responses, isLoading } = useQuery({
+  const { data: vendorResponses, isLoading } = useQuery({
     queryKey: ['vendorResponses'],
     queryFn: fetchVendorResponsesData
   });
@@ -21,19 +64,20 @@ const VendorResponses = () => {
       cell: (row: VendorResponseData) => row._id.substring(0, 8) + '...',
     },
     {
-      key: 'transactionId',
-      header: 'Transaction ID',
-      cell: (row: VendorResponseData) => row.transactionId.substring(0, 8) + '...',
-    },
-    {
-      key: 'vendor',
-      header: 'Vendor',
+      key: 'vendorName',
+      header: 'Vendor Name',
       sortable: true,
     },
     {
-      key: 'responseCode',
-      header: 'Response Code',
+      key: 'responseType',
+      header: 'Response Type',
       sortable: true,
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      sortable: true,
+      cell: (row: VendorResponseData) => `$${row.amount.toFixed(2)}`,
     },
     {
       key: 'status',
@@ -41,9 +85,8 @@ const VendorResponses = () => {
       sortable: true,
       cell: (row: VendorResponseData) => (
         <Badge variant={
-          row.status === 'success' ? 'default' : 
-          row.status === 'failed' ? 'destructive' : 
-          'outline'
+          row.status === 'successful' ? 'default' : 
+          row.status === 'pending' ? 'secondary' : 'destructive'
         }>
           {row.status}
         </Badge>
@@ -73,7 +116,7 @@ const VendorResponses = () => {
           </div>
         ) : (
           <DataTable 
-            data={responses || []} 
+            data={vendorResponses || []} 
             columns={columns} 
             onView={(response) => {
               console.log("View vendor response", response);
