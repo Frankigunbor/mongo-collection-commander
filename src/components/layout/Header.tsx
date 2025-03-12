@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell, Moon, Sun, Search } from 'lucide-react';
+import { Menu, Bell, Moon, Sun, Search } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { 
   DropdownMenu, 
@@ -11,7 +11,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-export function Header() {
+interface HeaderProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}
+
+export function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   const location = useLocation();
   const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
   
@@ -32,6 +37,15 @@ export function Header() {
     <header className="h-16 border-b bg-card/80 backdrop-blur-sm sticky top-0 z-20">
       <div className="h-full flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="lg:hidden" 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <Menu size={20} />
+          </Button>
+          
           <h1 className="text-xl font-semibold">{getPageTitle()}</h1>
         </div>
         

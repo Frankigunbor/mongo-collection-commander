@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Header } from './Header';
+import { Sidebar } from './Sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children, requireAuth = true }: AdminLayoutProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,7 +35,7 @@ export function AdminLayout({ children, requireAuth = true }: AdminLayoutProps) 
     );
   }
 
-  // Don't show header on auth pages
+  // Don't show header and sidebar on auth pages
   const isAuthPage = location.pathname.startsWith('/auth/');
   
   if (isAuthPage) {
@@ -48,14 +50,18 @@ export function AdminLayout({ children, requireAuth = true }: AdminLayoutProps) 
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-background flex">
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      <main className="flex-1 overflow-auto p-4 sm:p-6">
-        {children}
-      </main>
-      
-      <Toaster />
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-[70px]'}`}>
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        
+        <main className="flex-1 overflow-auto p-4 sm:p-6">
+          {children}
+        </main>
+        
+        <Toaster />
+      </div>
     </div>
   );
 }
