@@ -5,54 +5,11 @@ import { format } from 'date-fns';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { Badge } from '@/components/ui/badge';
+import { fetchTransactionEntriesData, TransactionEntryData } from '@/lib/api';
 import { RefreshCcw } from 'lucide-react';
 
-// Mock data type and fetch function since they're not exported in api.ts
-interface TransactionEntryData {
-  _id: string;
-  transactionId: string;
-  type: string;
-  amount: number;
-  status: string;
-  createdAt: string;
-}
-
-const mockTransactionEntries: TransactionEntryData[] = [
-  {
-    _id: '1234567890',
-    transactionId: 'tx123',
-    type: 'Credit',
-    amount: 250.00,
-    status: 'completed',
-    createdAt: '2023-05-15T10:30:00Z'
-  },
-  {
-    _id: '2345678901',
-    transactionId: 'tx456',
-    type: 'Debit',
-    amount: 75.50,
-    status: 'pending',
-    createdAt: '2023-05-16T14:45:00Z'
-  },
-  {
-    _id: '3456789012',
-    transactionId: 'tx789',
-    type: 'Credit',
-    amount: 120.00,
-    status: 'failed',
-    createdAt: '2023-05-17T09:15:00Z'
-  }
-];
-
-// Mock fetch function
-const fetchTransactionEntriesData = async (): Promise<TransactionEntryData[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockTransactionEntries), 500);
-  });
-};
-
 const TransactionEntries = () => {
-  const { data: transactionEntries, isLoading } = useQuery({
+  const { data: entries, isLoading } = useQuery({
     queryKey: ['transactionEntries'],
     queryFn: fetchTransactionEntriesData
   });
@@ -66,7 +23,6 @@ const TransactionEntries = () => {
     {
       key: 'transactionId',
       header: 'Transaction ID',
-      sortable: true,
       cell: (row: TransactionEntryData) => row.transactionId.substring(0, 8) + '...',
     },
     {
@@ -78,7 +34,7 @@ const TransactionEntries = () => {
       key: 'amount',
       header: 'Amount',
       sortable: true,
-      cell: (row: TransactionEntryData) => `$${row.amount.toFixed(2)}`,
+      cell: (row: TransactionEntryData) => `${row.currency} ${row.amount.toLocaleString()}`,
     },
     {
       key: 'status',
@@ -87,7 +43,8 @@ const TransactionEntries = () => {
       cell: (row: TransactionEntryData) => (
         <Badge variant={
           row.status === 'completed' ? 'default' : 
-          row.status === 'pending' ? 'secondary' : 'destructive'
+          row.status === 'failed' ? 'destructive' : 
+          'outline'
         }>
           {row.status}
         </Badge>
@@ -117,7 +74,7 @@ const TransactionEntries = () => {
           </div>
         ) : (
           <DataTable 
-            data={transactionEntries || []} 
+            data={entries || []} 
             columns={columns} 
             onView={(entry) => {
               console.log("View transaction entry", entry);

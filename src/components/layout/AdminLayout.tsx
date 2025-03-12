@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Toaster } from '@/components/ui/toaster';
@@ -9,17 +9,15 @@ import { Button } from '@/components/ui/button';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  requireAuth?: boolean;
 }
 
-export function AdminLayout({ children, requireAuth = true }: AdminLayoutProps) {
+export function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Only check authentication if requireAuth is true
-  if (requireAuth && !isAuthenticated) {
+
+  // Handle redirection if not logged in
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <h1 className="text-2xl font-bold mb-4">You need to be logged in to access this page</h1>
@@ -31,20 +29,6 @@ export function AdminLayout({ children, requireAuth = true }: AdminLayoutProps) 
             Sign Up
           </Button>
         </div>
-      </div>
-    );
-  }
-
-  // Don't show sidebar on auth pages
-  const isAuthPage = location.pathname.startsWith('/auth/');
-  
-  if (isAuthPage) {
-    return (
-      <div className="min-h-screen bg-background">
-        <main className="flex-1">
-          {children}
-        </main>
-        <Toaster />
       </div>
     );
   }

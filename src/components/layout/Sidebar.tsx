@@ -22,7 +22,6 @@ import {
   RefreshCcw
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
 
 interface SidebarProps {
   open: boolean;
@@ -58,14 +57,12 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
             </div>
           )}
           
-          <Button 
+          <button 
             onClick={() => setOpen(!open)}
-            variant="ghost"
-            size="icon"
-            className="rounded-full hover:bg-accent"
+            className="rounded-full p-1 hover:bg-sidebar-accent-bg text-sidebar-fg transition-colors"
           >
             {open ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-          </Button>
+          </button>
         </div>
         
         <nav className="flex-1 pt-5 px-3 space-y-1 overflow-y-auto">
@@ -98,7 +95,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           <NavItem to="/settings" icon={<Settings size={20} />} text="Settings" open={open} />
           <button
             className={cn(
-              "w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+              "sidebar-item w-full",
               !open && "justify-center px-2"
             )}
             onClick={handleLogout}
@@ -124,12 +121,9 @@ function NavItem({ to, icon, text, open }: NavItemProps) {
     <NavLink 
       to={to} 
       className={({ isActive }) => 
-        cn(
-          "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-          isActive 
-            ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" 
-            : "text-muted-foreground hover:bg-accent hover:text-foreground",
-          !open && "justify-center px-2"
+        cn("sidebar-item", 
+           isActive ? "active" : "",
+           !open && "justify-center px-2"
         )
       }
     >
