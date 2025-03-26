@@ -1,326 +1,238 @@
 
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter 
-} from '@/components/ui/card';
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent
-} from '@/components/ui/tabs';
-import {
-  Settings as SettingsIcon,
-  Bell,
-  Shield,
-  Globe,
-  Moon,
-  User,
-  LogOut
-} from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { MongoDBStatus } from "@/components/ui-custom/MongoDBStatus";
 
 const Settings = () => {
-  const { user, logout } = useAuth();
   const { toast } = useToast();
-  
-  // Settings state
-  const [notifications, setNotifications] = useState({
-    emailNotifications: true,
-    pushNotifications: false,
-    marketingEmails: true,
-    activityDigest: true
-  });
-  
-  const [appearance, setAppearance] = useState({
-    darkMode: false,
-    compactView: false
-  });
-  
-  const [privacy, setPrivacy] = useState({
-    twoFactorAuth: false,
-    publicProfile: true,
-    dataCollection: true
-  });
-  
-  const handleNotificationChange = (key: keyof typeof notifications) => {
-    setNotifications({
-      ...notifications,
-      [key]: !notifications[key]
-    });
-    
+  const { user } = useAuth();
+
+  const handleSaveSettings = (category: string) => {
     toast({
-      title: "Settings updated",
-      description: "Your notification preferences have been saved",
+      title: "Settings Updated",
+      description: `Your ${category} settings have been saved successfully.`,
     });
   };
-  
-  const handleAppearanceChange = (key: keyof typeof appearance) => {
-    setAppearance({
-      ...appearance,
-      [key]: !appearance[key]
-    });
-    
-    toast({
-      title: "Appearance updated",
-      description: "Your appearance settings have been saved",
-    });
-  };
-  
-  const handlePrivacyChange = (key: keyof typeof privacy) => {
-    setPrivacy({
-      ...privacy,
-      [key]: !privacy[key]
-    });
-    
-    toast({
-      title: "Privacy settings updated",
-      description: "Your privacy settings have been saved",
-    });
-  };
-  
-  const handleLogout = () => {
-    logout();
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
-  };
-  
+
   return (
-    <div className="container mx-auto py-8">
-      <Card className="w-full max-w-4xl mx-auto">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <SettingsIcon className="h-6 w-6 text-primary" />
-            <CardTitle>Settings</CardTitle>
-          </div>
-          <CardDescription>
-            Manage your account settings and preferences
-          </CardDescription>
-        </CardHeader>
+    <div className="container p-4 md:p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+      </div>
+      
+      <Tabs defaultValue="account">
+        <TabsList className="mb-4">
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="appearance">Appearance</TabsTrigger>
+          <TabsTrigger value="privacy">Privacy & Security</TabsTrigger>
+          <TabsTrigger value="database">Database</TabsTrigger>
+        </TabsList>
         
-        <CardContent>
-          <Tabs defaultValue="notifications" className="w-full">
-            <TabsList className="grid grid-cols-4 mb-8">
-              <TabsTrigger value="notifications" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                <span className="hidden sm:inline">Notifications</span>
-              </TabsTrigger>
-              <TabsTrigger value="appearance" className="flex items-center gap-2">
-                <Moon className="h-4 w-4" />
-                <span className="hidden sm:inline">Appearance</span>
-              </TabsTrigger>
-              <TabsTrigger value="privacy" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                <span className="hidden sm:inline">Privacy</span>
-              </TabsTrigger>
-              <TabsTrigger value="account" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Account</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Notifications Tab */}
-            <TabsContent value="notifications">
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Notification Preferences</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Email Notifications</h4>
-                      <p className="text-sm text-muted-foreground">Receive email notifications about account activity</p>
-                    </div>
-                    <Switch 
-                      checked={notifications.emailNotifications} 
-                      onCheckedChange={() => handleNotificationChange('emailNotifications')} 
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Push Notifications</h4>
-                      <p className="text-sm text-muted-foreground">Receive push notifications on your devices</p>
-                    </div>
-                    <Switch 
-                      checked={notifications.pushNotifications} 
-                      onCheckedChange={() => handleNotificationChange('pushNotifications')} 
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Marketing Emails</h4>
-                      <p className="text-sm text-muted-foreground">Receive updates about new features and offers</p>
-                    </div>
-                    <Switch 
-                      checked={notifications.marketingEmails} 
-                      onCheckedChange={() => handleNotificationChange('marketingEmails')} 
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Activity Digest</h4>
-                      <p className="text-sm text-muted-foreground">Receive weekly summary of your account activity</p>
-                    </div>
-                    <Switch 
-                      checked={notifications.activityDigest} 
-                      onCheckedChange={() => handleNotificationChange('activityDigest')} 
-                    />
-                  </div>
+        <TabsContent value="account" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Information</CardTitle>
+              <CardDescription>
+                Update your personal details and profile information
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input id="firstName" defaultValue={user?.firstName || ''} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input id="lastName" defaultValue={user?.lastName || ''} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" defaultValue={user?.email || ''} type="email" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" defaultValue={user?.userPhoneNumber || ''} type="tel" />
                 </div>
               </div>
-            </TabsContent>
-            
-            {/* Appearance Tab */}
-            <TabsContent value="appearance">
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Appearance Settings</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Dark Mode</h4>
-                      <p className="text-sm text-muted-foreground">Switch between light and dark theme</p>
-                    </div>
-                    <Switch 
-                      checked={appearance.darkMode} 
-                      onCheckedChange={() => handleAppearanceChange('darkMode')} 
-                    />
+              <Button onClick={() => handleSaveSettings('profile')}>Save Changes</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="notifications" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+              <CardDescription>
+                Manage how you receive notifications and alerts
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="emailNotifications" className="font-medium">Email Notifications</Label>
+                    <p className="text-sm text-gray-500">Receive email updates about account activity</p>
                   </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Compact View</h4>
-                      <p className="text-sm text-muted-foreground">Display more content with less spacing</p>
-                    </div>
-                    <Switch 
-                      checked={appearance.compactView} 
-                      onCheckedChange={() => handleAppearanceChange('compactView')} 
-                    />
-                  </div>
+                  <Switch id="emailNotifications" defaultChecked />
                 </div>
-              </div>
-            </TabsContent>
-            
-            {/* Privacy Tab */}
-            <TabsContent value="privacy">
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Privacy and Security</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Two-Factor Authentication</h4>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
-                    </div>
-                    <Switch 
-                      checked={privacy.twoFactorAuth} 
-                      onCheckedChange={() => handlePrivacyChange('twoFactorAuth')} 
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Public Profile</h4>
-                      <p className="text-sm text-muted-foreground">Make your profile visible to other users</p>
-                    </div>
-                    <Switch 
-                      checked={privacy.publicProfile} 
-                      onCheckedChange={() => handlePrivacyChange('publicProfile')} 
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-medium">Data Collection</h4>
-                      <p className="text-sm text-muted-foreground">Allow us to collect usage data to improve our service</p>
-                    </div>
-                    <Switch 
-                      checked={privacy.dataCollection} 
-                      onCheckedChange={() => handlePrivacyChange('dataCollection')} 
-                    />
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            {/* Account Tab */}
-            <TabsContent value="account">
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Account Management</h3>
                 
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-1">
-                    <h4 className="text-base font-medium">User Information</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Name</p>
-                        <p className="font-medium">{user?.firstName} {user?.lastName}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{user?.email}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Member Since</p>
-                        <p className="font-medium">
-                          {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Account Status</p>
-                        <p className="font-medium">{user?.status || 'Active'}</p>
-                      </div>
-                    </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="smsNotifications" className="font-medium">SMS Notifications</Label>
+                    <p className="text-sm text-gray-500">Receive text messages for important alerts</p>
                   </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex flex-col gap-2">
-                    <h4 className="text-base font-medium">Account Actions</h4>
-                    <div className="flex flex-wrap gap-4 mt-2">
-                      <Button variant="outline" onClick={() => window.location.href = '/profile'}>
-                        Edit Profile
-                      </Button>
-                      <Button variant="outline" className="text-amber-600 border-amber-600 hover:bg-amber-50 hover:text-amber-700">
-                        Change Password
-                      </Button>
-                      <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10 hover:text-destructive">
-                        Delete Account
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2" onClick={handleLogout}>
-                        <LogOut className="h-4 w-4" />
-                        Logout
-                      </Button>
-                    </div>
+                  <Switch id="smsNotifications" />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="pushNotifications" className="font-medium">Push Notifications</Label>
+                    <p className="text-sm text-gray-500">Receive notifications in the app or on your desktop</p>
+                  </div>
+                  <Switch id="pushNotifications" defaultChecked />
+                </div>
+              </div>
+              <Button onClick={() => handleSaveSettings('notifications')}>Save Preferences</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="appearance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance Settings</CardTitle>
+              <CardDescription>
+                Customize how the application looks and feels
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="darkMode" className="font-medium">Dark Mode</Label>
+                    <p className="text-sm text-gray-500">Use dark theme throughout the application</p>
+                  </div>
+                  <Switch id="darkMode" />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="compactView" className="font-medium">Compact View</Label>
+                    <p className="text-sm text-gray-500">Show more content with reduced spacing</p>
+                  </div>
+                  <Switch id="compactView" />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="fontSize">Font Size</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button variant="outline" size="sm">Small</Button>
+                    <Button variant="outline" size="sm" className="bg-primary/10">Medium</Button>
+                    <Button variant="outline" size="sm">Large</Button>
                   </div>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+              <Button onClick={() => handleSaveSettings('appearance')}>Save Preferences</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="privacy" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Privacy & Security</CardTitle>
+              <CardDescription>
+                Manage your account security and privacy settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input id="currentPassword" type="password" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input id="newPassword" type="password" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input id="confirmPassword" type="password" />
+                </div>
+                <Button onClick={() => handleSaveSettings('password')}>Change Password</Button>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <h3 className="font-medium mb-2">Two-Factor Authentication</h3>
+                <p className="text-sm text-gray-500 mb-2">Add an extra layer of security to your account</p>
+                <Button variant="outline">Enable 2FA</Button>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <h3 className="font-medium mb-2">Sessions</h3>
+                <p className="text-sm text-gray-500 mb-2">Manage your active sessions and sign out from other devices</p>
+                <Button variant="outline" className="text-red-500">Sign Out All Devices</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="database" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Database Connection</CardTitle>
+              <CardDescription>
+                Manage your MongoDB database connection settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <MongoDBStatus />
+              
+              <div className="pt-4 border-t">
+                <h3 className="font-medium mb-2">Connection Details</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Database Name:</span>
+                    <span className="text-sm font-medium">broadsend-backend</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Host:</span>
+                    <span className="text-sm font-medium">cluster0.ggagjiv.mongodb.net</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Connection Type:</span>
+                    <span className="text-sm font-medium">MongoDB Atlas</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <h3 className="font-medium mb-2">Connection Actions</h3>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => window.location.reload()}>Refresh Connection</Button>
+                  <Button variant="destructive" onClick={() => {
+                    closeDatabaseConnection();
+                    toast({
+                      title: "Database Disconnected",
+                      description: "Your database connection has been closed",
+                    });
+                  }}>Disconnect</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

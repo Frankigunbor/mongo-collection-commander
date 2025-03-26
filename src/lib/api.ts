@@ -615,135 +615,215 @@ const userAuthMockData: UserAuthData[] = [
 ];
 
 // API Functions for existing collections
+import { 
+  getKycData as fetchKycFromMongoDB,
+  getActivityData as fetchActivityFromMongoDB,
+  getRewardData as fetchRewardFromMongoDB,
+  getTransactionData as fetchTransactionFromMongoDB,
+  getTransactionEntryData as fetchTransactionEntryFromMongoDB,
+  getUserData as fetchUserFromMongoDB,
+  getWalletData as fetchWalletFromMongoDB,
+  getWalletHistoryData as fetchWalletHistoryFromMongoDB,
+  getVendorTransactionResponseTrailData as fetchVendorResponseFromMongoDB,
+  getUserReferralData as fetchUserReferralFromMongoDB,
+  getUserKycDetailData as fetchUserKycDetailFromMongoDB,
+  getUserKycData as fetchUserKycFromMongoDB,
+  getUserAuthData as fetchUserAuthFromMongoDB,
+  authenticateUser as authenticateUserFromMongoDB,
+  registerUser as registerUserFromMongoDB,
+  getDashboardStats as fetchDashboardStatsFromMongoDB
+} from './mongodb/services';
+
 export async function fetchKycData(): Promise<KycData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(kycMockData), 500);
-  });
+  try {
+    const data = await fetchKycFromMongoDB();
+    return data.length ? data : kycMockData;
+  } catch (error) {
+    console.error("Error fetching KYC data from MongoDB, using mock data:", error);
+    return kycMockData;
+  }
 }
 
 export async function fetchActivityData(): Promise<ActivityData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(activityMockData), 500);
-  });
+  try {
+    const data = await fetchActivityFromMongoDB();
+    return data.length ? data : activityMockData;
+  } catch (error) {
+    console.error("Error fetching activity data from MongoDB, using mock data:", error);
+    return activityMockData;
+  }
 }
 
 export async function fetchRewardData(): Promise<RewardData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(rewardMockData), 500);
-  });
+  try {
+    const data = await fetchRewardFromMongoDB();
+    return data.length ? data : rewardMockData;
+  } catch (error) {
+    console.error("Error fetching reward data from MongoDB, using mock data:", error);
+    return rewardMockData;
+  }
 }
 
 export async function fetchTransactionData(): Promise<TransactionData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(transactionMockData), 500);
-  });
+  try {
+    const data = await fetchTransactionFromMongoDB();
+    return data.length ? data : transactionMockData;
+  } catch (error) {
+    console.error("Error fetching transaction data from MongoDB, using mock data:", error);
+    return transactionMockData;
+  }
 }
 
-// New API functions for the additional collections
 export async function fetchTransactionEntryData(): Promise<TransactionEntryData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(transactionEntryMockData), 500);
-  });
+  try {
+    const data = await fetchTransactionEntryFromMongoDB();
+    return data.length ? data : transactionEntryMockData;
+  } catch (error) {
+    console.error("Error fetching transaction entry data from MongoDB, using mock data:", error);
+    return transactionEntryMockData;
+  }
 }
 
 export async function fetchUserData(): Promise<UserData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(userMockData), 500);
-  });
+  try {
+    const data = await fetchUserFromMongoDB();
+    return data.length ? data : userMockData;
+  } catch (error) {
+    console.error("Error fetching user data from MongoDB, using mock data:", error);
+    return userMockData;
+  }
 }
 
 export async function fetchWalletData(): Promise<WalletData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(walletMockData), 500);
-  });
+  try {
+    const data = await fetchWalletFromMongoDB();
+    return data.length ? data : walletMockData;
+  } catch (error) {
+    console.error("Error fetching wallet data from MongoDB, using mock data:", error);
+    return walletMockData;
+  }
 }
 
 export async function fetchWalletHistoryData(): Promise<WalletHistoryData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(walletHistoryMockData), 500);
-  });
+  try {
+    const data = await fetchWalletHistoryFromMongoDB();
+    return data.length ? data : walletHistoryMockData;
+  } catch (error) {
+    console.error("Error fetching wallet history data from MongoDB, using mock data:", error);
+    return walletHistoryMockData;
+  }
 }
 
 export async function fetchVendorTransactionResponseTrailData(): Promise<VendorTransactionResponseTrailData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(vendorTransactionResponseTrailMockData), 500);
-  });
+  try {
+    const data = await fetchVendorResponseFromMongoDB();
+    return data.length ? data : vendorTransactionResponseTrailMockData;
+  } catch (error) {
+    console.error("Error fetching vendor transaction response trail data from MongoDB, using mock data:", error);
+    return vendorTransactionResponseTrailMockData;
+  }
 }
 
 export async function fetchUserReferralData(): Promise<UserReferralData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(userReferralMockData), 500);
-  });
+  try {
+    const data = await fetchUserReferralFromMongoDB();
+    return data.length ? data : userReferralMockData;
+  } catch (error) {
+    console.error("Error fetching user referral data from MongoDB, using mock data:", error);
+    return userReferralMockData;
+  }
 }
 
 export async function fetchUserKycDetailData(): Promise<UserKycDetailData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(userKycDetailMockData), 500);
-  });
+  try {
+    const data = await fetchUserKycDetailFromMongoDB();
+    return data.length ? data : userKycDetailMockData;
+  } catch (error) {
+    console.error("Error fetching user KYC detail data from MongoDB, using mock data:", error);
+    return userKycDetailMockData;
+  }
 }
 
 export async function fetchUserKycData(): Promise<UserKycData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(userKycMockData), 500);
-  });
+  try {
+    const data = await fetchUserKycFromMongoDB();
+    return data.length ? data : userKycMockData;
+  } catch (error) {
+    console.error("Error fetching user KYC data from MongoDB, using mock data:", error);
+    return userKycMockData;
+  }
 }
 
 export async function fetchUserAuthData(): Promise<UserAuthData[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(userAuthMockData), 500);
-  });
+  try {
+    const data = await fetchUserAuthFromMongoDB();
+    return data.length ? data : userAuthMockData;
+  } catch (error) {
+    console.error("Error fetching user auth data from MongoDB, using mock data:", error);
+    return userAuthMockData;
+  }
 }
 
 // Authentication functions
 export async function login(email: string, password: string): Promise<{user: UserData, token: string} | null> {
-  // In a real app, this would verify credentials against the database
-  const user = userMockData.find(u => u.email.toLowerCase() === email.toLowerCase());
-  
-  if (!user) {
-    return null;
+  try {
+    return await authenticateUserFromMongoDB(email, password);
+  } catch (error) {
+    console.error("Error during login, using mock authentication:", error);
+    // Fall back to mock authentication
+    const user = userMockData.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user) {
+      return null;
+    }
+    return {
+      user,
+      token: `mock-jwt-token-${user._id}`
+    };
   }
-  
-  // For demo purposes, just accept any password
-  return {
-    user,
-    token: `mock-jwt-token-${user._id}`
-  };
 }
 
 export async function signup(userData: Partial<UserData>): Promise<{user: UserData, token: string} | null> {
-  // In a real app, this would create a new user in the database
-  // For now, just return a mock success response
-  const newUser: UserData = {
-    _id: `user-${Date.now()}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    userPhoneNumber: userData.userPhoneNumber || "",
-    userPhoneNumberCountryCode: userData.userPhoneNumberCountryCode || "+1",
-    status: "ACTIVE",
-    userPhoneNumberActivated: false,
-    userEmailActivated: false,
-    securityQuestionEnabled: false,
-    transactionPinEnabled: false,
-    countryCurrencyCode: userData.countryCurrencyCode || "CAD",
-    verificationVendorReference: "",
-    firstName: userData.firstName || "",
-    middleName: userData.middleName || "",
-    lastName: userData.lastName || "",
-    email: userData.email || "",
-    fcmRegistrationToken: "",
-    userGroup: "USER"
-  };
-  
-  return {
-    user: newUser,
-    token: `mock-jwt-token-${newUser._id}`
-  };
+  try {
+    return await registerUserFromMongoDB(userData);
+  } catch (error) {
+    console.error("Error during signup, using mock registration:", error);
+    // Fall back to mock registration
+    const newUser: UserData = {
+      _id: `user-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      userPhoneNumber: userData.userPhoneNumber || "",
+      userPhoneNumberCountryCode: userData.userPhoneNumberCountryCode || "+1",
+      status: "ACTIVE",
+      userPhoneNumberActivated: false,
+      userEmailActivated: false,
+      securityQuestionEnabled: false,
+      transactionPinEnabled: false,
+      countryCurrencyCode: userData.countryCurrencyCode || "CAD",
+      verificationVendorReference: "",
+      firstName: userData.firstName || "",
+      middleName: userData.middleName || "",
+      lastName: userData.lastName || "",
+      email: userData.email || "",
+      fcmRegistrationToken: "",
+      userGroup: "USER"
+    };
+    
+    return {
+      user: newUser,
+      token: `mock-jwt-token-${newUser._id}`
+    };
+  }
 }
 
-// Mock dashboard stats for the dashboard page
+// Dashboard stats
 export async function fetchDashboardStats() {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve({
+  try {
+    return await fetchDashboardStatsFromMongoDB();
+  } catch (error) {
+    console.error("Error fetching dashboard stats from MongoDB, using mock data:", error);
+    // Fall back to mock stats
+    return {
       totalUsers: 1254,
       activeUsers: 876,
       totalTransactions: transactionMockData.length,
@@ -752,14 +832,14 @@ export async function fetchDashboardStats() {
       completedKyc: kycMockData.length,
       recentTransactions: transactionMockData.slice(0, 5),
       recentActivities: activityMockData.slice(0, 5)
-    }), 600);
-  });
+    };
+  }
 }
 
-// Add the missing update functions
+// Add the update functions
 export async function updateKyc(kycData: KycData): Promise<KycData> {
+  // Implementation would connect to MongoDB and update the document
   return new Promise((resolve) => {
-    // In a real app, this would update the database
     // For now, just pretend we updated it and return the data
     setTimeout(() => resolve({
       ...kycData,
@@ -769,8 +849,8 @@ export async function updateKyc(kycData: KycData): Promise<KycData> {
 }
 
 export async function updateReward(rewardData: RewardData): Promise<RewardData> {
+  // Implementation would connect to MongoDB and update the document
   return new Promise((resolve) => {
-    // In a real app, this would update the database
     // For now, just pretend we updated it and return the data
     setTimeout(() => resolve({
       ...rewardData,

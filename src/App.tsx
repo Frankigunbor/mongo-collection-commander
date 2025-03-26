@@ -34,11 +34,11 @@ import Settings from "./pages/Settings";
 // Create QueryClient outside of component to avoid recreation on render
 const queryClient = new QueryClient();
 
-// Use a function component instead of an arrow function without body
+// Use a function component with explicit return
 function App() {
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
         <AuthProvider>
           <TooltipProvider>
             <Routes>
@@ -74,8 +74,8 @@ function App() {
             <Sonner />
           </TooltipProvider>
         </AuthProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
