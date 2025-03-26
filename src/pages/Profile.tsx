@@ -17,7 +17,7 @@ const formSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
-  phone: z.string().optional(),
+  phoneNumber: z.string().optional(),
 });
 
 const Profile = () => {
@@ -31,7 +31,7 @@ const Profile = () => {
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
       email: user?.email || '',
-      phone: user?.phone || '',
+      phoneNumber: user?.userPhoneNumber || '',
     },
   });
 
@@ -92,7 +92,6 @@ const Profile = () => {
           <div className="flex flex-col md:flex-row gap-6 mb-6">
             <div className="flex flex-col items-center gap-3">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={user.profileImage} alt={`${user.firstName} ${user.lastName}`} />
                 <AvatarFallback className="text-lg bg-primary text-primary-foreground">
                   {getInitials()}
                 </AvatarFallback>
@@ -168,7 +167,7 @@ const Profile = () => {
                   
                   <FormField
                     control={form.control}
-                    name="phone"
+                    name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
