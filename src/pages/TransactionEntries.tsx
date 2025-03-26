@@ -102,7 +102,7 @@ const TransactionEntries = () => {
   ];
 
   return (
-    <AdminLayout>
+   
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ const TransactionEntries = () => {
           />
         )}
       </div>
-    </AdminLayout>
+   
   );
 };
 
