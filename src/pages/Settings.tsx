@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { MongoDBStatus } from "@/components/ui-custom/MongoDBStatus";
+import { closeDatabaseConnection } from "@/lib/mongodb/client";
 
 const Settings = () => {
   const { toast } = useToast();

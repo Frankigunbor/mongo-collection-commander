@@ -7,8 +7,12 @@ import { Separator } from '@/components/ui/separator';
 export const MongoDBStatus = () => {
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
   const [error, setError] = useState<string | null>(null);
+  const [isBrowser, setIsBrowser] = useState<boolean>(false);
 
   useEffect(() => {
+    // Set browser environment flag
+    setIsBrowser(typeof window !== 'undefined');
+    
     const checkConnection = async () => {
       try {
         setStatus('connecting');
@@ -35,7 +39,7 @@ export const MongoDBStatus = () => {
         <h3 className="text-sm font-medium">MongoDB Connection</h3>
         {status === 'connected' && (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            Connected
+            Connected {isBrowser ? '(Mock)' : ''}
           </Badge>
         )}
         {status === 'connecting' && (
@@ -67,8 +71,19 @@ export const MongoDBStatus = () => {
       <Separator className="my-2" />
       
       <div className="text-xs text-gray-500 mt-2">
-        Database: broadsend-backend
+        {isBrowser ? (
+          <>Database: <span className="font-medium">broadsend-backend (Mock for Browser)</span></>
+        ) : (
+          <>Database: <span className="font-medium">broadsend-backend</span></>
+        )}
       </div>
+
+      {isBrowser && (
+        <div className="text-xs text-amber-500 mt-2">
+          <p>Note: MongoDB is running in mock mode because direct database connections are not supported in browsers.</p>
+          <p>In production, you would use a backend API to interact with MongoDB.</p>
+        </div>
+      )}
     </div>
   );
 };

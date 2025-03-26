@@ -16,13 +16,18 @@ import {
   UserAuthData
 } from '../api';
 
+// Helper function to safely cast MongoDB documents to our types
+function castToType<T>(documents: any[]): T[] {
+  return documents as unknown as T[];
+}
+
 // Kyc collection functions
 export async function getKycData(): Promise<KycData[]> {
   try {
     const db = await connectToDatabase();
     const collection = db.collection('kyc_data');
     const result = await collection.find({}).toArray();
-    return result as KycData[];
+    return castToType<KycData>(result);
   } catch (error) {
     console.error("Error fetching KYC data:", error);
     throw error;
@@ -35,7 +40,7 @@ export async function getActivityData(): Promise<ActivityData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('activity_data');
     const result = await collection.find({}).toArray();
-    return result as ActivityData[];
+    return castToType<ActivityData>(result);
   } catch (error) {
     console.error("Error fetching activity data:", error);
     throw error;
@@ -48,7 +53,7 @@ export async function getRewardData(): Promise<RewardData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('reward_data');
     const result = await collection.find({}).toArray();
-    return result as RewardData[];
+    return castToType<RewardData>(result);
   } catch (error) {
     console.error("Error fetching reward data:", error);
     throw error;
@@ -61,7 +66,7 @@ export async function getTransactionData(): Promise<TransactionData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('transaction_data');
     const result = await collection.find({}).toArray();
-    return result as TransactionData[];
+    return castToType<TransactionData>(result);
   } catch (error) {
     console.error("Error fetching transaction data:", error);
     throw error;
@@ -74,7 +79,7 @@ export async function getTransactionEntryData(): Promise<TransactionEntryData[]>
     const db = await connectToDatabase();
     const collection = db.collection('transaction_entry_data');
     const result = await collection.find({}).toArray();
-    return result as TransactionEntryData[];
+    return castToType<TransactionEntryData>(result);
   } catch (error) {
     console.error("Error fetching transaction entry data:", error);
     throw error;
@@ -87,7 +92,7 @@ export async function getUserData(): Promise<UserData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('user_data');
     const result = await collection.find({}).toArray();
-    return result as UserData[];
+    return castToType<UserData>(result);
   } catch (error) {
     console.error("Error fetching user data:", error);
     throw error;
@@ -100,7 +105,7 @@ export async function getWalletData(): Promise<WalletData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('wallet_data');
     const result = await collection.find({}).toArray();
-    return result as WalletData[];
+    return castToType<WalletData>(result);
   } catch (error) {
     console.error("Error fetching wallet data:", error);
     throw error;
@@ -113,7 +118,7 @@ export async function getWalletHistoryData(): Promise<WalletHistoryData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('wallet_history_data');
     const result = await collection.find({}).toArray();
-    return result as WalletHistoryData[];
+    return castToType<WalletHistoryData>(result);
   } catch (error) {
     console.error("Error fetching wallet history data:", error);
     throw error;
@@ -126,7 +131,7 @@ export async function getVendorTransactionResponseTrailData(): Promise<VendorTra
     const db = await connectToDatabase();
     const collection = db.collection('vendor_transaction_response_trail_data');
     const result = await collection.find({}).toArray();
-    return result as VendorTransactionResponseTrailData[];
+    return castToType<VendorTransactionResponseTrailData>(result);
   } catch (error) {
     console.error("Error fetching vendor transaction response trail data:", error);
     throw error;
@@ -139,7 +144,7 @@ export async function getUserReferralData(): Promise<UserReferralData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('user_referral_data');
     const result = await collection.find({}).toArray();
-    return result as UserReferralData[];
+    return castToType<UserReferralData>(result);
   } catch (error) {
     console.error("Error fetching user referral data:", error);
     throw error;
@@ -152,7 +157,7 @@ export async function getUserKycDetailData(): Promise<UserKycDetailData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('user_kyc_detail_data');
     const result = await collection.find({}).toArray();
-    return result as UserKycDetailData[];
+    return castToType<UserKycDetailData>(result);
   } catch (error) {
     console.error("Error fetching user KYC detail data:", error);
     throw error;
@@ -165,7 +170,7 @@ export async function getUserKycData(): Promise<UserKycData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('user_kyc_data');
     const result = await collection.find({}).toArray();
-    return result as UserKycData[];
+    return castToType<UserKycData>(result);
   } catch (error) {
     console.error("Error fetching user KYC data:", error);
     throw error;
@@ -178,7 +183,7 @@ export async function getUserAuthData(): Promise<UserAuthData[]> {
     const db = await connectToDatabase();
     const collection = db.collection('user_auth_data');
     const result = await collection.find({}).toArray();
-    return result as UserAuthData[];
+    return castToType<UserAuthData>(result);
   } catch (error) {
     console.error("Error fetching user auth data:", error);
     throw error;
@@ -190,7 +195,7 @@ export async function authenticateUser(email: string, password: string): Promise
   try {
     const db = await connectToDatabase();
     const userCollection = db.collection('user_data');
-    const user = await userCollection.findOne({ email: email.toLowerCase() }) as UserData | null;
+    const user = await userCollection.findOne({ email: email.toLowerCase() });
     
     if (!user) {
       return null;
@@ -199,7 +204,7 @@ export async function authenticateUser(email: string, password: string): Promise
     // In a real implementation, you would verify the password hash
     // For now, we'll just accept any password for the demo
     return {
-      user,
+      user: user as unknown as UserData,
       token: `jwt-token-${user._id}`
     };
   } catch (error) {
@@ -241,7 +246,8 @@ export async function registerUser(userData: Partial<UserData>): Promise<{user: 
       userGroup: "USER"
     };
     
-    await userCollection.insertOne(newUser);
+    // Convert the newUser to unknown first to avoid TypeScript conversion errors
+    await userCollection.insertOne(newUser as unknown as any);
     
     return {
       user: newUser,
@@ -263,22 +269,22 @@ export async function getDashboardStats() {
     
     const totalUsers = await userCollection.countDocuments();
     const activeUsers = await userCollection.countDocuments({ status: "ACTIVE" });
-    const transactions = await transactionCollection.find({}).toArray() as TransactionData[];
+    const transactions = await transactionCollection.find({}).toArray();
     const totalTransactions = transactions.length;
-    const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
+    const totalAmount = castToType<TransactionData>(transactions).reduce((sum, t) => sum + t.amount, 0);
     const pendingKyc = 12; // Placeholder
     const completedKyc = await kycCollection.countDocuments();
     
     const recentTransactions = await transactionCollection.find({})
       .sort({ createdAt: -1 })
       .limit(5)
-      .toArray() as TransactionData[];
+      .toArray();
       
     const activityCollection = db.collection('activity_data');
     const recentActivities = await activityCollection.find({})
       .sort({ createdAt: -1 })
       .limit(5)
-      .toArray() as ActivityData[];
+      .toArray();
     
     return {
       totalUsers,
@@ -287,8 +293,8 @@ export async function getDashboardStats() {
       totalAmount,
       pendingKyc,
       completedKyc,
-      recentTransactions,
-      recentActivities
+      recentTransactions: castToType<TransactionData>(recentTransactions),
+      recentActivities: castToType<ActivityData>(recentActivities)
     };
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);
