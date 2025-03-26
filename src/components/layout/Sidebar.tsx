@@ -19,7 +19,8 @@ import {
   FileCheck,
   Shield,
   Lock,
-  RefreshCcw
+  RefreshCcw,
+  User
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -96,6 +97,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         
         <div className="p-3 mt-auto space-y-1">
           <NavItem to="/settings" icon={<Settings size={20} />} text="Settings" open={open} />
+          <NavItem to="/profile" icon={<User size={20} />} text="Profile" open={open} />
           <button
             className={cn(
               "w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
