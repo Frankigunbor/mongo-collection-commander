@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { connectToDatabase, closeDatabaseConnection } from '@/lib/mongodb/client';
+import { checkConnectionStatus } from '@/lib/mongodb/client';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
 export const MongoDBStatus = () => {
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
   const [error, setError] = useState<string | null>(null);
+  const [databaseInfo, setDatabaseInfo] = useState<{name: string}>({ name: "" });
   const [isBrowser, setIsBrowser] = useState<boolean>(false);
 
   useEffect(() => {
@@ -16,9 +17,16 @@ export const MongoDBStatus = () => {
     const checkConnection = async () => {
       try {
         setStatus('connecting');
-        await connectToDatabase();
-        setStatus('connected');
-        setError(null);
+        const connectionStatus = await checkConnectionStatus();
+        
+        if (connectionStatus.status === 'connected') {
+          setStatus('connected');
+          setDatabaseInfo({ name: connectionStatus.database || 'broadsend-backend' });
+          setError(null);
+        } else {
+          setStatus('error');
+          setError(connectionStatus.message || 'Unknown error connecting to MongoDB');
+        }
       } catch (err) {
         setStatus('error');
         setError(err instanceof Error ? err.message : 'Unknown error connecting to MongoDB');
@@ -26,11 +34,6 @@ export const MongoDBStatus = () => {
     };
 
     checkConnection();
-
-    return () => {
-      // Close connection when component unmounts
-      closeDatabaseConnection().catch(console.error);
-    };
   }, []);
 
   return (
@@ -39,7 +42,7 @@ export const MongoDBStatus = () => {
         <h3 className="text-sm font-medium">MongoDB Connection</h3>
         {status === 'connected' && (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            Connected {isBrowser ? '(Mock)' : ''}
+            Connected via API
           </Badge>
         )}
         {status === 'connecting' && (
@@ -71,19 +74,13 @@ export const MongoDBStatus = () => {
       <Separator className="my-2" />
       
       <div className="text-xs text-gray-500 mt-2">
-        {isBrowser ? (
-          <>Database: <span className="font-medium">broadsend-backend (Mock for Browser)</span></>
-        ) : (
-          <>Database: <span className="font-medium">broadsend-backend</span></>
-        )}
+        Database: <span className="font-medium">{databaseInfo.name || 'broadsend-backend'} (via API)</span>
       </div>
 
-      {isBrowser && (
-        <div className="text-xs text-amber-500 mt-2">
-          <p>Note: MongoDB is running in mock mode because direct database connections are not supported in browsers.</p>
-          <p>In production, you would use a backend API to interact with MongoDB.</p>
-        </div>
-      )}
+      <div className="text-xs text-amber-500 mt-2">
+        <p>API Server: http://localhost:5000</p>
+        <p>Note: Make sure the backend server is running on your local machine.</p>
+      </div>
     </div>
   );
 };
