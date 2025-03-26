@@ -29,17 +29,16 @@ import UserKycDetails from "./pages/UserKycDetails";
 import UserKycs from "./pages/UserKycs";
 import UserAuth from "./pages/UserAuth";
 import Profile from "./pages/Profile";
-import Settings from "./pages/Settings"; // Import the new Settings page
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <BrowserRouter>
+        {/* Move TooltipProvider inside BrowserRouter to fix hooks error */}
+        <TooltipProvider>
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<AdminLayout requireAuth={false}><Index /></AdminLayout>} />
@@ -69,8 +68,10 @@ const App = () => (
             {/* Catch-all route */}
             <Route path="*" element={<AdminLayout requireAuth={false}><NotFound /></AdminLayout>} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+          <Toaster />
+          <Sonner />
+        </TooltipProvider>
+      </BrowserRouter>
     </AuthProvider>
   </QueryClientProvider>
 );
