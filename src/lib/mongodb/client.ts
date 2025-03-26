@@ -122,22 +122,22 @@ export async function connectToDatabase() {
 // Helper function to convert collection name to API endpoint
 function nameToEndpoint(name) {
   const endpointMap = {
-    'kyc_data': 'kyc',
-    'activity_data': 'activities',
-    'reward_data': 'rewards',
-    'transaction_data': 'transactions',
-    'transaction_entry_data': 'transaction-entries',
-    'user_data': 'users',
-    'wallet_data': 'wallets',
-    'wallet_history_data': 'wallet-history',
-    'vendor_transaction_response_trail_data': 'vendor-responses',
-    'user_referral_data': 'user-referrals',
-    'user_kyc_detail_data': 'user-kyc-details',
-    'user_kyc_data': 'user-kycs',
-    'user_auth_data': 'user-auth'
+    'UserKycDetail': 'user-kyc-details',
+    'StreamChannel': 'stream-channels',
+    'StreamCollection': 'stream-collections',
+    'RewardCriteria': 'reward-criteria',
+    'Transaction': 'transactions',
+    'TransactionEntry': 'transaction-entries',
+    'User': 'users',
+    'Wallet': 'wallets',
+    'WalletHistory': 'wallet-history',
+    'VendorTransactionResponseTrail': 'vendor-responses',
+    'UserReferral': 'user-referrals',
+    'UserKyc': 'user-kycs',
+    'UserAuth': 'user-auth'
   };
   
-  return endpointMap[name] || name.replace('_data', '').replace('_', '-');
+  return endpointMap[name] || name.replace(/([A-Z])/g, '-$1').toLowerCase().substring(1);
 }
 
 // Function to handle authentication

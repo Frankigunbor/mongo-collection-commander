@@ -56,10 +56,10 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-// KYC Data
+// KYC Data - Now using UserKycDetail
 app.get('/api/kyc', async (req, res) => {
   try {
-    const kycCollection = db.collection('kyc_data');
+    const kycCollection = db.collection('UserKycDetail');
     const result = await kycCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -67,22 +67,33 @@ app.get('/api/kyc', async (req, res) => {
   }
 });
 
-// Activity Data
-app.get('/api/activities', async (req, res) => {
+// Stream Channels
+app.get('/api/stream-channels', async (req, res) => {
   try {
-    const activityCollection = db.collection('activity_data');
-    const result = await activityCollection.find({}).toArray();
+    const streamChannelCollection = db.collection('StreamChannel');
+    const result = await streamChannelCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Reward Data
-app.get('/api/rewards', async (req, res) => {
+// Stream Collections
+app.get('/api/stream-collections', async (req, res) => {
   try {
-    const rewardCollection = db.collection('reward_data');
-    const result = await rewardCollection.find({}).toArray();
+    const streamCollectionCollection = db.collection('StreamCollection');
+    const result = await streamCollectionCollection.find({}).toArray();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reward Criteria
+app.get('/api/reward-criteria', async (req, res) => {
+  try {
+    const rewardCriteriaCollection = db.collection('RewardCriteria');
+    const result = await rewardCriteriaCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -92,7 +103,7 @@ app.get('/api/rewards', async (req, res) => {
 // Transaction Data
 app.get('/api/transactions', async (req, res) => {
   try {
-    const transactionCollection = db.collection('transaction_data');
+    const transactionCollection = db.collection('Transaction');
     const result = await transactionCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -103,7 +114,7 @@ app.get('/api/transactions', async (req, res) => {
 // Transaction Entries
 app.get('/api/transaction-entries', async (req, res) => {
   try {
-    const entriesCollection = db.collection('transaction_entry_data');
+    const entriesCollection = db.collection('TransactionEntry');
     const result = await entriesCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -114,7 +125,7 @@ app.get('/api/transaction-entries', async (req, res) => {
 // User Data
 app.get('/api/users', async (req, res) => {
   try {
-    const userCollection = db.collection('user_data');
+    const userCollection = db.collection('User');
     const result = await userCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -125,7 +136,7 @@ app.get('/api/users', async (req, res) => {
 // Wallet Data
 app.get('/api/wallets', async (req, res) => {
   try {
-    const walletCollection = db.collection('wallet_data');
+    const walletCollection = db.collection('Wallet');
     const result = await walletCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -136,7 +147,7 @@ app.get('/api/wallets', async (req, res) => {
 // Wallet History
 app.get('/api/wallet-history', async (req, res) => {
   try {
-    const historyCollection = db.collection('wallet_history_data');
+    const historyCollection = db.collection('WalletHistory');
     const result = await historyCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -147,7 +158,7 @@ app.get('/api/wallet-history', async (req, res) => {
 // Vendor Transaction Response Trail
 app.get('/api/vendor-responses', async (req, res) => {
   try {
-    const vendorCollection = db.collection('vendor_transaction_response_trail_data');
+    const vendorCollection = db.collection('VendorTransactionResponseTrail');
     const result = await vendorCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -158,7 +169,7 @@ app.get('/api/vendor-responses', async (req, res) => {
 // User Referrals
 app.get('/api/user-referrals', async (req, res) => {
   try {
-    const referralCollection = db.collection('user_referral_data');
+    const referralCollection = db.collection('UserReferral');
     const result = await referralCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -169,7 +180,7 @@ app.get('/api/user-referrals', async (req, res) => {
 // User KYC Details
 app.get('/api/user-kyc-details', async (req, res) => {
   try {
-    const kycDetailCollection = db.collection('user_kyc_detail_data');
+    const kycDetailCollection = db.collection('UserKycDetail');
     const result = await kycDetailCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -180,7 +191,7 @@ app.get('/api/user-kyc-details', async (req, res) => {
 // User KYC
 app.get('/api/user-kycs', async (req, res) => {
   try {
-    const userKycCollection = db.collection('user_kyc_data');
+    const userKycCollection = db.collection('UserKyc');
     const result = await userKycCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -191,7 +202,7 @@ app.get('/api/user-kycs', async (req, res) => {
 // User Auth
 app.get('/api/user-auth', async (req, res) => {
   try {
-    const authCollection = db.collection('user_auth_data');
+    const authCollection = db.collection('UserAuth');
     const result = await authCollection.find({}).toArray();
     res.json(result);
   } catch (error) {
@@ -204,7 +215,7 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    const userCollection = db.collection('user_data');
+    const userCollection = db.collection('User');
     const user = await userCollection.findOne({ email: email.toLowerCase() });
     
     if (!user) {
@@ -227,7 +238,7 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const userData = req.body;
     
-    const userCollection = db.collection('user_data');
+    const userCollection = db.collection('User');
     
     // Check if user already exists
     const existingUser = await userCollection.findOne({ email: userData.email?.toLowerCase() });
@@ -270,9 +281,9 @@ app.post('/api/auth/register', async (req, res) => {
 // Dashboard stats
 app.get('/api/dashboard/stats', async (req, res) => {
   try {
-    const userCollection = db.collection('user_data');
-    const transactionCollection = db.collection('transaction_data');
-    const kycCollection = db.collection('kyc_data');
+    const userCollection = db.collection('User');
+    const transactionCollection = db.collection('Transaction');
+    const kycCollection = db.collection('UserKycDetail');
     
     const totalUsers = await userCollection.countDocuments();
     const activeUsers = await userCollection.countDocuments({ status: "ACTIVE" });
@@ -287,8 +298,8 @@ app.get('/api/dashboard/stats', async (req, res) => {
       .limit(5)
       .toArray();
       
-    const activityCollection = db.collection('activity_data');
-    const recentActivities = await activityCollection.find({})
+    const streamChannelCollection = db.collection('StreamChannel');
+    const recentActivities = await streamChannelCollection.find({})
       .sort({ createdAt: -1 })
       .limit(5)
       .toArray();

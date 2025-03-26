@@ -25,7 +25,7 @@ function castToType<T>(documents: any[]): T[] {
 export async function getKycData(): Promise<KycData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('kyc_data');
+    const collection = db.collection('UserKycDetail');
     const result = await collection.find({}).toArray();
     return castToType<KycData>(result);
   } catch (error) {
@@ -38,7 +38,7 @@ export async function getKycData(): Promise<KycData[]> {
 export async function getActivityData(): Promise<ActivityData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('activity_data');
+    const collection = db.collection('StreamChannel');
     const result = await collection.find({}).toArray();
     return castToType<ActivityData>(result);
   } catch (error) {
@@ -51,7 +51,7 @@ export async function getActivityData(): Promise<ActivityData[]> {
 export async function getRewardData(): Promise<RewardData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('reward_data');
+    const collection = db.collection('RewardCriteria');
     const result = await collection.find({}).toArray();
     return castToType<RewardData>(result);
   } catch (error) {
@@ -64,7 +64,7 @@ export async function getRewardData(): Promise<RewardData[]> {
 export async function getTransactionData(): Promise<TransactionData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('transaction_data');
+    const collection = db.collection('Transaction');
     const result = await collection.find({}).toArray();
     return castToType<TransactionData>(result);
   } catch (error) {
@@ -77,7 +77,7 @@ export async function getTransactionData(): Promise<TransactionData[]> {
 export async function getTransactionEntryData(): Promise<TransactionEntryData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('transaction_entry_data');
+    const collection = db.collection('TransactionEntry');
     const result = await collection.find({}).toArray();
     return castToType<TransactionEntryData>(result);
   } catch (error) {
@@ -90,7 +90,7 @@ export async function getTransactionEntryData(): Promise<TransactionEntryData[]>
 export async function getUserData(): Promise<UserData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('user_data');
+    const collection = db.collection('User');
     const result = await collection.find({}).toArray();
     return castToType<UserData>(result);
   } catch (error) {
@@ -103,7 +103,7 @@ export async function getUserData(): Promise<UserData[]> {
 export async function getWalletData(): Promise<WalletData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('wallet_data');
+    const collection = db.collection('Wallet');
     const result = await collection.find({}).toArray();
     return castToType<WalletData>(result);
   } catch (error) {
@@ -116,7 +116,7 @@ export async function getWalletData(): Promise<WalletData[]> {
 export async function getWalletHistoryData(): Promise<WalletHistoryData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('wallet_history_data');
+    const collection = db.collection('WalletHistory');
     const result = await collection.find({}).toArray();
     return castToType<WalletHistoryData>(result);
   } catch (error) {
@@ -129,7 +129,7 @@ export async function getWalletHistoryData(): Promise<WalletHistoryData[]> {
 export async function getVendorTransactionResponseTrailData(): Promise<VendorTransactionResponseTrailData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('vendor_transaction_response_trail_data');
+    const collection = db.collection('VendorTransactionResponseTrail');
     const result = await collection.find({}).toArray();
     return castToType<VendorTransactionResponseTrailData>(result);
   } catch (error) {
@@ -142,7 +142,7 @@ export async function getVendorTransactionResponseTrailData(): Promise<VendorTra
 export async function getUserReferralData(): Promise<UserReferralData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('user_referral_data');
+    const collection = db.collection('UserReferral');
     const result = await collection.find({}).toArray();
     return castToType<UserReferralData>(result);
   } catch (error) {
@@ -155,7 +155,7 @@ export async function getUserReferralData(): Promise<UserReferralData[]> {
 export async function getUserKycDetailData(): Promise<UserKycDetailData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('user_kyc_detail_data');
+    const collection = db.collection('UserKycDetail');
     const result = await collection.find({}).toArray();
     return castToType<UserKycDetailData>(result);
   } catch (error) {
@@ -168,7 +168,7 @@ export async function getUserKycDetailData(): Promise<UserKycDetailData[]> {
 export async function getUserKycData(): Promise<UserKycData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('user_kyc_data');
+    const collection = db.collection('UserKyc');
     const result = await collection.find({}).toArray();
     return castToType<UserKycData>(result);
   } catch (error) {
@@ -181,7 +181,7 @@ export async function getUserKycData(): Promise<UserKycData[]> {
 export async function getUserAuthData(): Promise<UserAuthData[]> {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('user_auth_data');
+    const collection = db.collection('UserAuth');
     const result = await collection.find({}).toArray();
     return castToType<UserAuthData>(result);
   } catch (error) {
@@ -194,7 +194,7 @@ export async function getUserAuthData(): Promise<UserAuthData[]> {
 export async function authenticateUser(email: string, password: string): Promise<{user: UserData, token: string} | null> {
   try {
     const db = await connectToDatabase();
-    const userCollection = db.collection('user_data');
+    const userCollection = db.collection('User');
     const user = await userCollection.findOne({ email: email.toLowerCase() });
     
     if (!user) {
@@ -217,7 +217,7 @@ export async function authenticateUser(email: string, password: string): Promise
 export async function registerUser(userData: Partial<UserData>): Promise<{user: UserData, token: string} | null> {
   try {
     const db = await connectToDatabase();
-    const userCollection = db.collection('user_data');
+    const userCollection = db.collection('User');
     
     // Check if user already exists
     const existingUser = await userCollection.findOne({ email: userData.email?.toLowerCase() });
@@ -263,9 +263,9 @@ export async function registerUser(userData: Partial<UserData>): Promise<{user: 
 export async function getDashboardStats() {
   try {
     const db = await connectToDatabase();
-    const userCollection = db.collection('user_data');
-    const transactionCollection = db.collection('transaction_data');
-    const kycCollection = db.collection('kyc_data');
+    const userCollection = db.collection('User');
+    const transactionCollection = db.collection('Transaction');
+    const kycCollection = db.collection('UserKycDetail');
     
     const totalUsers = await userCollection.countDocuments();
     const activeUsers = await userCollection.countDocuments({ status: "ACTIVE" });
@@ -280,8 +280,8 @@ export async function getDashboardStats() {
       .limit(5)
       .toArray();
       
-    const activityCollection = db.collection('activity_data');
-    const recentActivities = await activityCollection.find({})
+    const streamChannelCollection = db.collection('StreamChannel');
+    const recentActivities = await streamChannelCollection.find({})
       .sort({ createdAt: -1 })
       .limit(5)
       .toArray();
