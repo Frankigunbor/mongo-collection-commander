@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { checkConnectionStatus } from '@/lib/mongodb/client';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { toast } from '@/hooks/use-toast';
 
 export const MongoDBStatus = () => {
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
@@ -26,10 +27,21 @@ export const MongoDBStatus = () => {
         } else {
           setStatus('error');
           setError(connectionStatus.message || 'Unknown error connecting to MongoDB');
+          toast({
+            title: "Database Connection Error",
+            description: connectionStatus.message || 'Unknown error connecting to MongoDB',
+            variant: "destructive"
+          });
         }
-      } catch (err) {
+      } catch (err: any) {
         setStatus('error');
-        setError(err instanceof Error ? err.message : 'Unknown error connecting to MongoDB');
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error connecting to MongoDB';
+        setError(errorMessage);
+        toast({
+          title: "Database Connection Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
       }
     };
 
