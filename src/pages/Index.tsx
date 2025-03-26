@@ -8,7 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <AdminLayout>
+   
       <div className="min-h-[80vh] flex items-center justify-center">
         <div className="text-center space-y-6">
           <h1 className="text-4xl font-bold mb-4">Welcome to Admin Dashboard</h1>
@@ -24,7 +24,7 @@ const Index = () => {
           </Button>
         </div>
       </div>
-    </AdminLayout>
+    
   );
 };
 
