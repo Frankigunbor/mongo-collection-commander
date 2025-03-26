@@ -28,6 +28,7 @@ import UserReferrals from "./pages/UserReferrals";
 import UserKycDetails from "./pages/UserKycDetails";
 import UserKycs from "./pages/UserKycs";
 import UserAuth from "./pages/UserAuth";
+import Profile from "./pages/Profile"; // Import the new Profile page
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/user-kyc-details" element={<AdminLayout><ProtectedRoute><UserKycDetails /></ProtectedRoute></AdminLayout>} />
             <Route path="/user-kycs" element={<AdminLayout><ProtectedRoute><UserKycs /></ProtectedRoute></AdminLayout>} />
             <Route path="/user-auth" element={<AdminLayout><ProtectedRoute><UserAuth /></ProtectedRoute></AdminLayout>} />
+            <Route path="/profile" element={<AdminLayout><ProtectedRoute><Profile /></ProtectedRoute></AdminLayout>} />
             
             {/* Catch-all route */}
             <Route path="*" element={<AdminLayout requireAuth={false}><NotFound /></AdminLayout>} />

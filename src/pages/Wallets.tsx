@@ -2,7 +2,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { AdminLayout } from '@/components/layout/AdminLayout';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { fetchWalletData, WalletData, fetchUserData, UserData } from '@/lib/api';
 import { Wallet } from 'lucide-react';
@@ -70,30 +69,28 @@ const Wallets = () => {
   ];
 
   return (
-  
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <Wallet className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Wallets</h1>
-          </div>
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <Wallet className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold">Wallets</h1>
         </div>
-
-        {walletsLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <DataTable 
-            data={wallets || []} 
-            columns={columns} 
-            onView={(wallet) => {
-              console.log("View wallet", wallet);
-            }}
-          />
-        )}
       </div>
-  
+
+      {walletsLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <DataTable 
+          data={wallets || []} 
+          columns={columns} 
+          onView={(wallet) => {
+            console.log("View wallet", wallet);
+          }}
+        />
+      )}
+    </div>
   );
 };
 

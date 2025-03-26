@@ -2,13 +2,15 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { AdminLayout } from '@/components/layout/AdminLayout';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { fetchUserData, UserData } from '@/lib/api';
 import { Users as UsersIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
+  const navigate = useNavigate();
+  
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: fetchUserData
@@ -59,30 +61,33 @@ const Users = () => {
   ];
 
   return (
-  
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <UsersIcon className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Users</h1>
-          </div>
+    <div className="container mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <UsersIcon className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold">Users</h1>
         </div>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <DataTable 
-            data={users || []} 
-            columns={columns} 
-            onView={(user) => {
-              console.log("View user", user);
-            }}
-          />
-        )}
       </div>
-   
+
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <DataTable 
+          data={users || []} 
+          columns={columns} 
+          onView={(user) => {
+            console.log("View user", user);
+            // In a real app, this would navigate to a user detail page
+            // For now, we can navigate to the profile page
+            if (user) {
+              navigate(`/profile?id=${user._id}`);
+            }
+          }}
+        />
+      )}
+    </div>
   );
 };
 
