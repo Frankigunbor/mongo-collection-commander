@@ -31,49 +31,52 @@ import UserAuth from "./pages/UserAuth";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 
+// Create QueryClient outside of component to avoid recreation on render
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <BrowserRouter>
-        {/* Move TooltipProvider inside BrowserRouter to fix hooks error */}
-        <TooltipProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<AdminLayout requireAuth={false}><Index /></AdminLayout>} />
-            <Route path="/auth/login" element={<AdminLayout requireAuth={false}><Login /></AdminLayout>} />
-            <Route path="/auth/signup" element={<AdminLayout requireAuth={false}><SignUp /></AdminLayout>} />
-            
-            {/* Protected routes */}
-            <Route path="/dashboard" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />
-            <Route path="/kyc" element={<AdminLayout><ProtectedRoute><Kyc /></ProtectedRoute></AdminLayout>} />
-            <Route path="/activities" element={<AdminLayout><ProtectedRoute><Activities /></ProtectedRoute></AdminLayout>} />
-            <Route path="/rewards" element={<AdminLayout><ProtectedRoute><Rewards /></ProtectedRoute></AdminLayout>} />
-            <Route path="/transactions" element={<AdminLayout><ProtectedRoute><Transactions /></ProtectedRoute></AdminLayout>} />
-            
-            {/* New protected routes */}
-            <Route path="/transaction-entries" element={<AdminLayout><ProtectedRoute><TransactionEntries /></ProtectedRoute></AdminLayout>} />
-            <Route path="/users" element={<AdminLayout><ProtectedRoute><Users /></ProtectedRoute></AdminLayout>} />
-            <Route path="/wallets" element={<AdminLayout><ProtectedRoute><Wallets /></ProtectedRoute></AdminLayout>} />
-            <Route path="/wallet-history" element={<AdminLayout><ProtectedRoute><WalletHistory /></ProtectedRoute></AdminLayout>} />
-            <Route path="/vendor-responses" element={<AdminLayout><ProtectedRoute><VendorResponses /></ProtectedRoute></AdminLayout>} />
-            <Route path="/user-referrals" element={<AdminLayout><ProtectedRoute><UserReferrals /></ProtectedRoute></AdminLayout>} />
-            <Route path="/user-kyc-details" element={<AdminLayout><ProtectedRoute><UserKycDetails /></ProtectedRoute></AdminLayout>} />
-            <Route path="/user-kycs" element={<AdminLayout><ProtectedRoute><UserKycs /></ProtectedRoute></AdminLayout>} />
-            <Route path="/user-auth" element={<AdminLayout><ProtectedRoute><UserAuth /></ProtectedRoute></AdminLayout>} />
-            <Route path="/profile" element={<AdminLayout><ProtectedRoute><Profile /></ProtectedRoute></AdminLayout>} />
-            <Route path="/settings" element={<AdminLayout><ProtectedRoute><Settings /></ProtectedRoute></AdminLayout>} />
-            
-            {/* Catch-all route */}
-            <Route path="*" element={<AdminLayout requireAuth={false}><NotFound /></AdminLayout>} />
-          </Routes>
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </BrowserRouter>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+// Use a function component instead of an arrow function without body
+function App() {
+  return (
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<AdminLayout requireAuth={false}><Index /></AdminLayout>} />
+              <Route path="/auth/login" element={<AdminLayout requireAuth={false}><Login /></AdminLayout>} />
+              <Route path="/auth/signup" element={<AdminLayout requireAuth={false}><SignUp /></AdminLayout>} />
+              
+              {/* Protected routes */}
+              <Route path="/dashboard" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />
+              <Route path="/kyc" element={<AdminLayout><ProtectedRoute><Kyc /></ProtectedRoute></AdminLayout>} />
+              <Route path="/activities" element={<AdminLayout><ProtectedRoute><Activities /></ProtectedRoute></AdminLayout>} />
+              <Route path="/rewards" element={<AdminLayout><ProtectedRoute><Rewards /></ProtectedRoute></AdminLayout>} />
+              <Route path="/transactions" element={<AdminLayout><ProtectedRoute><Transactions /></ProtectedRoute></AdminLayout>} />
+              
+              {/* New protected routes */}
+              <Route path="/transaction-entries" element={<AdminLayout><ProtectedRoute><TransactionEntries /></ProtectedRoute></AdminLayout>} />
+              <Route path="/users" element={<AdminLayout><ProtectedRoute><Users /></ProtectedRoute></AdminLayout>} />
+              <Route path="/wallets" element={<AdminLayout><ProtectedRoute><Wallets /></ProtectedRoute></AdminLayout>} />
+              <Route path="/wallet-history" element={<AdminLayout><ProtectedRoute><WalletHistory /></ProtectedRoute></AdminLayout>} />
+              <Route path="/vendor-responses" element={<AdminLayout><ProtectedRoute><VendorResponses /></ProtectedRoute></AdminLayout>} />
+              <Route path="/user-referrals" element={<AdminLayout><ProtectedRoute><UserReferrals /></ProtectedRoute></AdminLayout>} />
+              <Route path="/user-kyc-details" element={<AdminLayout><ProtectedRoute><UserKycDetails /></ProtectedRoute></AdminLayout>} />
+              <Route path="/user-kycs" element={<AdminLayout><ProtectedRoute><UserKycs /></ProtectedRoute></AdminLayout>} />
+              <Route path="/user-auth" element={<AdminLayout><ProtectedRoute><UserAuth /></ProtectedRoute></AdminLayout>} />
+              <Route path="/profile" element={<AdminLayout><ProtectedRoute><Profile /></ProtectedRoute></AdminLayout>} />
+              <Route path="/settings" element={<AdminLayout><ProtectedRoute><Settings /></ProtectedRoute></AdminLayout>} />
+              
+              {/* Catch-all route */}
+              <Route path="*" element={<AdminLayout requireAuth={false}><NotFound /></AdminLayout>} />
+            </Routes>
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
+  );
+}
 
 export default App;
