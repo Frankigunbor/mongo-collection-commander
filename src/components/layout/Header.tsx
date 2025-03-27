@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Menu, Bell, Moon, Sun, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, Bell, BellDot, Moon, Sun, Search } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { 
   DropdownMenu, 
@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { getTransactionData } from '@/lib/mongodb/services';
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -19,11 +21,57 @@ interface HeaderProps {
 export function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   const location = useLocation();
   const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+  const [lastCheckTime, setLastCheckTime] = useState<Date>(new Date());
+  const { toast } = useToast();
+  
+  // Check for new transactions every minute
+  useEffect(() => {
+    const checkForNewTransactions = async () => {
+      try {
+        const transactions = await getTransactionData();
+        
+        // Check if there are any transactions created after our last check
+        const newTransactions = transactions.filter(tx => {
+          const txDate = new Date(tx.createdAt);
+          return txDate > lastCheckTime;
+        });
+        
+        if (newTransactions.length > 0) {
+          setHasNewNotifications(true);
+          // Only show toast if we're not on first load
+          if (lastCheckTime.getTime() > new Date().getTime() - 2000) {
+            toast({
+              title: "New Transactions",
+              description: `${newTransactions.length} new transaction${newTransactions.length === 1 ? '' : 's'} received`,
+            });
+          }
+        }
+        
+        setLastCheckTime(new Date());
+      } catch (error) {
+        console.error("Error checking for new transactions:", error);
+      }
+    };
+    
+    // Run immediately on mount
+    checkForNewTransactions();
+    
+    // Set up interval to check every minute
+    const intervalId = setInterval(checkForNewTransactions, 60000);
+    
+    return () => clearInterval(intervalId);
+  }, [toast, lastCheckTime]);
   
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
+  
+  // Clear notifications when clicked
+  const handleNotificationClick = () => {
+    setHasNewNotifications(false);
   };
   
   // Get current page title based on path
@@ -69,8 +117,17 @@ export function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
             {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
           </Button>
           
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <Bell size={18} />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground relative"
+            onClick={handleNotificationClick}
+          >
+            {hasNewNotifications ? (
+              <BellDot size={18} className="text-primary" />
+            ) : (
+              <Bell size={18} />
+            )}
           </Button>
           
           <DropdownMenu>

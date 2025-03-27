@@ -271,7 +271,9 @@ export async function getDashboardStats() {
     const activeUsers = await userCollection.countDocuments({ status: "ACTIVE" });
     const transactions = await transactionCollection.find().toArray();
     const totalTransactions = transactions.length;
-    const totalAmount = castToType<TransactionData>(transactions).reduce((sum, t) => sum + t.amount, 0);
+    
+    // Convert amounts for display
+    const totalAmount = castToType<TransactionData>(transactions).reduce((sum, t) => sum + (t.amount / 100), 0);
     const pendingKyc = 12; // Placeholder
     const completedKyc = await kycCollection.countDocuments();
     
@@ -492,6 +494,7 @@ export async function createTransaction(transactionData: Partial<TransactionData
     const db = await connectToDatabase();
     const transactionCollection = db.collection('Transaction');
     
+    // Amount is already expected to be multiplied by 100 in the UI layer
     const newTransaction: TransactionData = {
       _id: `tx-${Date.now()}`,
       createdAt: new Date().toISOString(),
@@ -528,10 +531,13 @@ export async function createTransactionEntry(entryData: Partial<TransactionEntry
     const db = await connectToDatabase();
     const entryCollection = db.collection('TransactionEntry');
     
+    // Apply the x100 conversion for amount
+    const amount = entryData.amount ? entryData.amount : 0;
+    
     const newEntry: TransactionEntryData = {
       _id: `entry-${Date.now()}`,
       entryType: entryData.entryType || "CREDIT",
-      amount: entryData.amount || 0,
+      amount: amount,
       currency: entryData.currency || "CAD",
       accountId: entryData.accountId || "",
       transactionId: entryData.transactionId || "",

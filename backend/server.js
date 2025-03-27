@@ -60,7 +60,7 @@ app.get('/api/status', async (req, res) => {
 app.get('/api/kyc', async (req, res) => {
   try {
     const kycCollection = db.collection('UserKycDetail');
-    const result = await kycCollection.find({}).toArray();
+    const result = await kycCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -71,7 +71,7 @@ app.get('/api/kyc', async (req, res) => {
 app.get('/api/stream-channels', async (req, res) => {
   try {
     const streamChannelCollection = db.collection('StreamChannel');
-    const result = await streamChannelCollection.find({}).toArray();
+    const result = await streamChannelCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -82,7 +82,7 @@ app.get('/api/stream-channels', async (req, res) => {
 app.get('/api/stream-collections', async (req, res) => {
   try {
     const streamCollectionCollection = db.collection('StreamCollection');
-    const result = await streamCollectionCollection.find({}).toArray();
+    const result = await streamCollectionCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -93,7 +93,7 @@ app.get('/api/stream-collections', async (req, res) => {
 app.get('/api/reward-criteria', async (req, res) => {
   try {
     const rewardCriteriaCollection = db.collection('RewardCriteria');
-    const result = await rewardCriteriaCollection.find({}).toArray();
+    const result = await rewardCriteriaCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -104,8 +104,75 @@ app.get('/api/reward-criteria', async (req, res) => {
 app.get('/api/transactions', async (req, res) => {
   try {
     const transactionCollection = db.collection('Transaction');
-    const result = await transactionCollection.find({}).toArray();
+    const result = await transactionCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create Transaction
+app.post('/api/transactions', async (req, res) => {
+  try {
+    const transactionData = req.body;
+    // Ensure amount is stored as is (already multiplied by 100 in the client)
+    
+    const transactionCollection = db.collection('Transaction');
+    
+    const newTransaction = {
+      _id: `tx-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      actionId: transactionData.actionId || `action-${Date.now()}`,
+      reference: transactionData.reference || `REF-${Date.now()}`,
+      amount: transactionData.amount || 0,
+      currency: transactionData.currency || "CAD",
+      senderAccountId: transactionData.senderAccountId || "",
+      recipientAccountId: transactionData.recipientAccountId || "",
+      transactionType: transactionData.transactionType || "TRANSFER",
+      transactionStatus: transactionData.transactionStatus || "PENDING",
+      transactionSource: transactionData.transactionSource || "WEB_APP",
+      userId: transactionData.userId || "",
+      narration: transactionData.narration || "",
+      requeryCount: transactionData.requeryCount || 0,
+      processingMessage: transactionData.processingMessage || "",
+      vendor: transactionData.vendor || "",
+      vendorReference: transactionData.vendorReference || "",
+      conversionRate: transactionData.conversionRate || 1,
+      completedAt: transactionData.completedAt || ""
+    };
+    
+    await transactionCollection.insertOne(newTransaction);
+    res.status(201).json(newTransaction);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update Transaction
+app.put('/api/transactions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const transactionData = req.body;
+    
+    const transactionCollection = db.collection('Transaction');
+    
+    // Ensure amount is stored as is (already multiplied by 100 in the client)
+    const updatedTransaction = {
+      ...transactionData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    const result = await transactionCollection.updateOne(
+      { _id: id },
+      { $set: updatedTransaction }
+    );
+    
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+    
+    res.json(updatedTransaction);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -115,7 +182,7 @@ app.get('/api/transactions', async (req, res) => {
 app.get('/api/transaction-entries', async (req, res) => {
   try {
     const entriesCollection = db.collection('TransactionEntry');
-    const result = await entriesCollection.find({}).toArray();
+    const result = await entriesCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -126,7 +193,7 @@ app.get('/api/transaction-entries', async (req, res) => {
 app.get('/api/users', async (req, res) => {
   try {
     const userCollection = db.collection('User');
-    const result = await userCollection.find({}).toArray();
+    const result = await userCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -137,7 +204,7 @@ app.get('/api/users', async (req, res) => {
 app.get('/api/wallets', async (req, res) => {
   try {
     const walletCollection = db.collection('Wallet');
-    const result = await walletCollection.find({}).toArray();
+    const result = await walletCollection.find({}).sort({ updatedAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -148,7 +215,7 @@ app.get('/api/wallets', async (req, res) => {
 app.get('/api/wallet-history', async (req, res) => {
   try {
     const historyCollection = db.collection('WalletHistory');
-    const result = await historyCollection.find({}).toArray();
+    const result = await historyCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -159,7 +226,7 @@ app.get('/api/wallet-history', async (req, res) => {
 app.get('/api/vendor-responses', async (req, res) => {
   try {
     const vendorCollection = db.collection('VendorTransactionResponseTrail');
-    const result = await vendorCollection.find({}).toArray();
+    const result = await vendorCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -170,7 +237,7 @@ app.get('/api/vendor-responses', async (req, res) => {
 app.get('/api/user-referrals', async (req, res) => {
   try {
     const referralCollection = db.collection('UserReferral');
-    const result = await referralCollection.find({}).toArray();
+    const result = await referralCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -181,7 +248,7 @@ app.get('/api/user-referrals', async (req, res) => {
 app.get('/api/user-kyc-details', async (req, res) => {
   try {
     const kycDetailCollection = db.collection('UserKycDetail');
-    const result = await kycDetailCollection.find({}).toArray();
+    const result = await kycDetailCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -192,7 +259,7 @@ app.get('/api/user-kyc-details', async (req, res) => {
 app.get('/api/user-kycs', async (req, res) => {
   try {
     const userKycCollection = db.collection('UserKyc');
-    const result = await userKycCollection.find({}).toArray();
+    const result = await userKycCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -203,7 +270,7 @@ app.get('/api/user-kycs', async (req, res) => {
 app.get('/api/user-auth', async (req, res) => {
   try {
     const authCollection = db.collection('UserAuth');
-    const result = await authCollection.find({}).toArray();
+    const result = await authCollection.find({}).sort({ createdAt: -1 }).toArray();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -289,7 +356,9 @@ app.get('/api/dashboard/stats', async (req, res) => {
     const activeUsers = await userCollection.countDocuments({ status: "ACTIVE" });
     const transactions = await transactionCollection.find({}).toArray();
     const totalTransactions = transactions.length;
-    const totalAmount = transactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+    
+    // Divide amounts by 100 for display
+    const totalAmount = transactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0) / 100, 0);
     const pendingKyc = 12; // Placeholder
     const completedKyc = await kycCollection.countDocuments();
     

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { TransactionData, fetchTransactionData } from '@/lib/api';
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpFromLine, ArrowDownToLine, ArrowRightLeft, DollarSign } from 'lucide-react';
+import { createTransaction, updateTransaction } from '@/lib/mongodb/services';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
@@ -37,67 +37,96 @@ const Transactions = () => {
     loadData();
   }, [toast]);
 
+  const convertDisplayAmount = (amount: number): number => {
+    return amount / 100;
+  };
+
+  const convertDatabaseAmount = (amount: number): number => {
+    return amount * 100;
+  };
+
   const columns = [
     {
       key: '_id',
       header: 'ID',
-      cell: (transaction: TransactionData) => <span className="font-mono text-xs">{transaction._id.substring(0, 10)}...</span>,
+      cell: (transaction: TransactionData) => {
+        if (!transaction || !transaction._id) return <span>-</span>;
+        return <span className="font-mono text-xs">{transaction._id.substring(0, 10)}...</span>;
+      },
     },
     {
       key: 'reference',
       header: 'Reference',
-      cell: (transaction: TransactionData) => <span className="font-mono text-xs">{transaction.reference.substring(0, 15)}...</span>,
+      cell: (transaction: TransactionData) => {
+        if (!transaction || !transaction.reference) return <span>-</span>;
+        return <span className="font-mono text-xs">{transaction.reference.substring(0, 15)}...</span>;
+      },
     },
     {
       key: 'amount',
       header: 'Amount',
-      cell: (transaction: TransactionData) => (
-        <span className="font-semibold">
-          {formatCurrency(transaction.amount, transaction.currency)}
-        </span>
-      ),
+      cell: (transaction: TransactionData) => {
+        if (!transaction) return <span>-</span>;
+        
+        const displayAmount = convertDisplayAmount(transaction.amount);
+        
+        return (
+          <span className="font-semibold">
+            {formatCurrency(displayAmount, transaction.currency)}
+          </span>
+        );
+      },
       sortable: true,
     },
     {
       key: 'transactionType',
       header: 'Type',
-      cell: (transaction: TransactionData) => (
-        <div className="flex items-center">
-          {transaction.transactionType === 'DEPOSIT' ? (
-            <ArrowDownToLine className="h-4 w-4 text-green-500 mr-2" />
-          ) : transaction.transactionType === 'WITHDRAW' ? (
-            <ArrowUpFromLine className="h-4 w-4 text-yellow-500 mr-2" />
-          ) : (
-            <ArrowRightLeft className="h-4 w-4 text-blue-500 mr-2" />
-          )}
-          {transaction.transactionType}
-        </div>
-      ),
+      cell: (transaction: TransactionData) => {
+        if (!transaction) return <span>-</span>;
+        
+        return (
+          <div className="flex items-center">
+            {transaction.transactionType === 'DEPOSIT' ? (
+              <ArrowDownToLine className="h-4 w-4 text-green-500 mr-2" />
+            ) : transaction.transactionType === 'WITHDRAW' ? (
+              <ArrowUpFromLine className="h-4 w-4 text-yellow-500 mr-2" />
+            ) : (
+              <ArrowRightLeft className="h-4 w-4 text-blue-500 mr-2" />
+            )}
+            {transaction.transactionType}
+          </div>
+        );
+      },
       sortable: true,
     },
     {
       key: 'transactionStatus',
       header: 'Status',
-      cell: (transaction: TransactionData) => (
-        <StatusBadge 
-          status={
-            transaction.transactionStatus === 'SUCCESS' ? 'success' : 
-            transaction.transactionStatus === 'PENDING' ? 'pending' : 'failed'
-          } 
-        />
-      ),
+      cell: (transaction: TransactionData) => {
+        if (!transaction) return <span>-</span>;
+        
+        return (
+          <StatusBadge 
+            status={
+              transaction.transactionStatus === 'SUCCESS' ? 'success' : 
+              transaction.transactionStatus === 'PENDING' ? 'pending' : 'failed'
+            } 
+          />
+        );
+      },
       sortable: true,
     },
     {
       key: 'transactionSource',
       header: 'Source',
-      cell: (transaction: TransactionData) => transaction.transactionSource,
+      cell: (transaction: TransactionData) => transaction?.transactionSource || '-',
       sortable: true,
     },
     {
       key: 'createdAt',
       header: 'Date',
-      cell: (transaction: TransactionData) => formatDate(transaction.createdAt),
+      cell: (transaction: TransactionData) => 
+        transaction?.createdAt ? formatDate(transaction.createdAt) : '-',
       sortable: true,
     },
   ];
@@ -107,7 +136,7 @@ const Transactions = () => {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }).format(amount);
   };
 
@@ -130,7 +159,6 @@ const Transactions = () => {
     setSelectedTransaction(null);
   };
 
-  // Calculate stats for the dashboard cards
   const stats = {
     total: transactions.length,
     deposits: transactions.filter(t => t.transactionType === 'DEPOSIT').length,
@@ -139,12 +167,62 @@ const Transactions = () => {
     successful: transactions.filter(t => t.transactionStatus === 'SUCCESS').length,
     pending: transactions.filter(t => t.transactionStatus === 'PENDING').length,
     failed: transactions.filter(t => t.transactionStatus === 'FAILED').length,
-    totalAmount: transactions.reduce((sum, t) => sum + t.amount, 0),
+    totalAmount: transactions.reduce((sum, t) => sum + convertDisplayAmount(t.amount), 0),
   };
 
   const filteredTransactions = filter === 'ALL' 
     ? transactions 
     : transactions.filter(t => t.transactionType === filter);
+
+  const handleCreateTransaction = async (transactionData: Partial<TransactionData>) => {
+    if (transactionData.amount) {
+      transactionData.amount = convertDatabaseAmount(transactionData.amount);
+    }
+    
+    try {
+      const result = await createTransaction(transactionData);
+      
+      setTransactions(prev => [result, ...prev]);
+      
+      toast({
+        title: "Success",
+        description: "Transaction created successfully",
+      });
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create transaction",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateTransaction = async (transactionData: TransactionData) => {
+    const updatedTransaction = { ...transactionData };
+    
+    updatedTransaction.amount = convertDatabaseAmount(updatedTransaction.amount);
+    
+    try {
+      await updateTransaction(updatedTransaction);
+      
+      setTransactions(prev => 
+        prev.map(t => t._id === updatedTransaction._id ? updatedTransaction : t)
+      );
+      
+      toast({
+        title: "Success",
+        description: "Transaction updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update transaction",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -264,7 +342,6 @@ const Transactions = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Transaction Details Dialog */}
       <Dialog open={!!selectedTransaction} onOpenChange={(open) => !open && handleCloseDialog()}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -283,7 +360,10 @@ const Transactions = () => {
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground">Amount</h4>
                     <p className="text-2xl font-bold mt-1">
-                      {formatCurrency(selectedTransaction.amount, selectedTransaction.currency)}
+                      {formatCurrency(
+                        convertDisplayAmount(selectedTransaction.amount), 
+                        selectedTransaction.currency
+                      )}
                     </p>
                   </div>
                   <div className="text-right">
