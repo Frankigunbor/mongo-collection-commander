@@ -32,8 +32,28 @@ const Wallets = () => {
     queryFn: fetchUserData
   });
 
+  // Convert the display amount (divided by 100) to the storage amount (multiplied by 100)
+  const convertToStorageAmount = (amount: number): number => {
+    return Math.round(amount * 100);
+  };
+
+  // Convert the storage amount to display amount by dividing by 100
+  const convertToDisplayAmount = (amount: number): number => {
+    return amount / 100;
+  };
+
   const updateWalletMutation = useMutation({
-    mutationFn: updateWallet,
+    mutationFn: (wallet: WalletData) => {
+      // Make a copy of the wallet to avoid modifying the original
+      const walletToUpdate = { ...wallet };
+      
+      // Convert the balance back to storage format before saving
+      if (typeof walletToUpdate.balance === 'number') {
+        walletToUpdate.balance = convertToStorageAmount(walletToUpdate.balance);
+      }
+      
+      return updateWallet(walletToUpdate);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wallets'] });
       toast({
@@ -62,7 +82,12 @@ const Wallets = () => {
   }, [users]);
 
   const handleEditWallet = (wallet: WalletData) => {
-    setSelectedWallet(wallet);
+    // Convert the wallet balance to display format for editing
+    const walletForEdit = { 
+      ...wallet,
+      balance: convertToDisplayAmount(wallet.balance)
+    };
+    setSelectedWallet(walletForEdit);
     setIsEditDialogOpen(true);
   };
 
@@ -129,7 +154,7 @@ const Wallets = () => {
       key: 'balance',
       header: 'Balance',
       sortable: true,
-      cell: (row: WalletData) => `${row.currency} ${row.balance.toLocaleString()}`,
+      cell: (row: WalletData) => `${row.currency} ${convertToDisplayAmount(row.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     },
     {
       key: 'createdAt',

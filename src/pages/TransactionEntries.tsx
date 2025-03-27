@@ -28,8 +28,28 @@ const TransactionEntries = () => {
     queryFn: fetchUserData
   });
 
+  // Convert the display amount (divided by 100) to the storage amount (multiplied by 100)
+  const convertToStorageAmount = (amount: number): number => {
+    return Math.round(amount * 100);
+  };
+
+  // Convert the storage amount to display amount by dividing by 100
+  const convertToDisplayAmount = (amount: number): number => {
+    return amount / 100;
+  };
+
   const updateTransactionEntryMutation = useMutation({
-    mutationFn: updateTransactionEntry,
+    mutationFn: (entry: TransactionEntryData) => {
+      // Make a copy of the entry to avoid modifying the original
+      const entryToUpdate = { ...entry };
+      
+      // Convert the amount back to storage format before saving
+      if (typeof entryToUpdate.amount === 'number') {
+        entryToUpdate.amount = convertToStorageAmount(entryToUpdate.amount);
+      }
+      
+      return updateTransactionEntry(entryToUpdate);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactionEntries'] });
       toast({
@@ -48,7 +68,17 @@ const TransactionEntries = () => {
   });
 
   const createTransactionEntryMutation = useMutation({
-    mutationFn: createTransactionEntry,
+    mutationFn: (data: Partial<TransactionEntryData>) => {
+      // Make a copy of the data to avoid modifying the original
+      const entryToCreate = { ...data };
+      
+      // Convert the amount to storage format before saving
+      if (typeof entryToCreate.amount === 'number') {
+        entryToCreate.amount = convertToStorageAmount(entryToCreate.amount);
+      }
+      
+      return createTransactionEntry(entryToCreate);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactionEntries'] });
       toast({
@@ -67,7 +97,12 @@ const TransactionEntries = () => {
   });
 
   const handleEditEntry = (entry: TransactionEntryData) => {
-    setSelectedEntry(entry);
+    // Convert amount to display format for editing
+    const entryForEdit = { 
+      ...entry,
+      amount: convertToDisplayAmount(entry.amount)
+    };
+    setSelectedEntry(entryForEdit);
     setIsEditDialogOpen(true);
   };
 
@@ -169,7 +204,7 @@ const TransactionEntries = () => {
       key: 'amount',
       header: 'Amount',
       sortable: true,
-      cell: (row: TransactionEntryData) => `${row.currency} ${row.amount.toFixed(2)}`,
+      cell: (row: TransactionEntryData) => `${row.currency} ${convertToDisplayAmount(row.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     },
     {
       key: 'accountId',

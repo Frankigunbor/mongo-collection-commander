@@ -31,8 +31,32 @@ const WalletHistory = () => {
     queryFn: fetchUserData
   });
 
+  // Convert the display amount (divided by 100) to the storage amount (multiplied by 100)
+  const convertToStorageAmount = (amount: number): number => {
+    return Math.round(amount * 100);
+  };
+
+  // Convert the storage amount to display amount by dividing by 100
+  const convertToDisplayAmount = (amount: number): number => {
+    return amount / 100;
+  };
+
   const updateWalletHistoryMutation = useMutation({
-    mutationFn: updateWalletHistory,
+    mutationFn: (history: WalletHistoryData) => {
+      // Make a copy of the history to avoid modifying the original
+      const historyToUpdate = { ...history };
+      
+      // Convert the balances back to storage format before saving
+      if (typeof historyToUpdate.previousBalance === 'number') {
+        historyToUpdate.previousBalance = convertToStorageAmount(historyToUpdate.previousBalance);
+      }
+      
+      if (typeof historyToUpdate.currentBalance === 'number') {
+        historyToUpdate.currentBalance = convertToStorageAmount(historyToUpdate.currentBalance);
+      }
+      
+      return updateWalletHistory(historyToUpdate);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['walletHistory'] });
       toast({
@@ -61,7 +85,13 @@ const WalletHistory = () => {
   }, [users]);
 
   const handleEditHistory = (history: WalletHistoryData) => {
-    setSelectedHistory(history);
+    // Convert balances to display format for editing
+    const historyForEdit = { 
+      ...history,
+      previousBalance: convertToDisplayAmount(history.previousBalance),
+      currentBalance: convertToDisplayAmount(history.currentBalance)
+    };
+    setSelectedHistory(historyForEdit);
     setIsEditDialogOpen(true);
   };
 
@@ -120,7 +150,7 @@ const WalletHistory = () => {
       header: 'Balance Change',
       sortable: true,
       cell: (row: WalletHistoryData) => {
-        const change = row.currentBalance - row.previousBalance;
+        const change = convertToDisplayAmount(row.currentBalance - row.previousBalance);
         const isPositive = change >= 0;
         return (
           <div className={`flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
@@ -129,7 +159,7 @@ const WalletHistory = () => {
             ) : (
               <TrendingDown className="h-4 w-4 mr-1" />
             )}
-            {isPositive ? '+' : ''}{change.toLocaleString()}
+            {isPositive ? '+' : ''}{change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         );
       },
@@ -138,13 +168,13 @@ const WalletHistory = () => {
       key: 'previousBalance',
       header: 'Previous Balance',
       sortable: true,
-      cell: (row: WalletHistoryData) => row.previousBalance.toLocaleString(),
+      cell: (row: WalletHistoryData) => convertToDisplayAmount(row.previousBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     },
     {
       key: 'currentBalance',
       header: 'Current Balance',
       sortable: true,
-      cell: (row: WalletHistoryData) => row.currentBalance.toLocaleString(),
+      cell: (row: WalletHistoryData) => convertToDisplayAmount(row.currentBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     },
     {
       key: 'createdAt',
