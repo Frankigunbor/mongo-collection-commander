@@ -301,3 +301,231 @@ export async function getDashboardStats() {
     throw error;
   }
 }
+
+// Add the update functions
+export async function updateUser(userData: UserData): Promise<UserData> {
+  try {
+    const db = await connectToDatabase();
+    const userCollection = db.collection('User');
+    
+    const updatedUser = {
+      ...userData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await userCollection.updateOne({ _id: userData._id }, { $set: updatedUser });
+    return updatedUser;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+}
+
+export async function updateUserKyc(userKycData: UserKycData): Promise<UserKycData> {
+  try {
+    const db = await connectToDatabase();
+    const userKycCollection = db.collection('UserKyc');
+    
+    const updatedUserKyc = {
+      ...userKycData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await userKycCollection.updateOne({ _id: userKycData._id }, { $set: updatedUserKyc });
+    return updatedUserKyc;
+  } catch (error) {
+    console.error("Error updating user KYC:", error);
+    throw error;
+  }
+}
+
+export async function updateUserKycDetail(userKycDetailData: UserKycDetailData): Promise<UserKycDetailData> {
+  try {
+    const db = await connectToDatabase();
+    const userKycDetailCollection = db.collection('UserKycDetail');
+    
+    const updatedUserKycDetail = {
+      ...userKycDetailData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await userKycDetailCollection.updateOne({ _id: userKycDetailData._id }, { $set: updatedUserKycDetail });
+    return updatedUserKycDetail;
+  } catch (error) {
+    console.error("Error updating user KYC detail:", error);
+    throw error;
+  }
+}
+
+export async function updateWallet(walletData: WalletData): Promise<WalletData> {
+  try {
+    const db = await connectToDatabase();
+    const walletCollection = db.collection('Wallet');
+    
+    const updatedWallet = {
+      ...walletData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await walletCollection.updateOne({ _id: walletData._id }, { $set: updatedWallet });
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+    throw error;
+  }
+}
+
+export async function updateWalletHistory(historyData: WalletHistoryData): Promise<WalletHistoryData> {
+  try {
+    const db = await connectToDatabase();
+    const historyCollection = db.collection('WalletHistory');
+    
+    const updatedHistory = {
+      ...historyData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await historyCollection.updateOne({ _id: historyData._id }, { $set: updatedHistory });
+    return updatedHistory;
+  } catch (error) {
+    console.error("Error updating wallet history:", error);
+    throw error;
+  }
+}
+
+export async function updateTransaction(transactionData: TransactionData): Promise<TransactionData> {
+  try {
+    const db = await connectToDatabase();
+    const transactionCollection = db.collection('Transaction');
+    
+    const updatedTransaction = {
+      ...transactionData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await transactionCollection.updateOne({ _id: transactionData._id }, { $set: updatedTransaction });
+    return updatedTransaction;
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    throw error;
+  }
+}
+
+export async function updateTransactionEntry(entryData: TransactionEntryData): Promise<TransactionEntryData> {
+  try {
+    const db = await connectToDatabase();
+    const entryCollection = db.collection('TransactionEntry');
+    
+    const updatedEntry = {
+      ...entryData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await entryCollection.updateOne({ _id: entryData._id }, { $set: updatedEntry });
+    return updatedEntry;
+  } catch (error) {
+    console.error("Error updating transaction entry:", error);
+    throw error;
+  }
+}
+
+export async function updateActivity(activityData: ActivityData): Promise<ActivityData> {
+  try {
+    const db = await connectToDatabase();
+    const activityCollection = db.collection('StreamChannel');
+    
+    const updatedActivity = {
+      ...activityData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await activityCollection.updateOne({ _id: activityData._id }, { $set: updatedActivity });
+    return updatedActivity;
+  } catch (error) {
+    console.error("Error updating activity:", error);
+    throw error;
+  }
+}
+
+export async function createTransaction(transactionData: Partial<TransactionData>): Promise<TransactionData> {
+  try {
+    const db = await connectToDatabase();
+    const transactionCollection = db.collection('Transaction');
+    
+    const newTransaction: TransactionData = {
+      _id: `tx-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      actionId: transactionData.actionId || `action-${Date.now()}`,
+      reference: transactionData.reference || `REF-${Date.now()}`,
+      amount: transactionData.amount || 0,
+      currency: transactionData.currency || "CAD",
+      senderAccountId: transactionData.senderAccountId || "",
+      recipientAccountId: transactionData.recipientAccountId || "",
+      transactionType: transactionData.transactionType || "TRANSFER",
+      transactionStatus: transactionData.transactionStatus || "PENDING",
+      transactionSource: transactionData.transactionSource || "WEB_APP",
+      userId: transactionData.userId || "",
+      narration: transactionData.narration || "",
+      requeryCount: transactionData.requeryCount || 0,
+      processingMessage: transactionData.processingMessage || "",
+      vendor: transactionData.vendor || "",
+      vendorReference: transactionData.vendorReference || "",
+      conversionRate: transactionData.conversionRate || 1,
+      completedAt: transactionData.completedAt || ""
+    };
+    
+    await transactionCollection.insertOne(newTransaction as any);
+    return newTransaction;
+  } catch (error) {
+    console.error("Error creating transaction:", error);
+    throw error;
+  }
+}
+
+export async function createTransactionEntry(entryData: Partial<TransactionEntryData>): Promise<TransactionEntryData> {
+  try {
+    const db = await connectToDatabase();
+    const entryCollection = db.collection('TransactionEntry');
+    
+    const newEntry: TransactionEntryData = {
+      _id: `entry-${Date.now()}`,
+      entryType: entryData.entryType || "CREDIT",
+      amount: entryData.amount || 0,
+      currency: entryData.currency || "CAD",
+      accountId: entryData.accountId || "",
+      transactionId: entryData.transactionId || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    await entryCollection.insertOne(newEntry as any);
+    return newEntry;
+  } catch (error) {
+    console.error("Error creating transaction entry:", error);
+    throw error;
+  }
+}
+
+export async function createActivity(activityData: Partial<ActivityData>): Promise<ActivityData> {
+  try {
+    const db = await connectToDatabase();
+    const activityCollection = db.collection('StreamChannel');
+    
+    const newActivity: ActivityData = {
+      _id: `activity-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      userId: activityData.userId || "",
+      description: activityData.description || "",
+      accountId: activityData.accountId || "",
+      recentUserActivityType: activityData.recentUserActivityType || "TRANSACTION"
+    };
+    
+    await activityCollection.insertOne(newActivity as any);
+    return newActivity;
+  } catch (error) {
+    console.error("Error creating activity:", error);
+    throw error;
+  }
+}

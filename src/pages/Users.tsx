@@ -1,20 +1,104 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { Badge } from '@/components/ui/badge';
-import { fetchUserData, UserData } from '@/lib/api';
-import { Users as UsersIcon } from 'lucide-react';
+import { fetchUserData, UserData, updateUser } from '@/lib/api';
+import { Users as UsersIcon, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { EditDialog, FieldConfig } from '@/components/ui-custom/EditDialog';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const Users = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: fetchUserData
   });
+
+  const updateUserMutation = useMutation({
+    mutationFn: updateUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast({
+        title: 'Success',
+        description: 'User updated successfully',
+      });
+      setIsEditDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: 'destructive',
+      });
+    }
+  });
+
+  const handleEditUser = (user: UserData) => {
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveUser = (updatedData: Record<string, any>) => {
+    if (!selectedUser) return;
+    
+    updateUserMutation.mutate({
+      ...selectedUser,
+      ...updatedData,
+    } as UserData);
+  };
+
+  const userFields: FieldConfig[] = [
+    { name: '_id', label: 'ID', type: 'text', readOnly: true },
+    { name: 'firstName', label: 'First Name', type: 'text' },
+    { name: 'lastName', label: 'Last Name', type: 'text' },
+    { name: 'email', label: 'Email', type: 'text' },
+    { name: 'userPhoneNumber', label: 'Phone Number', type: 'text' },
+    { name: 'userPhoneNumberCountryCode', label: 'Country Code', type: 'text' },
+    { 
+      name: 'status', 
+      label: 'Status', 
+      type: 'select',
+      options: [
+        { value: 'ACTIVE', label: 'Active' },
+        { value: 'INACTIVE', label: 'Inactive' },
+        { value: 'SUSPENDED', label: 'Suspended' },
+        { value: 'BLOCKED', label: 'Blocked' }
+      ] 
+    },
+    { name: 'userPhoneNumberActivated', label: 'Phone Verified', type: 'switch' },
+    { name: 'userEmailActivated', label: 'Email Verified', type: 'switch' },
+    { name: 'securityQuestionEnabled', label: 'Security Question', type: 'switch' },
+    { name: 'transactionPinEnabled', label: 'Transaction PIN', type: 'switch' },
+    { 
+      name: 'countryCurrencyCode', 
+      label: 'Currency', 
+      type: 'select',
+      options: [
+        { value: 'CAD', label: 'Canadian Dollar (CAD)' },
+        { value: 'USD', label: 'US Dollar (USD)' },
+        { value: 'EUR', label: 'Euro (EUR)' },
+        { value: 'GBP', label: 'British Pound (GBP)' }
+      ] 
+    },
+    { name: 'userGroup', label: 'User Group', type: 'select',
+      options: [
+        { value: 'USER', label: 'Regular User' },
+        { value: 'ADMIN', label: 'Administrator' },
+        { value: 'SALES_FORCE', label: 'Sales Force' },
+        { value: 'SUPPORT', label: 'Support' }
+      ]
+    }
+  ];
 
   const columns = [
     {
@@ -38,16 +122,21 @@ const Users = () => {
       sortable: true,
     },
     {
-      key: 'phone',
+      key: 'userPhoneNumber',
       header: 'Phone',
       sortable: true,
+      cell: (row: UserData) => `${row.userPhoneNumberCountryCode} ${row.userPhoneNumber}`,
     },
     {
       key: 'status',
       header: 'Status',
       sortable: true,
       cell: (row: UserData) => (
-        <Badge variant={row.status === 'active' ? 'default' : 'destructive'}>
+        <Badge variant={
+          row.status === 'ACTIVE' ? 'default' :
+          row.status === 'INACTIVE' ? 'secondary' :
+          row.status === 'SUSPENDED' ? 'warning' : 'destructive'
+        }>
           {row.status}
         </Badge>
       ),
@@ -85,6 +174,19 @@ const Users = () => {
               navigate(`/profile?id=${user._id}`);
             }
           }}
+          onEdit={handleEditUser}
+        />
+      )}
+
+      {selectedUser && (
+        <EditDialog
+          title="Edit User"
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSave={handleSaveUser}
+          fields={userFields}
+          initialData={selectedUser}
+          isLoading={updateUserMutation.isPending}
         />
       )}
     </div>

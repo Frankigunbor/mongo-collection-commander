@@ -1,12 +1,27 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { DataTable } from '@/components/ui-custom/DataTable';
-import { fetchWalletData, WalletData, fetchUserData, UserData } from '@/lib/api';
-import { Wallet } from 'lucide-react';
+import { 
+  fetchWalletData, 
+  WalletData, 
+  fetchUserData, 
+  UserData, 
+  updateWallet 
+} from '@/lib/api';
+import { Wallet, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { EditDialog, FieldConfig } from '@/components/ui-custom/EditDialog';
+import { Button } from '@/components/ui/button';
 
 const Wallets = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
   const { data: wallets, isLoading: walletsLoading } = useQuery({
     queryKey: ['wallets'],
     queryFn: fetchWalletData
@@ -15,6 +30,25 @@ const Wallets = () => {
   const { data: users } = useQuery({
     queryKey: ['users'],
     queryFn: fetchUserData
+  });
+
+  const updateWalletMutation = useMutation({
+    mutationFn: updateWallet,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wallets'] });
+      toast({
+        title: 'Success',
+        description: 'Wallet updated successfully',
+      });
+      setIsEditDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update wallet: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: 'destructive',
+      });
+    }
   });
 
   // Create a map of user IDs to user names for quick lookup
@@ -26,6 +60,49 @@ const Wallets = () => {
       return acc;
     }, {} as Record<string, string>);
   }, [users]);
+
+  const handleEditWallet = (wallet: WalletData) => {
+    setSelectedWallet(wallet);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveWallet = (updatedData: Record<string, any>) => {
+    if (!selectedWallet) return;
+    
+    updateWalletMutation.mutate({
+      ...selectedWallet,
+      ...updatedData,
+    } as WalletData);
+  };
+
+  const walletFields: FieldConfig[] = [
+    { name: '_id', label: 'ID', type: 'text', readOnly: true },
+    { name: 'accountId', label: 'Account ID', type: 'text', readOnly: true },
+    { 
+      name: 'userId', 
+      label: 'User', 
+      type: 'select',
+      options: users?.map(user => ({
+        value: user._id,
+        label: `${user.firstName} ${user.lastName}`
+      })) || [],
+      readOnly: true
+    },
+    { 
+      name: 'currency', 
+      label: 'Currency', 
+      type: 'select',
+      options: [
+        { value: 'CAD', label: 'Canadian Dollar (CAD)' },
+        { value: 'USD', label: 'US Dollar (USD)' },
+        { value: 'EUR', label: 'Euro (EUR)' },
+        { value: 'GBP', label: 'British Pound (GBP)' }
+      ] 
+    },
+    { name: 'balance', label: 'Balance', type: 'number' },
+    { name: 'createdAt', label: 'Created At', type: 'date', readOnly: true },
+    { name: 'updatedAt', label: 'Updated At', type: 'date', readOnly: true }
+  ];
 
   const columns = [
     {
@@ -88,6 +165,19 @@ const Wallets = () => {
           onView={(wallet) => {
             console.log("View wallet", wallet);
           }}
+          onEdit={handleEditWallet}
+        />
+      )}
+
+      {selectedWallet && (
+        <EditDialog
+          title="Edit Wallet"
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSave={handleSaveWallet}
+          fields={walletFields}
+          initialData={selectedWallet}
+          isLoading={updateWalletMutation.isPending}
         />
       )}
     </div>

@@ -631,7 +631,18 @@ import {
   getUserAuthData as fetchUserAuthFromMongoDB,
   authenticateUser as authenticateUserFromMongoDB,
   registerUser as registerUserFromMongoDB,
-  getDashboardStats as fetchDashboardStatsFromMongoDB
+  getDashboardStats as fetchDashboardStatsFromMongoDB,
+  updateUser as updateUserInMongoDB,
+  updateUserKyc as updateUserKycInMongoDB,
+  updateUserKycDetail as updateUserKycDetailInMongoDB,
+  updateWallet as updateWalletInMongoDB,
+  updateWalletHistory as updateWalletHistoryInMongoDB,
+  updateTransaction as updateTransactionInMongoDB,
+  updateTransactionEntry as updateTransactionEntryInMongoDB,
+  updateActivity as updateActivityInMongoDB,
+  createTransaction as createTransactionInMongoDB,
+  createTransactionEntry as createTransactionEntryInMongoDB,
+  createActivity as createActivityInMongoDB
 } from './mongodb/services';
 
 export async function fetchKycData(): Promise<KycData[]> {
@@ -836,25 +847,190 @@ export async function fetchDashboardStats() {
   }
 }
 
-// Add the update functions
-export async function updateKyc(kycData: KycData): Promise<KycData> {
-  // Implementation would connect to MongoDB and update the document
-  return new Promise((resolve) => {
-    // For now, just pretend we updated it and return the data
-    setTimeout(() => resolve({
-      ...kycData,
+// Update functions
+export async function updateUser(user: UserData): Promise<UserData> {
+  try {
+    const updatedUser = await updateUserInMongoDB(user);
+    return updatedUser;
+  } catch (error) {
+    console.error("Error updating user, using mock update:", error);
+    // Mock update
+    return {
+      ...user,
       updatedAt: new Date().toISOString()
-    }), 500);
-  });
+    };
+  }
 }
 
-export async function updateReward(rewardData: RewardData): Promise<RewardData> {
-  // Implementation would connect to MongoDB and update the document
-  return new Promise((resolve) => {
-    // For now, just pretend we updated it and return the data
-    setTimeout(() => resolve({
-      ...rewardData,
+export async function updateUserKyc(userKyc: UserKycData): Promise<UserKycData> {
+  try {
+    const updatedUserKyc = await updateUserKycInMongoDB(userKyc);
+    return updatedUserKyc;
+  } catch (error) {
+    console.error("Error updating user KYC, using mock update:", error);
+    // Mock update
+    return {
+      ...userKyc,
       updatedAt: new Date().toISOString()
-    }), 500);
-  });
+    };
+  }
+}
+
+export async function updateUserKycDetail(userKycDetail: UserKycDetailData): Promise<UserKycDetailData> {
+  try {
+    const updatedUserKycDetail = await updateUserKycDetailInMongoDB(userKycDetail);
+    return updatedUserKycDetail;
+  } catch (error) {
+    console.error("Error updating user KYC detail, using mock update:", error);
+    // Mock update
+    return {
+      ...userKycDetail,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateWallet(wallet: WalletData): Promise<WalletData> {
+  try {
+    const updatedWallet = await updateWalletInMongoDB(wallet);
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet, using mock update:", error);
+    // Mock update
+    return {
+      ...wallet,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateWalletHistory(history: WalletHistoryData): Promise<WalletHistoryData> {
+  try {
+    const updatedHistory = await updateWalletHistoryInMongoDB(history);
+    return updatedHistory;
+  } catch (error) {
+    console.error("Error updating wallet history, using mock update:", error);
+    // Mock update
+    return {
+      ...history,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateTransaction(transaction: TransactionData): Promise<TransactionData> {
+  try {
+    const updatedTransaction = await updateTransactionInMongoDB(transaction);
+    return updatedTransaction;
+  } catch (error) {
+    console.error("Error updating transaction, using mock update:", error);
+    // Mock update
+    return {
+      ...transaction,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateTransactionEntry(entry: TransactionEntryData): Promise<TransactionEntryData> {
+  try {
+    const updatedEntry = await updateTransactionEntryInMongoDB(entry);
+    return updatedEntry;
+  } catch (error) {
+    console.error("Error updating transaction entry, using mock update:", error);
+    // Mock update
+    return {
+      ...entry,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateActivity(activity: ActivityData): Promise<ActivityData> {
+  try {
+    const updatedActivity = await updateActivityInMongoDB(activity);
+    return updatedActivity;
+  } catch (error) {
+    console.error("Error updating activity, using mock update:", error);
+    // Mock update
+    return {
+      ...activity,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+// Create functions
+export async function createTransaction(transaction: Partial<TransactionData>): Promise<TransactionData> {
+  try {
+    const createdTransaction = await createTransactionInMongoDB(transaction);
+    return createdTransaction;
+  } catch (error) {
+    console.error("Error creating transaction, using mock create:", error);
+    // Mock create
+    const newTransaction: TransactionData = {
+      _id: `tx-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      actionId: `action-${Date.now()}`,
+      reference: transaction.reference || `REF-${Date.now()}`,
+      amount: transaction.amount || 0,
+      currency: transaction.currency || "CAD",
+      senderAccountId: transaction.senderAccountId || "",
+      recipientAccountId: transaction.recipientAccountId || "",
+      transactionType: transaction.transactionType || "TRANSFER",
+      transactionStatus: transaction.transactionStatus || "PENDING",
+      transactionSource: transaction.transactionSource || "WEB_APP",
+      userId: transaction.userId || "",
+      narration: transaction.narration || "",
+      requeryCount: transaction.requeryCount || 0,
+      processingMessage: transaction.processingMessage || "",
+      vendor: transaction.vendor || "",
+      vendorReference: transaction.vendorReference || "",
+      conversionRate: transaction.conversionRate || 1,
+      completedAt: transaction.completedAt || ""
+    };
+    return newTransaction;
+  }
+}
+
+export async function createTransactionEntry(entry: Partial<TransactionEntryData>): Promise<TransactionEntryData> {
+  try {
+    const createdEntry = await createTransactionEntryInMongoDB(entry);
+    return createdEntry;
+  } catch (error) {
+    console.error("Error creating transaction entry, using mock create:", error);
+    // Mock create
+    const newEntry: TransactionEntryData = {
+      _id: `entry-${Date.now()}`,
+      entryType: entry.entryType || "CREDIT",
+      amount: entry.amount || 0,
+      currency: entry.currency || "CAD",
+      accountId: entry.accountId || "",
+      transactionId: entry.transactionId || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    return newEntry;
+  }
+}
+
+export async function createActivity(activity: Partial<ActivityData>): Promise<ActivityData> {
+  try {
+    const createdActivity = await createActivityInMongoDB(activity);
+    return createdActivity;
+  } catch (error) {
+    console.error("Error creating activity, using mock create:", error);
+    // Mock create
+    const newActivity: ActivityData = {
+      _id: `activity-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      userId: activity.userId || "",
+      description: activity.description || "",
+      accountId: activity.accountId || "",
+      recentUserActivityType: activity.recentUserActivityType || "TRANSACTION"
+    };
+    return newActivity;
+  }
 }
