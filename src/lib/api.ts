@@ -620,40 +620,40 @@ const userAuthMockData: UserAuthData[] = [
 
 // API Functions for existing collections
 import { 
-  getKycData as fetchKycFromMongoDB,
-  getActivityData as fetchActivityFromMongoDB,
-  getRewardData as fetchRewardFromMongoDB,
-  getTransactionData as fetchTransactionFromMongoDB,
-  getTransactionEntryData as fetchTransactionEntryFromMongoDB,
-  getUserData as fetchUserFromMongoDB,
-  getWalletData as fetchWalletFromMongoDB,
-  getWalletHistoryData as fetchWalletHistoryFromMongoDB,
-  getVendorTransactionResponseTrailData as fetchVendorResponseFromMongoDB,
-  getUserReferralData as fetchUserReferralFromMongoDB,
-  getUserKycDetailData as fetchUserKycDetailFromMongoDB,
-  getUserKycData as fetchUserKycFromMongoDB,
-  getUserAuthData as fetchUserAuthFromMongoDB,
-  authenticateUser as authenticateUserFromMongoDB,
-  registerUser as registerUserFromMongoDB,
-  getDashboardStats as fetchDashboardStatsFromMongoDB,
-  updateUser as updateUserInMongoDB,
-  updateUserKyc as updateUserKycInMongoDB,
-  updateUserKycDetail as updateUserKycDetailInMongoDB,
-  updateWallet as updateWalletInMongoDB,
-  updateWalletHistory as updateWalletHistoryInMongoDB,
-  updateTransaction as updateTransactionInMongoDB,
-  updateTransactionEntry as updateTransactionEntryInMongoDB,
-  updateActivity as updateActivityInMongoDB,
-  updateKyc as updateKycInMongoDB,
-  updateReward as updateRewardInMongoDB,
-  createTransaction as createTransactionInMongoDB,
-  createTransactionEntry as createTransactionEntryInMongoDB,
-  createActivity as createActivityInMongoDB
+  getKycData,
+  getActivityData,
+  getRewardData,
+  getTransactionData,
+  getTransactionEntryData,
+  getUserData,
+  getWalletData,
+  getWalletHistoryData,
+  getVendorTransactionResponseTrailData,
+  getUserReferralData,
+  getUserKycDetailData,
+  getUserKycData,
+  getUserAuthData,
+  authenticateUser,
+  registerUser,
+  getDashboardStats,
+  updateUser,
+  updateUserKyc,
+  updateUserKycDetail,
+  updateWallet,
+  updateWalletHistory,
+  updateTransaction,
+  updateTransactionEntry,
+  updateActivity,
+  updateKyc,
+  updateReward,
+  createTransaction,
+  createTransactionEntry,
+  createActivity
 } from './mongodb/services';
 
 export async function fetchKycData(): Promise<KycData[]> {
   try {
-    const data = await fetchKycFromMongoDB();
+    const data = await getKycData();
     return data.length ? data : kycMockData;
   } catch (error) {
     console.error("Error fetching KYC data from MongoDB, using mock data:", error);
@@ -663,7 +663,7 @@ export async function fetchKycData(): Promise<KycData[]> {
 
 export async function fetchActivityData(): Promise<ActivityData[]> {
   try {
-    const data = await fetchActivityFromMongoDB();
+    const data = await getActivityData();
     return data.length ? data : activityMockData;
   } catch (error) {
     console.error("Error fetching activity data from MongoDB, using mock data:", error);
@@ -673,7 +673,7 @@ export async function fetchActivityData(): Promise<ActivityData[]> {
 
 export async function fetchRewardData(): Promise<RewardData[]> {
   try {
-    const data = await fetchRewardFromMongoDB();
+    const data = await getRewardData();
     return data.length ? data : rewardMockData;
   } catch (error) {
     console.error("Error fetching reward data from MongoDB, using mock data:", error);
@@ -683,7 +683,7 @@ export async function fetchRewardData(): Promise<RewardData[]> {
 
 export async function fetchTransactionData(): Promise<TransactionData[]> {
   try {
-    const data = await fetchTransactionFromMongoDB();
+    const data = await getTransactionData();
     return data.length ? data : transactionMockData;
   } catch (error) {
     console.error("Error fetching transaction data from MongoDB, using mock data:", error);
@@ -693,7 +693,7 @@ export async function fetchTransactionData(): Promise<TransactionData[]> {
 
 export async function fetchTransactionEntryData(): Promise<TransactionEntryData[]> {
   try {
-    const data = await fetchTransactionEntryFromMongoDB();
+    const data = await getTransactionEntryData();
     return data.length ? data : transactionEntryMockData;
   } catch (error) {
     console.error("Error fetching transaction entry data from MongoDB, using mock data:", error);
@@ -703,7 +703,7 @@ export async function fetchTransactionEntryData(): Promise<TransactionEntryData[
 
 export async function fetchUserData(): Promise<UserData[]> {
   try {
-    const data = await fetchUserFromMongoDB();
+    const data = await getUserData();
     return data.length ? data : userMockData;
   } catch (error) {
     console.error("Error fetching user data from MongoDB, using mock data:", error);
@@ -713,7 +713,7 @@ export async function fetchUserData(): Promise<UserData[]> {
 
 export async function fetchWalletData(): Promise<WalletData[]> {
   try {
-    const data = await fetchWalletFromMongoDB();
+    const data = await getWalletData();
     return data.length ? data : walletMockData;
   } catch (error) {
     console.error("Error fetching wallet data from MongoDB, using mock data:", error);
@@ -723,7 +723,7 @@ export async function fetchWalletData(): Promise<WalletData[]> {
 
 export async function fetchWalletHistoryData(): Promise<WalletHistoryData[]> {
   try {
-    const data = await fetchWalletHistoryFromMongoDB();
+    const data = await getWalletHistoryData();
     return data.length ? data : walletHistoryMockData;
   } catch (error) {
     console.error("Error fetching wallet history data from MongoDB, using mock data:", error);
@@ -733,7 +733,7 @@ export async function fetchWalletHistoryData(): Promise<WalletHistoryData[]> {
 
 export async function fetchVendorTransactionResponseTrailData(): Promise<VendorTransactionResponseTrailData[]> {
   try {
-    const data = await fetchVendorResponseFromMongoDB();
+    const data = await getVendorTransactionResponseTrailData();
     return data.length ? data : vendorTransactionResponseTrailMockData;
   } catch (error) {
     console.error("Error fetching vendor transaction response trail data from MongoDB, using mock data:", error);
@@ -743,7 +743,7 @@ export async function fetchVendorTransactionResponseTrailData(): Promise<VendorT
 
 export async function fetchUserReferralData(): Promise<UserReferralData[]> {
   try {
-    const data = await fetchUserReferralFromMongoDB();
+    const data = await getUserReferralData();
     return data.length ? data : userReferralMockData;
   } catch (error) {
     console.error("Error fetching user referral data from MongoDB, using mock data:", error);
@@ -753,7 +753,7 @@ export async function fetchUserReferralData(): Promise<UserReferralData[]> {
 
 export async function fetchUserKycDetailData(): Promise<UserKycDetailData[]> {
   try {
-    const data = await fetchUserKycDetailFromMongoDB();
+    const data = await getUserKycDetailData();
     return data.length ? data : userKycDetailMockData;
   } catch (error) {
     console.error("Error fetching user KYC detail data from MongoDB, using mock data:", error);
@@ -763,7 +763,7 @@ export async function fetchUserKycDetailData(): Promise<UserKycDetailData[]> {
 
 export async function fetchUserKycData(): Promise<UserKycData[]> {
   try {
-    const data = await fetchUserKycFromMongoDB();
+    const data = await getUserKycData();
     return data.length ? data : userKycMockData;
   } catch (error) {
     console.error("Error fetching user KYC data from MongoDB, using mock data:", error);
@@ -773,7 +773,7 @@ export async function fetchUserKycData(): Promise<UserKycData[]> {
 
 export async function fetchUserAuthData(): Promise<UserAuthData[]> {
   try {
-    const data = await fetchUserAuthFromMongoDB();
+    const data = await getUserAuthData();
     return data.length ? data : userAuthMockData;
   } catch (error) {
     console.error("Error fetching user auth data from MongoDB, using mock data:", error);
@@ -784,7 +784,7 @@ export async function fetchUserAuthData(): Promise<UserAuthData[]> {
 // Authentication functions
 export async function login(email: string, password: string): Promise<{user: UserData, token: string} | null> {
   try {
-    return await authenticateUserFromMongoDB(email, password);
+    return await authenticateUser(email, password);
   } catch (error) {
     console.error("Error during login, using mock authentication:", error);
     // Fall back to mock authentication
@@ -801,7 +801,7 @@ export async function login(email: string, password: string): Promise<{user: Use
 
 export async function signup(userData: Partial<UserData>): Promise<{user: UserData, token: string} | null> {
   try {
-    return await registerUserFromMongoDB(userData);
+    return await registerUser(userData);
   } catch (error) {
     console.error("Error during signup, using mock registration:", error);
     // Fall back to mock registration
@@ -836,7 +836,7 @@ export async function signup(userData: Partial<UserData>): Promise<{user: UserDa
 // Dashboard stats
 export async function fetchDashboardStats() {
   try {
-    return await fetchDashboardStatsFromMongoDB();
+    return await getDashboardStats();
   } catch (error) {
     console.error("Error fetching dashboard stats from MongoDB, using mock data:", error);
     // Fall back to mock stats
@@ -856,7 +856,7 @@ export async function fetchDashboardStats() {
 // Update functions
 export async function updateUser(userData: UserData): Promise<UserData> {
   try {
-    const updatedUser = await updateUserInMongoDB(userData);
+    const updatedUser = await updateUser(userData);
     return updatedUser;
   } catch (error) {
     console.error("Error updating user, using mock update:", error);
@@ -870,7 +870,7 @@ export async function updateUser(userData: UserData): Promise<UserData> {
 
 export async function updateKyc(kycData: KycData): Promise<KycData> {
   try {
-    const updatedKyc = await updateKycInMongoDB(kycData);
+    const updatedKyc = await updateKyc(kycData);
     return updatedKyc;
   } catch (error) {
     console.error("Error updating KYC, using mock update:", error);
@@ -884,7 +884,7 @@ export async function updateKyc(kycData: KycData): Promise<KycData> {
 
 export async function updateReward(rewardData: RewardData): Promise<RewardData> {
   try {
-    const updatedReward = await updateRewardInMongoDB(rewardData);
+    const updatedReward = await updateReward(rewardData);
     return updatedReward;
   } catch (error) {
     console.error("Error updating reward, using mock update:", error);
@@ -899,7 +899,7 @@ export async function updateReward(rewardData: RewardData): Promise<RewardData> 
 // Additional update functions needed by components
 export async function updateUserKyc(userKycData: UserKycData): Promise<UserKycData> {
   try {
-    const updatedUserKyc = await updateUserKycInMongoDB(userKycData);
+    const updatedUserKyc = await updateUserKyc(userKycData);
     return updatedUserKyc;
   } catch (error) {
     console.error("Error updating user KYC, using mock update:", error);
@@ -913,7 +913,7 @@ export async function updateUserKyc(userKycData: UserKycData): Promise<UserKycDa
 
 export async function updateUserKycDetail(userKycDetailData: UserKycDetailData): Promise<UserKycDetailData> {
   try {
-    const updatedUserKycDetail = await updateUserKycDetailInMongoDB(userKycDetailData);
+    const updatedUserKycDetail = await updateUserKycDetail(userKycDetailData);
     return updatedUserKycDetail;
   } catch (error) {
     console.error("Error updating user KYC detail, using mock update:", error);
@@ -927,7 +927,7 @@ export async function updateUserKycDetail(userKycDetailData: UserKycDetailData):
 
 export async function updateWallet(walletData: WalletData): Promise<WalletData> {
   try {
-    const updatedWallet = await updateWalletInMongoDB(walletData);
+    const updatedWallet = await updateWallet(walletData);
     return updatedWallet;
   } catch (error) {
     console.error("Error updating wallet, using mock update:", error);
@@ -941,7 +941,7 @@ export async function updateWallet(walletData: WalletData): Promise<WalletData> 
 
 export async function updateWalletHistory(historyData: WalletHistoryData): Promise<WalletHistoryData> {
   try {
-    const updatedWalletHistory = await updateWalletHistoryInMongoDB(historyData);
+    const updatedWalletHistory = await updateWalletHistory(historyData);
     return updatedWalletHistory;
   } catch (error) {
     console.error("Error updating wallet history, using mock update:", error);
@@ -955,7 +955,7 @@ export async function updateWalletHistory(historyData: WalletHistoryData): Promi
 
 export async function updateTransactionEntry(entryData: TransactionEntryData): Promise<TransactionEntryData> {
   try {
-    const updatedTransactionEntry = await updateTransactionEntryInMongoDB(entryData);
+    const updatedTransactionEntry = await updateTransactionEntry(entryData);
     return updatedTransactionEntry;
   } catch (error) {
     console.error("Error updating transaction entry, using mock update:", error);
@@ -969,7 +969,7 @@ export async function updateTransactionEntry(entryData: TransactionEntryData): P
 
 export async function updateActivity(activityData: ActivityData): Promise<ActivityData> {
   try {
-    const updatedActivity = await updateActivityInMongoDB(activityData);
+    const updatedActivity = await updateActivity(activityData);
     return updatedActivity;
   } catch (error) {
     console.error("Error updating activity, using mock update:", error);
@@ -984,7 +984,7 @@ export async function updateActivity(activityData: ActivityData): Promise<Activi
 // Create functions
 export async function createTransaction(transaction: Partial<TransactionData>): Promise<TransactionData> {
   try {
-    const createdTransaction = await createTransactionInMongoDB(transaction);
+    const createdTransaction = await createTransaction(transaction);
     return createdTransaction;
   } catch (error) {
     console.error("Error creating transaction, using mock create:", error);
@@ -1017,7 +1017,7 @@ export async function createTransaction(transaction: Partial<TransactionData>): 
 
 export async function createTransactionEntry(entry: Partial<TransactionEntryData>): Promise<TransactionEntryData> {
   try {
-    const createdEntry = await createTransactionEntryInMongoDB(entry);
+    const createdEntry = await createTransactionEntry(entry);
     return createdEntry;
   } catch (error) {
     console.error("Error creating transaction entry, using mock create:", error);
@@ -1038,7 +1038,7 @@ export async function createTransactionEntry(entry: Partial<TransactionEntryData
 
 export async function createActivity(activity: Partial<ActivityData>): Promise<ActivityData> {
   try {
-    const createdActivity = await createActivityInMongoDB(activity);
+    const createdActivity = await createActivity(activity);
     return createdActivity;
   } catch (error) {
     console.error("Error creating activity, using mock create:", error);

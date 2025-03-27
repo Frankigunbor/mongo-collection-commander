@@ -1,6 +1,6 @@
 
 // Important note: This file has been modified to use the API client instead of direct MongoDB connections
-import { connectToDatabase, closeDatabaseConnection } from "./client";
+import { connectToDatabase, closeDatabaseConnection, authenticateUser, registerUser } from "./client";
 
 // Helper function to ensure database connection
 async function getCollection(collectionName: string) {
@@ -470,6 +470,120 @@ export async function updateUserKyc(userKycData: any) {
     return userKycData;
   } catch (error) {
     console.error("Error updating user kyc:", error);
+    throw error;
+  } finally {
+    await closeDatabaseConnection();
+  }
+}
+
+// Addition of missing functions for API compatibility
+export async function getKycData() {
+  return getAllKycs();
+}
+
+export async function getActivityData() {
+  return getAllActivities();
+}
+
+export async function getRewardData() {
+  return getAllRewards();
+}
+
+export async function getTransactionData() {
+  return getAllTransactions();
+}
+
+export async function getTransactionEntryData() {
+  return getAllTransactionEntries();
+}
+
+export async function getUserData() {
+  return getAllUsers();
+}
+
+export async function getWalletData() {
+  return getAllWallets();
+}
+
+export async function getWalletHistoryData() {
+  return getAllWalletHistory();
+}
+
+export async function getVendorTransactionResponseTrailData() {
+  return getAllVendorResponses();
+}
+
+export async function getUserReferralData() {
+  return getAllUserReferrals();
+}
+
+export async function getUserKycDetailData() {
+  return getAllUserKycDetails();
+}
+
+export async function getUserKycData() {
+  return getAllKycs();
+}
+
+export async function getUserAuthData() {
+  return getAllUserAuth();
+}
+
+export { authenticateUser, registerUser };
+
+// Adding these functions for API compatibility
+export async function getDashboardStats() {
+  try {
+    const users = await getAllUsers();
+    const transactions = await getAllTransactions();
+    const kycs = await getAllKycs();
+    const activities = await getAllActivities();
+    
+    return {
+      totalUsers: users.length,
+      activeUsers: users.filter(u => u.status === 'ACTIVE').length,
+      totalTransactions: transactions.length,
+      totalAmount: transactions.reduce((sum, t) => sum + t.amount, 0),
+      pendingKyc: kycs.filter(k => !k.verified).length || 0,
+      completedKyc: kycs.filter(k => k.verified).length || 0,
+      recentTransactions: transactions.slice(0, 5),
+      recentActivities: activities.slice(0, 5)
+    };
+  } catch (error) {
+    console.error("Error fetching dashboard stats:", error);
+    return {
+      totalUsers: 0,
+      activeUsers: 0,
+      totalTransactions: 0,
+      totalAmount: 0,
+      pendingKyc: 0,
+      completedKyc: 0,
+      recentTransactions: [],
+      recentActivities: []
+    };
+  }
+}
+
+export async function createTransactionEntry(entry: any) {
+  try {
+    const collection = await getCollection('TransactionEntry');
+    const result = await collection.insertOne(entry);
+    return { ...entry, _id: result.insertedId };
+  } catch (error) {
+    console.error("Error creating transaction entry:", error);
+    throw error;
+  } finally {
+    await closeDatabaseConnection();
+  }
+}
+
+export async function createActivity(activity: any) {
+  try {
+    const collection = await getCollection('Activity');
+    const result = await collection.insertOne(activity);
+    return { ...activity, _id: result.insertedId };
+  } catch (error) {
+    console.error("Error creating activity:", error);
     throw error;
   } finally {
     await closeDatabaseConnection();
