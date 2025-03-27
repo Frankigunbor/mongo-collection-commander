@@ -33,12 +33,44 @@ export async function connectToDatabase() {
                 const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`);
                 return await response.json();
               },
-              sort: () => ({
-                limit: () => ({
-                  toArray: async () => {
+              sort: (sortCriteria) => ({
+                toArray: async () => {
+                  try {
+                    // For simplicity, we're not fully implementing sorting on the client
+                    // In a real implementation, you would send sort criteria to the backend
                     const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`);
                     const data = await response.json();
-                    return data.slice(0, 5); // Simple mock for limit
+                    
+                    // Simplified sort implementation for demonstration
+                    // Sort by createdAt descending as default behavior
+                    return data.sort((a, b) => {
+                      const aDate = new Date(a.createdAt || 0).getTime();
+                      const bDate = new Date(b.createdAt || 0).getTime();
+                      return bDate - aDate;
+                    });
+                  } catch (error) {
+                    console.error(`Error in sort for ${name}:`, error);
+                    return [];
+                  }
+                },
+                limit: (limitCount) => ({
+                  toArray: async () => {
+                    try {
+                      const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`);
+                      const data = await response.json();
+                      
+                      // Sort by createdAt descending as default behavior
+                      const sortedData = data.sort((a, b) => {
+                        const aDate = new Date(a.createdAt || 0).getTime();
+                        const bDate = new Date(b.createdAt || 0).getTime();
+                        return bDate - aDate;
+                      });
+                      
+                      return sortedData.slice(0, limitCount);
+                    } catch (error) {
+                      console.error(`Error in limit for ${name}:`, error);
+                      return [];
+                    }
                   }
                 })
               })
@@ -67,10 +99,17 @@ export async function connectToDatabase() {
                 return null;
               }
             },
-            countDocuments: async () => {
+            countDocuments: async (query = {}) => {
               try {
                 const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`);
                 const data = await response.json();
+                
+                if (Object.keys(query).length) {
+                  return data.filter(item => {
+                    return Object.keys(query).every(key => item[key] === query[key]);
+                  }).length;
+                }
+                
                 return data.length;
               } catch (error) {
                 console.error(`Error in countDocuments for ${name}:`, error);
@@ -92,6 +131,22 @@ export async function connectToDatabase() {
                 console.error(`Error in insertOne for ${name}:`, error);
                 return { insertedId: `mock-${Date.now()}` };
               }
+            },
+            updateOne: async (filter, update) => {
+              try {
+                const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}/${filter._id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(update.$set || update),
+                });
+                const result = await response.json();
+                return { modifiedCount: 1, upsertedId: null };
+              } catch (error) {
+                console.error(`Error in updateOne for ${name}:`, error);
+                return { modifiedCount: 0, upsertedId: null };
+              }
             }
           })
         };
@@ -105,11 +160,15 @@ export async function connectToDatabase() {
         collection: (name) => ({
           find: () => ({ 
             toArray: async () => [], 
-            sort: () => ({ limit: () => ({ toArray: async () => [] }) }) 
+            sort: () => ({ 
+              toArray: async () => [],
+              limit: () => ({ toArray: async () => [] }) 
+            }) 
           }),
           findOne: async () => null,
           countDocuments: async () => 0,
-          insertOne: async () => ({ insertedId: `mock-${Date.now()}` })
+          insertOne: async () => ({ insertedId: `mock-${Date.now()}` }),
+          updateOne: async () => ({ modifiedCount: 0, upsertedId: null })
         })
       };
     }
