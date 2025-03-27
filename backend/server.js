@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -345,6 +344,45 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+// Recent User Activities
+app.get('/api/recent-user-activities', async (req, res) => {
+  try {
+    const activityCollection = db.collection('RecentUserActivity');
+    const result = await activityCollection.find({}).sort({ createdAt: -1 }).toArray();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update Recent User Activity
+app.put('/api/recent-user-activities/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const activityData = req.body;
+    
+    const activityCollection = db.collection('RecentUserActivity');
+    
+    const updatedActivity = {
+      ...activityData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    const result = await activityCollection.updateOne(
+      { _id: id },
+      { $set: updatedActivity }
+    );
+    
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: "Activity not found" });
+    }
+    
+    res.json(updatedActivity);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Dashboard stats
 app.get('/api/dashboard/stats', async (req, res) => {
   try {
@@ -367,8 +405,8 @@ app.get('/api/dashboard/stats', async (req, res) => {
       .limit(5)
       .toArray();
       
-    const streamChannelCollection = db.collection('StreamChannel');
-    const recentActivities = await streamChannelCollection.find({})
+    const recentUserActivityCollection = db.collection('RecentUserActivity');
+    const recentActivities = await recentUserActivityCollection.find({})
       .sort({ createdAt: -1 })
       .limit(5)
       .toArray();

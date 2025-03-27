@@ -10,9 +10,11 @@ import {
   BarChart, 
   DollarSign, 
   FileCheck, 
-  Clock
+  Clock,
+  ClipboardList
 } from 'lucide-react';
 import { BarChart as ReChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const [stats, setStats] = useState<any>(null);
@@ -183,11 +185,16 @@ const Dashboard = () => {
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Transactions</CardTitle>
-            <CardDescription>
-              Last 5 transactions
-            </CardDescription>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Recent Transactions</CardTitle>
+              <CardDescription>
+                Last 5 transactions
+              </CardDescription>
+            </div>
+            <Link to="/transactions" className="text-sm text-primary hover:underline">
+              View all
+            </Link>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -208,7 +215,9 @@ const Dashboard = () => {
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <div className="font-medium">{tx.transactionType}</div>
-                      <div className="text-right font-semibold">{formatCurrency(tx.amount, tx.currency)}</div>
+                      <div className="text-right font-semibold">
+                        {formatCurrency((tx.amount || 0) / 100, tx.currency)}
+                      </div>
                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <div>{formatDate(tx.createdAt)}</div>
@@ -222,18 +231,23 @@ const Dashboard = () => {
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
-            <CardDescription>
-              Last 5 user activities
-            </CardDescription>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Recent Activities</CardTitle>
+              <CardDescription>
+                Last 5 user activities
+              </CardDescription>
+            </div>
+            <Link to="/recent-user-activities" className="text-sm text-primary hover:underline">
+              View all
+            </Link>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {stats?.recentActivities.map((activity: any, index: number) => (
                 <div key={activity._id} className="flex items-center">
                   <div className="rounded-full p-2 mr-3 bg-blue-100">
-                    <Clock className="h-4 w-4 text-blue-600" />
+                    <ClipboardList className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between">

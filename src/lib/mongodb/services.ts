@@ -1,4 +1,3 @@
-
 import { connectToDatabase } from './client';
 import { 
   KycData, 
@@ -13,7 +12,8 @@ import {
   UserReferralData,
   UserKycDetailData,
   UserKycData,
-  UserAuthData
+  UserAuthData,
+  RecentUserActivityData
 } from '../api';
 
 // Helper function to safely cast MongoDB documents to our types
@@ -190,6 +190,19 @@ export async function getUserAuthData(): Promise<UserAuthData[]> {
   }
 }
 
+// RecentUserActivity collection functions
+export async function getRecentUserActivityData(): Promise<RecentUserActivityData[]> {
+  try {
+    const db = await connectToDatabase();
+    const collection = db.collection('RecentUserActivity');
+    const result = await collection.find().sort({ createdAt: -1 }).toArray();
+    return castToType<RecentUserActivityData>(result);
+  } catch (error) {
+    console.error("Error fetching recent user activity data:", error);
+    throw error;
+  }
+}
+
 // Authentication functions
 export async function authenticateUser(email: string, password: string): Promise<{user: UserData, token: string} | null> {
   try {
@@ -259,7 +272,7 @@ export async function registerUser(userData: Partial<UserData>): Promise<{user: 
   }
 }
 
-// Dashboard stats function
+// Update Dashboard stats function to use the RecentUserActivity collection
 export async function getDashboardStats() {
   try {
     const db = await connectToDatabase();
@@ -283,9 +296,9 @@ export async function getDashboardStats() {
       .limit(5)
       .toArray();
       
-    // Get recent activities sorted by createdAt desc
-    const streamChannelCollection = db.collection('StreamChannel');
-    const recentActivities = await streamChannelCollection.find()
+    // Get recent activities from RecentUserActivity collection instead of StreamChannel
+    const recentUserActivityCollection = db.collection('RecentUserActivity');
+    const recentActivities = await recentUserActivityCollection.find()
       .sort({ createdAt: -1 })
       .limit(5)
       .toArray();
@@ -298,7 +311,7 @@ export async function getDashboardStats() {
       pendingKyc,
       completedKyc,
       recentTransactions: castToType<TransactionData>(recentTransactions),
-      recentActivities: castToType<ActivityData>(recentActivities)
+      recentActivities: castToType<RecentUserActivityData>(recentActivities)
     };
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);
@@ -572,6 +585,24 @@ export async function createActivity(activityData: Partial<ActivityData>): Promi
     return newActivity;
   } catch (error) {
     console.error("Error creating activity:", error);
+    throw error;
+  }
+}
+
+export async function updateRecentUserActivity(activityData: RecentUserActivityData): Promise<RecentUserActivityData> {
+  try {
+    const db = await connectToDatabase();
+    const activityCollection = db.collection('RecentUserActivity');
+    
+    const updatedActivity = {
+      ...activityData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await activityCollection.updateOne({ _id: activityData._id }, { $set: updatedActivity });
+    return updatedActivity;
+  } catch (error) {
+    console.error("Error updating recent user activity:", error);
     throw error;
   }
 }

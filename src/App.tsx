@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -30,6 +29,7 @@ import UserKycs from "./pages/UserKycs";
 import UserAuth from "./pages/UserAuth";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import RecentUserActivities from "./pages/RecentUserActivities";
 
 // Create QueryClient outside of component to avoid recreation on render
 const queryClient = new QueryClient();
@@ -66,6 +66,7 @@ function App() {
               <Route path="/user-auth" element={<AdminLayout><ProtectedRoute><UserAuth /></ProtectedRoute></AdminLayout>} />
               <Route path="/profile" element={<AdminLayout><ProtectedRoute><Profile /></ProtectedRoute></AdminLayout>} />
               <Route path="/settings" element={<AdminLayout><ProtectedRoute><Settings /></ProtectedRoute></AdminLayout>} />
+              <Route path="/recent-user-activities" element={<AdminLayout><ProtectedRoute><RecentUserActivities /></ProtectedRoute></AdminLayout>} />
               
               {/* Catch-all route */}
               <Route path="*" element={<AdminLayout requireAuth={false}><NotFound /></AdminLayout>} />

@@ -1055,3 +1055,52 @@ export async function createActivity(activity: Partial<ActivityData>): Promise<A
     return newActivity;
   }
 }
+
+// RecentUserActivity type
+export interface RecentUserActivityData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  description: string;
+  transactionId?: string;
+  recentUserActivityType: string;
+}
+
+// Fetch function for RecentUserActivity
+export async function fetchRecentUserActivityData(): Promise<RecentUserActivityData[]> {
+  try {
+    const response = await fetch('/api/recent-user-activities');
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching recent user activities: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching recent user activities:', error);
+    throw error;
+  }
+}
+
+// Update function for RecentUserActivity
+export async function updateRecentUserActivity(activityData: RecentUserActivityData): Promise<RecentUserActivityData> {
+  try {
+    const response = await fetch(`/api/recent-user-activities/${activityData._id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(activityData),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error updating recent user activity: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating recent user activity:', error);
+    throw error;
+  }
+}
