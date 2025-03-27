@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -55,6 +54,72 @@ const Users = () => {
       ...selectedUser,
       ...updatedData,
     } as UserData);
+  };
+
+  const handleActivateUser = async (userId: string) => {
+    try {
+      const user = users?.find(u => u._id === userId);
+      if (!user) {
+        toast({
+          title: 'Error',
+          description: 'User not found',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      await updateUser({
+        ...user,
+        status: 'ACTIVE'
+      });
+
+      toast({
+        title: 'Success',
+        description: 'User activated successfully',
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    } catch (error) {
+      console.error('Error activating user:', error);
+      toast({
+        title: 'Error',
+        description: `Failed to activate user: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeactivateUser = async (userId: string) => {
+    try {
+      const user = users?.find(u => u._id === userId);
+      if (!user) {
+        toast({
+          title: 'Error',
+          description: 'User not found',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      await updateUser({
+        ...user,
+        status: 'INACTIVE'
+      });
+
+      toast({
+        title: 'Success',
+        description: 'User deactivated successfully',
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+      toast({
+        title: 'Error',
+        description: `Failed to deactivate user: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: 'destructive',
+      });
+    }
   };
 
   const userFields: FieldConfig[] = [

@@ -640,6 +640,8 @@ import {
   updateTransaction as updateTransactionInMongoDB,
   updateTransactionEntry as updateTransactionEntryInMongoDB,
   updateActivity as updateActivityInMongoDB,
+  updateKyc as updateKycInMongoDB,
+  updateReward as updateRewardInMongoDB,
   createTransaction as createTransactionInMongoDB,
   createTransactionEntry as createTransactionEntryInMongoDB,
   createActivity as createActivityInMongoDB
@@ -848,113 +850,43 @@ export async function fetchDashboardStats() {
 }
 
 // Update functions
-export async function updateUser(user: UserData): Promise<UserData> {
+export async function updateUser(userData: UserData): Promise<UserData> {
   try {
-    const updatedUser = await updateUserInMongoDB(user);
+    const updatedUser = await updateUserInMongoDB(userData);
     return updatedUser;
   } catch (error) {
     console.error("Error updating user, using mock update:", error);
     // Mock update
     return {
-      ...user,
+      ...userData,
       updatedAt: new Date().toISOString()
     };
   }
 }
 
-export async function updateUserKyc(userKyc: UserKycData): Promise<UserKycData> {
+export async function updateKyc(kycData: KycData): Promise<KycData> {
   try {
-    const updatedUserKyc = await updateUserKycInMongoDB(userKyc);
-    return updatedUserKyc;
+    const updatedKyc = await updateKycInMongoDB(kycData);
+    return updatedKyc;
   } catch (error) {
-    console.error("Error updating user KYC, using mock update:", error);
+    console.error("Error updating KYC, using mock update:", error);
     // Mock update
     return {
-      ...userKyc,
+      ...kycData,
       updatedAt: new Date().toISOString()
     };
   }
 }
 
-export async function updateUserKycDetail(userKycDetail: UserKycDetailData): Promise<UserKycDetailData> {
+export async function updateReward(rewardData: RewardData): Promise<RewardData> {
   try {
-    const updatedUserKycDetail = await updateUserKycDetailInMongoDB(userKycDetail);
-    return updatedUserKycDetail;
+    const updatedReward = await updateRewardInMongoDB(rewardData);
+    return updatedReward;
   } catch (error) {
-    console.error("Error updating user KYC detail, using mock update:", error);
+    console.error("Error updating reward, using mock update:", error);
     // Mock update
     return {
-      ...userKycDetail,
-      updatedAt: new Date().toISOString()
-    };
-  }
-}
-
-export async function updateWallet(wallet: WalletData): Promise<WalletData> {
-  try {
-    const updatedWallet = await updateWalletInMongoDB(wallet);
-    return updatedWallet;
-  } catch (error) {
-    console.error("Error updating wallet, using mock update:", error);
-    // Mock update
-    return {
-      ...wallet,
-      updatedAt: new Date().toISOString()
-    };
-  }
-}
-
-export async function updateWalletHistory(history: WalletHistoryData): Promise<WalletHistoryData> {
-  try {
-    const updatedHistory = await updateWalletHistoryInMongoDB(history);
-    return updatedHistory;
-  } catch (error) {
-    console.error("Error updating wallet history, using mock update:", error);
-    // Mock update
-    return {
-      ...history,
-      updatedAt: new Date().toISOString()
-    };
-  }
-}
-
-export async function updateTransaction(transaction: TransactionData): Promise<TransactionData> {
-  try {
-    const updatedTransaction = await updateTransactionInMongoDB(transaction);
-    return updatedTransaction;
-  } catch (error) {
-    console.error("Error updating transaction, using mock update:", error);
-    // Mock update
-    return {
-      ...transaction,
-      updatedAt: new Date().toISOString()
-    };
-  }
-}
-
-export async function updateTransactionEntry(entry: TransactionEntryData): Promise<TransactionEntryData> {
-  try {
-    const updatedEntry = await updateTransactionEntryInMongoDB(entry);
-    return updatedEntry;
-  } catch (error) {
-    console.error("Error updating transaction entry, using mock update:", error);
-    // Mock update
-    return {
-      ...entry,
-      updatedAt: new Date().toISOString()
-    };
-  }
-}
-
-export async function updateActivity(activity: ActivityData): Promise<ActivityData> {
-  try {
-    const updatedActivity = await updateActivityInMongoDB(activity);
-    return updatedActivity;
-  } catch (error) {
-    console.error("Error updating activity, using mock update:", error);
-    // Mock update
-    return {
-      ...activity,
+      ...rewardData,
       updatedAt: new Date().toISOString()
     };
   }
