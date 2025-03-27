@@ -74,7 +74,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           
           {/* KYC Management Section */}
           {open && <div className="sidebar-section">KYC Management</div>}
-          <NavItem to="/kyc" icon={<Shield size={20} />} text="KYC Levels" open={open} />
+          {/* <NavItem to="/kyc" icon={<Shield size={20} />} text="KYC Levels" open={open} /> */}
           <NavItem to="/user-kycs" icon={<Shield size={20} />} text="User KYC" open={open} />
           <NavItem to="/user-kyc-details" icon={<FileCheck size={20} />} text="KYC Details" open={open} />
           
