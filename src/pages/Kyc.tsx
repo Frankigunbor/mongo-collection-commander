@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { KycData, fetchKycData, updateKyc } from '@/lib/api';
@@ -42,53 +41,75 @@ const Kyc = () => {
     {
       key: '_id',
       header: 'ID',
-      cell: (kyc: KycData) => <span className="font-mono text-xs">{kyc._id.substring(0, 10)}...</span>,
+      cell: (kyc: KycData) => {
+        if (!kyc || !kyc._id) return <span className="text-muted-foreground">N/A</span>;
+        return <span className="font-mono text-xs">{kyc._id.substring(0, 10)}...</span>;
+      },
     },
     {
       key: 'creatorId',
       header: 'Creator ID',
-      cell: (kyc: KycData) => <span className="font-mono text-xs">{kyc.creatorId.substring(0, 10)}...</span>,
+      cell: (kyc: KycData) => {
+        if (!kyc || !kyc.creatorId) return <span className="text-muted-foreground">N/A</span>;
+        return <span className="font-mono text-xs">{kyc.creatorId.substring(0, 10)}...</span>;
+      },
     },
     {
       key: 'currency',
       header: 'Currency',
-      cell: (kyc: KycData) => <span className="font-semibold">{kyc.currency}</span>,
+      cell: (kyc: KycData) => {
+        if (!kyc || !kyc.currency) return <span className="text-muted-foreground">N/A</span>;
+        return <span className="font-semibold">{kyc.currency}</span>;
+      },
       sortable: true,
     },
     {
       key: 'kycLevel',
       header: 'KYC Level',
-      cell: (kyc: KycData) => (
-        <StatusBadge 
-          status={
-            kyc.kycLevel === 'LEVEL_ONE' ? 'active' : 
-            kyc.kycLevel === 'LEVEL_TWO' ? 'pending' : 'success'
-          } 
-        />
-      ),
+      cell: (kyc: KycData) => {
+        if (!kyc || !kyc.kycLevel) return <span className="text-muted-foreground">N/A</span>;
+        return (
+          <StatusBadge 
+            status={
+              kyc.kycLevel === 'LEVEL_ONE' ? 'active' : 
+              kyc.kycLevel === 'LEVEL_TWO' ? 'pending' : 'success'
+            } 
+          />
+        );
+      },
       sortable: true,
     },
     {
       key: 'singleTransactionLimit',
       header: 'Single Tx Limit',
-      cell: (kyc: KycData) => formatCurrency(kyc.singleTransactionLimit, kyc.currency),
+      cell: (kyc: KycData) => {
+        if (!kyc || typeof kyc.singleTransactionLimit !== 'number') return <span className="text-muted-foreground">N/A</span>;
+        return formatCurrency(kyc.singleTransactionLimit, kyc.currency);
+      },
       sortable: true,
     },
     {
       key: 'dailyTransactionLimit',
       header: 'Daily Limit',
-      cell: (kyc: KycData) => formatCurrency(kyc.dailyTransactionLimit, kyc.currency),
+      cell: (kyc: KycData) => {
+        if (!kyc || typeof kyc.dailyTransactionLimit !== 'number') return <span className="text-muted-foreground">N/A</span>;
+        return formatCurrency(kyc.dailyTransactionLimit, kyc.currency);
+      },
       sortable: true,
     },
     {
       key: 'createdAt',
       header: 'Created At',
-      cell: (kyc: KycData) => formatDate(kyc.createdAt),
+      cell: (kyc: KycData) => {
+        if (!kyc || !kyc.createdAt) return <span className="text-muted-foreground">N/A</span>;
+        return formatDate(kyc.createdAt);
+      },
       sortable: true,
     },
   ];
 
   const formatCurrency = (amount: number, currency = 'CAD') => {
+    if (typeof amount !== 'number') return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
@@ -97,13 +118,27 @@ const Kyc = () => {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    }).format(date);
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return 'N/A';
+    }
+    
+    try {
+      const date = new Date(dateString);
+      
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      }).format(date);
+    } catch (error) {
+      console.error("Error formatting date:", error, "for date string:", dateString);
+      return 'Invalid Date';
+    }
   };
 
   const handleView = (kyc: KycData) => {
@@ -190,7 +225,7 @@ const Kyc = () => {
           <DialogHeader>
             <DialogTitle>
               {isEditMode ? 'Edit KYC Settings' : 'KYC Details'}
-              {selectedKyc && (
+              {selectedKyc && selectedKyc._id && (
                 <span className="font-mono text-xs ml-2">
                   #{selectedKyc._id.substring(0, 8)}
                 </span>
@@ -262,7 +297,7 @@ const Kyc = () => {
                       id="singleTransactionLimit"
                       name="singleTransactionLimit"
                       type="number"
-                      value={editedKyc.singleTransactionLimit || selectedKyc.singleTransactionLimit}
+                      value={editedKyc.singleTransactionLimit !== undefined ? editedKyc.singleTransactionLimit : selectedKyc.singleTransactionLimit}
                       onChange={handleInputChange}
                     />
                   ) : (
@@ -278,7 +313,7 @@ const Kyc = () => {
                       id="dailyTransactionLimit"
                       name="dailyTransactionLimit"
                       type="number"
-                      value={editedKyc.dailyTransactionLimit || selectedKyc.dailyTransactionLimit}
+                      value={editedKyc.dailyTransactionLimit !== undefined ? editedKyc.dailyTransactionLimit : selectedKyc.dailyTransactionLimit}
                       onChange={handleInputChange}
                     />
                   ) : (
@@ -294,7 +329,7 @@ const Kyc = () => {
                       id="weeklyTransactionLimit"
                       name="weeklyTransactionLimit"
                       type="number"
-                      value={editedKyc.weeklyTransactionLimit || selectedKyc.weeklyTransactionLimit}
+                      value={editedKyc.weeklyTransactionLimit !== undefined ? editedKyc.weeklyTransactionLimit : selectedKyc.weeklyTransactionLimit}
                       onChange={handleInputChange}
                     />
                   ) : (
@@ -310,7 +345,7 @@ const Kyc = () => {
                       id="monthlyTransactionLimit"
                       name="monthlyTransactionLimit"
                       type="number"
-                      value={editedKyc.monthlyTransactionLimit || selectedKyc.monthlyTransactionLimit}
+                      value={editedKyc.monthlyTransactionLimit !== undefined ? editedKyc.monthlyTransactionLimit : selectedKyc.monthlyTransactionLimit}
                       onChange={handleInputChange}
                     />
                   ) : (
@@ -326,7 +361,7 @@ const Kyc = () => {
                       id="accountMaximumBalance"
                       name="accountMaximumBalance"
                       type="number"
-                      value={editedKyc.accountMaximumBalance || selectedKyc.accountMaximumBalance}
+                      value={editedKyc.accountMaximumBalance !== undefined ? editedKyc.accountMaximumBalance : selectedKyc.accountMaximumBalance}
                       onChange={handleInputChange}
                     />
                   ) : (
@@ -340,11 +375,15 @@ const Kyc = () => {
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-2">KYC Requirements</h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedKyc.kycRequirements.map((req, index) => (
-                    <div key={index} className="px-3 py-1 bg-muted rounded-full text-xs">
-                      {req}
-                    </div>
-                  ))}
+                  {selectedKyc.kycRequirements && selectedKyc.kycRequirements.length > 0 ? (
+                    selectedKyc.kycRequirements.map((req, index) => (
+                      <div key={index} className="px-3 py-1 bg-muted rounded-full text-xs">
+                        {req}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground">No requirements specified</span>
+                  )}
                 </div>
               </div>
               
