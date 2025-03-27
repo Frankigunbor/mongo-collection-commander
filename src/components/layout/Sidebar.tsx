@@ -20,7 +20,8 @@ import {
   Shield,
   Lock,
   RefreshCcw,
-  User
+  User,
+  ActivitySquare
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -84,6 +85,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           <NavItem to="/activities" icon={<Activity size={20} />} text="User Activities" open={open} />
           <NavItem to="/user-referrals" icon={<UserPlus size={20} />} text="Referrals" open={open} />
           <NavItem to="/user-auth" icon={<Lock size={20} />} text="Authentication" open={open} />
+          <NavItem to="/recent-user-activities" icon={<ActivitySquare size={20} />} text="Recent User Activities" open={open} />
           
           {/* Financial Section */}
           {open && <div className="sidebar-section">Financial</div>}
