@@ -10,8 +10,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
-import Kyc from "./pages/Kyc";
-import Activities from "./pages/Activities";
+
 import Rewards from "./pages/Rewards";
 import Transactions from "./pages/Transactions";
 import Login from "./pages/auth/Login";
@@ -49,8 +48,7 @@ function App() {
               
               {/* Protected routes */}
               <Route path="/dashboard" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />
-              <Route path="/kyc" element={<AdminLayout><ProtectedRoute><Kyc /></ProtectedRoute></AdminLayout>} />
-              <Route path="/activities" element={<AdminLayout><ProtectedRoute><Activities /></ProtectedRoute></AdminLayout>} />
+            
               <Route path="/rewards" element={<AdminLayout><ProtectedRoute><Rewards /></ProtectedRoute></AdminLayout>} />
               <Route path="/transactions" element={<AdminLayout><ProtectedRoute><Transactions /></ProtectedRoute></AdminLayout>} />
               

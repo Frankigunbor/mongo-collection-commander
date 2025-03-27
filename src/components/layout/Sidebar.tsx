@@ -75,14 +75,13 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           
           {/* KYC Management Section */}
           {open && <div className="sidebar-section">KYC Management</div>}
-          {/* <NavItem to="/kyc" icon={<Shield size={20} />} text="KYC Levels" open={open} /> */}
+       
           <NavItem to="/user-kycs" icon={<Shield size={20} />} text="User KYC" open={open} />
           <NavItem to="/user-kyc-details" icon={<FileCheck size={20} />} text="KYC Details" open={open} />
           
           {/* User Management Section */}
           {open && <div className="sidebar-section">User Management</div>}
           <NavItem to="/users" icon={<Users size={20} />} text="Users" open={open} />
-          <NavItem to="/activities" icon={<Activity size={20} />} text="User Activities" open={open} />
           <NavItem to="/user-referrals" icon={<UserPlus size={20} />} text="Referrals" open={open} />
           <NavItem to="/user-auth" icon={<Lock size={20} />} text="Authentication" open={open} />
           <NavItem to="/recent-user-activities" icon={<ActivitySquare size={20} />} text="Recent User Activities" open={open} />

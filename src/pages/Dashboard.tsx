@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { fetchDashboardStats, fetchTransactionData, fetchActivityData } from '@/lib/api';
+import { fetchDashboardStats, fetchTransactionData } from '@/lib/api';
+import { fetchRecentUserActivityData } from '@/lib/api'; // Add this import
 import { StatusBadge } from '@/components/ui-custom/StatusBadge';
 import { 
   Users, 
@@ -16,16 +16,29 @@ import {
 import { BarChart as ReChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link } from 'react-router-dom';
 
+interface RecentUserActivityData {
+  _id: string;
+  createdAt: string;
+  description: string;
+  recentUserActivityType: string;
+}
+
 const Dashboard = () => {
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [recentActivities, setRecentActivities] = useState<RecentUserActivityData[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const statsData = await fetchDashboardStats();
+        const [statsData, activitiesData] = await Promise.all([
+          fetchDashboardStats(),
+          fetchRecentUserActivityData()
+        ]);
+        
         setStats(statsData);
+        setRecentActivities(activitiesData.slice(0, 5)); // Limit to 5 activities
       } catch (error) {
         console.error("Failed to load dashboard data:", error);
         toast({
@@ -229,7 +242,45 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
-        
+
+<Card>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Recent Activities</CardTitle>
+              <CardDescription>
+                Last 5 user activities
+              </CardDescription>
+            </div>
+            <Link to="/recent-user-activities" className="text-sm text-primary hover:underline">
+              View all
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {recentActivities.length === 0 ? (
+              <div className="text-center text-muted-foreground">No recent activities</div>
+            ) : (
+              <div className="space-y-4">
+                {recentActivities.map((activity) => (
+                  <div key={activity._id} className="flex items-center">
+                    <div className="rounded-full p-2 mr-3 bg-blue-100">
+                      <ClipboardList className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <div className="font-medium line-clamp-1">{activity.description}</div>
+                      </div>
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <div>{formatDate(activity.createdAt)}</div>
+                        <StatusBadge status={activity.recentUserActivityType} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+{/*         
         <Card>
           <CardHeader className="flex justify-between items-center">
             <div>
@@ -262,7 +313,7 @@ const Dashboard = () => {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

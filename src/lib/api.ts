@@ -1068,39 +1068,162 @@ export interface RecentUserActivityData {
 }
 
 // Fetch function for RecentUserActivity
+// export async function fetchRecentUserActivityData(): Promise<RecentUserActivityData[]> {
+//   try {
+//     const response = await fetch('/api/recent-user-activities');
+    
+//     if (!response.ok) {
+//       throw new Error(`Error fetching recent user activities: ${response.statusText}`);
+//     }
+    
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching recent user activities:', error);
+//     throw error;
+//   }
+// }
+const API_BASE_URL = 'http://localhost:5000';
+
 export async function fetchRecentUserActivityData(): Promise<RecentUserActivityData[]> {
   try {
-    const response = await fetch('/api/recent-user-activities');
+    const response = await fetch(`${API_BASE_URL}/api/recent-user-activities`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
     
     if (!response.ok) {
-      throw new Error(`Error fetching recent user activities: ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error('Error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      });
+      
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorBody}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid response format: expected an array');
+    }
+    
+    return data;
   } catch (error) {
-    console.error('Error fetching recent user activities:', error);
+    console.error('Comprehensive error fetching recent user activities:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
+    
     throw error;
   }
 }
 
 // Update function for RecentUserActivity
+// export async function updateRecentUserActivity(activityData: RecentUserActivityData): Promise<RecentUserActivityData> {
+//   try {
+//     const response = await fetch(`${API_BASE_URL}/api/recent-user-activities/${activityData._id}`, {
+//       method: 'PUT',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(activityData),
+//     });
+    
+//     if (!response.ok) {
+//       throw new Error(`Error updating recent user activity: ${response.statusText}`);
+//     }
+    
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error updating recent user activity:', error);
+//     throw error;
+//   }
+// }
+
+
 export async function updateRecentUserActivity(activityData: RecentUserActivityData): Promise<RecentUserActivityData> {
   try {
-    const response = await fetch(`/api/recent-user-activities/${activityData._id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/recent-user-activities/${activityData._id}`, {
       method: 'PUT',
       headers: {
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(activityData),
     });
     
     if (!response.ok) {
-      throw new Error(`Error updating recent user activity: ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error('Error response for update:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      });
+      
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorBody}`);
     }
     
-    return await response.json();
+    const updatedData = await response.json();
+    
+    // Validate the returned data structure
+    if (!updatedData || typeof updatedData !== 'object') {
+      throw new Error('Invalid response format: expected an object');
+    }
+    
+    return updatedData;
   } catch (error) {
-    console.error('Error updating recent user activity:', error);
+    console.error('Comprehensive error updating recent user activity:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
+    
+    throw error;
+  }
+}
+
+export async function createRecentUserActivity(activityData: Partial<RecentUserActivityData>): Promise<RecentUserActivityData> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/recent-user-activities`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(activityData),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('Error response for create:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      });
+
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorBody}`);
+    }
+
+    const createdData = await response.json();
+
+    // Validate the returned data structure
+    if (!createdData || typeof createdData !== 'object') {
+      throw new Error('Invalid response format: expected an object');
+    }
+
+    return createdData;
+  } catch (error) {
+    console.error('Comprehensive error creating recent user activity:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
+
     throw error;
   }
 }

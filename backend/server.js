@@ -10,7 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+// app.use(cors());
+
+
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:8080'], // Add all potential frontend URLs
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // MongoDB connection URI
@@ -345,13 +352,71 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 // Recent User Activities
+// app.get('/api/recent-user-activities', async (req, res) => {
+//   try {
+//     const activityCollection = db.collection('RecentUserActivity');
+//     const result = await activityCollection.find({}).sort({ createdAt: -1 }).toArray();
+//     res.json(result);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+// app.get('/api/recent-user-activities', async (req, res) => {
+//   try {
+//     const activityCollection = db.collection('RecentUserActivity');
+//     const result = await activityCollection.find({}).sort({ createdAt: -1 }).toArray();
+    
+//     console.log('Fetched Recent User Activities:', result);
+//     console.log('Number of Activities:', result.length);
+    
+//     res.json(result);
+//   } catch (error) {
+//     console.error('Error fetching recent user activities:', error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
 app.get('/api/recent-user-activities', async (req, res) => {
   try {
     const activityCollection = db.collection('RecentUserActivity');
+    
+    // Add a check to ensure the collection exists
+    const collections = await db.listCollections({ name: 'RecentUserActivity' }).toArray();
+    if (collections.length === 0) {
+      return res.status(404).json({ 
+        error: 'RecentUserActivity collection does not exist',
+        details: 'Please ensure the collection is created in the database'
+      });
+    }
+    
     const result = await activityCollection.find({}).sort({ createdAt: -1 }).toArray();
+    
+    // Log details about the retrieved activities
+    console.log('Fetched Recent User Activities:', JSON.stringify(result, null, 2));
+    console.log('Number of Activities:', result.length);
+    
+    // Add a check for empty results
+    if (result.length === 0) {
+      return res.status(204).json({ 
+        message: 'No recent user activities found',
+        details: 'The RecentUserActivity collection is empty'
+      });
+    }
+    
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Detailed Error fetching recent user activities:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: error.message,
+      details: 'Failed to fetch recent user activities'
+    });
   }
 });
 
@@ -379,6 +444,32 @@ app.put('/api/recent-user-activities/:id', async (req, res) => {
     
     res.json(updatedActivity);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create Recent User Activity
+app.post('/api/recent-user-activities', async (req, res) => {
+  try {
+    const activityData = req.body;
+    
+    const activityCollection = db.collection('RecentUserActivity');
+    
+    const newActivity = {
+      _id: `activity-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      userId: activityData.userId || "",
+      description: activityData.description || "",
+      transactionId: activityData.transactionId || null,
+      recentUserActivityType: activityData.recentUserActivityType || "GENERAL"
+    };
+    
+    await activityCollection.insertOne(newActivity);
+    
+    res.status(201).json(newActivity);
+  } catch (error) {
+    console.error('Error creating recent user activity:', error);
     res.status(500).json({ error: error.message });
   }
 });
