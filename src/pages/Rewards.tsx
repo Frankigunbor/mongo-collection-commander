@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { RewardData, fetchRewardData, updateReward } from '@/lib/api';
@@ -85,13 +84,27 @@ const Rewards = () => {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    }).format(date);
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) {
+      return 'N/A';
+    }
+    
+    try {
+      const date = new Date(dateString);
+      
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      }).format(date);
+    } catch (error) {
+      console.error("Error formatting date:", error, "for date string:", dateString);
+      return 'Invalid Date';
+    }
   };
 
   const handleView = (reward: RewardData) => {
@@ -137,13 +150,11 @@ const Rewards = () => {
     if (!selectedReward || !editedReward) return;
     
     try {
-      // In a real app, this would save to MongoDB
       const updatedReward = await updateReward({
         ...selectedReward,
         ...editedReward
       } as RewardData);
       
-      // Update local state with the updated reward
       setRewards(rewards.map(reward => 
         reward._id === updatedReward._id ? updatedReward : reward
       ));
@@ -177,7 +188,6 @@ const Rewards = () => {
         onEdit={handleEdit}
       />
       
-      {/* View/Edit Dialog */}
       <Dialog open={!!selectedReward} onOpenChange={(open) => !open && handleCloseDialog()}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
