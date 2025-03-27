@@ -92,38 +92,6 @@ export async function connectToDatabase() {
                 console.error(`Error in insertOne for ${name}:`, error);
                 return { insertedId: `mock-${Date.now()}` };
               }
-            },
-            updateOne: async (filter, update) => {
-              try {
-                // In a real implementation, you would send the filter and update to the backend
-                const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}/${filter._id}`, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(update.$set || update),
-                });
-                
-                if (!response.ok) {
-                  throw new Error(`Failed to update document in ${name}`);
-                }
-                
-                const result = await response.json();
-                return { 
-                  modifiedCount: 1,
-                  upsertedId: null,
-                  upsertedCount: 0,
-                  matchedCount: 1
-                };
-              } catch (error) {
-                console.error(`Error in updateOne for ${name}:`, error);
-                return { 
-                  modifiedCount: 0,
-                  upsertedId: null,
-                  upsertedCount: 0,
-                  matchedCount: 0
-                };
-              }
             }
           })
         };
@@ -141,13 +109,7 @@ export async function connectToDatabase() {
           }),
           findOne: async () => null,
           countDocuments: async () => 0,
-          insertOne: async () => ({ insertedId: `mock-${Date.now()}` }),
-          updateOne: async () => ({ 
-            modifiedCount: 0,
-            upsertedId: null,
-            upsertedCount: 0,
-            matchedCount: 0
-          })
+          insertOne: async () => ({ insertedId: `mock-${Date.now()}` })
         })
       };
     }

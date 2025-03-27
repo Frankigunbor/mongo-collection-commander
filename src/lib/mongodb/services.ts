@@ -1,591 +1,569 @@
 
-// Important note: This file has been modified to use the API client instead of direct MongoDB connections
-import { connectToDatabase, closeDatabaseConnection, authenticateUser, registerUser } from "./client";
+import { connectToDatabase } from './client';
+import { 
+  KycData, 
+  ActivityData, 
+  RewardData, 
+  TransactionData,
+  TransactionEntryData,
+  UserData,
+  WalletData,
+  WalletHistoryData,
+  VendorTransactionResponseTrailData,
+  UserReferralData,
+  UserKycDetailData,
+  UserKycData,
+  UserAuthData
+} from '../api';
 
-// Helper function to ensure database connection
-async function getCollection(collectionName: string) {
-  const db = await connectToDatabase();
-  return db.collection(collectionName);
+// Helper function to safely cast MongoDB documents to our types
+function castToType<T>(documents: any[]): T[] {
+  return documents as unknown as T[];
 }
 
-// User Services
-export async function getUserById(userId: string) {
+// Kyc collection functions
+export async function getKycData(): Promise<KycData[]> {
   try {
-    const collection = await getCollection('User');
-    return await collection.findOne({ _id: userId });
+    const db = await connectToDatabase();
+    const collection = db.collection('UserKycDetail');
+    const result = await collection.find().toArray();
+    return castToType<KycData>(result);
   } catch (error) {
-    console.error("Error getting user by ID:", error);
-    return null;
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function getAllUsers() {
-  try {
-    const collection = await getCollection('User');
-    return await collection.find().toArray();
-  } catch (error) {
-    console.error("Error getting all users:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function createUser(userData: any) {
-  try {
-    const collection = await getCollection('User');
-    const result = await collection.insertOne(userData);
-    return { ...userData, _id: result.insertedId };
-  } catch (error) {
-    console.error("Error creating user:", error);
+    console.error("Error fetching KYC data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-export async function updateUser(userData: any) {
+// Activity collection functions
+export async function getActivityData(): Promise<ActivityData[]> {
   try {
-    const { _id, ...updateData } = userData;
-    const collection = await getCollection('User');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return userData;
+    const db = await connectToDatabase();
+    const collection = db.collection('StreamChannel');
+    const result = await collection.find().toArray();
+    return castToType<ActivityData>(result);
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error("Error fetching activity data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// Transaction Services
-export async function getTransactionById(transactionId: string) {
+// Reward collection functions
+export async function getRewardData(): Promise<RewardData[]> {
   try {
-    const collection = await getCollection('Transaction');
-    return await collection.findOne({ _id: transactionId });
+    const db = await connectToDatabase();
+    const collection = db.collection('RewardCriteria');
+    const result = await collection.find().toArray();
+    return castToType<RewardData>(result);
   } catch (error) {
-    console.error("Error getting transaction by ID:", error);
-    return null;
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function getAllTransactions() {
-  try {
-    const collection = await getCollection('Transaction');
-    return await collection.find().toArray();
-  } catch (error) {
-    console.error("Error getting all transactions:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function createTransaction(transactionData: any) {
-  try {
-    const collection = await getCollection('Transaction');
-    const result = await collection.insertOne(transactionData);
-    return { ...transactionData, _id: result.insertedId };
-  } catch (error) {
-    console.error("Error creating transaction:", error);
+    console.error("Error fetching reward data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-export async function updateTransaction(transactionData: any) {
+// Transaction collection functions
+export async function getTransactionData(): Promise<TransactionData[]> {
   try {
-    const { _id, ...updateData } = transactionData;
-    const collection = await getCollection('Transaction');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return transactionData;
+    const db = await connectToDatabase();
+    const collection = db.collection('Transaction');
+    const result = await collection.find().toArray();
+    return castToType<TransactionData>(result);
   } catch (error) {
-    console.error("Error updating transaction:", error);
+    console.error("Error fetching transaction data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// Wallet Services
-export async function getWalletById(walletId: string) {
+// TransactionEntry collection functions
+export async function getTransactionEntryData(): Promise<TransactionEntryData[]> {
   try {
-    const collection = await getCollection('Wallet');
-    return await collection.findOne({ _id: walletId });
+    const db = await connectToDatabase();
+    const collection = db.collection('TransactionEntry');
+    const result = await collection.find().toArray();
+    return castToType<TransactionEntryData>(result);
   } catch (error) {
-    console.error("Error getting wallet by ID:", error);
-    return null;
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function getWalletsByUserId(userId: string) {
-  try {
-    const collection = await getCollection('Wallet');
-    return await collection.find({ userId }).toArray();
-  } catch (error) {
-    console.error("Error getting wallets by user ID:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function getAllWallets() {
-  try {
-    const collection = await getCollection('Wallet');
-    return await collection.find().toArray();
-  } catch (error) {
-    console.error("Error getting all wallets:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function createWallet(walletData: any) {
-  try {
-    const collection = await getCollection('Wallet');
-    const result = await collection.insertOne(walletData);
-    return { ...walletData, _id: result.insertedId };
-  } catch (error) {
-    console.error("Error creating wallet:", error);
+    console.error("Error fetching transaction entry data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-export async function updateWallet(walletData: any) {
+// User collection functions
+export async function getUserData(): Promise<UserData[]> {
   try {
-    const { _id, ...updateData } = walletData;
-    const collection = await getCollection('Wallet');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return walletData;
+    const db = await connectToDatabase();
+    const collection = db.collection('User');
+    const result = await collection.find().toArray();
+    return castToType<UserData>(result);
   } catch (error) {
-    console.error("Error updating wallet:", error);
+    console.error("Error fetching user data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// KYC Services
-export async function getKycById(kycId: string) {
+// Wallet collection functions
+export async function getWalletData(): Promise<WalletData[]> {
   try {
-    const collection = await getCollection('UserKyc');
-    return await collection.findOne({ _id: kycId });
+    const db = await connectToDatabase();
+    const collection = db.collection('Wallet');
+    const result = await collection.find().toArray();
+    return castToType<WalletData>(result);
   } catch (error) {
-    console.error("Error getting KYC by ID:", error);
-    return null;
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function getKycByUserId(userId: string) {
-  try {
-    const collection = await getCollection('UserKyc');
-    return await collection.findOne({ userId });
-  } catch (error) {
-    console.error("Error getting KYC by user ID:", error);
-    return null;
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function getAllKycs() {
-  try {
-    const collection = await getCollection('UserKyc');
-    return await collection.find().toArray();
-  } catch (error) {
-    console.error("Error getting all KYCs:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function createKyc(kycData: any) {
-  try {
-    const collection = await getCollection('UserKyc');
-    const result = await collection.insertOne(kycData);
-    return { ...kycData, _id: result.insertedId };
-  } catch (error) {
-    console.error("Error creating KYC:", error);
+    console.error("Error fetching wallet data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-export async function updateKyc(kycData: any) {
+// WalletHistory collection functions
+export async function getWalletHistoryData(): Promise<WalletHistoryData[]> {
   try {
-    const { _id, ...updateData } = kycData;
-    const collection = await getCollection('UserKyc');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return kycData;
+    const db = await connectToDatabase();
+    const collection = db.collection('WalletHistory');
+    const result = await collection.find().toArray();
+    return castToType<WalletHistoryData>(result);
   } catch (error) {
-    console.error("Error updating KYC:", error);
+    console.error("Error fetching wallet history data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// Activity Services
-export async function getAllActivities() {
+// VendorTransactionResponseTrail collection functions
+export async function getVendorTransactionResponseTrailData(): Promise<VendorTransactionResponseTrailData[]> {
   try {
-    const collection = await getCollection('Activity');
-    return await collection.find().toArray();
+    const db = await connectToDatabase();
+    const collection = db.collection('VendorTransactionResponseTrail');
+    const result = await collection.find().toArray();
+    return castToType<VendorTransactionResponseTrailData>(result);
   } catch (error) {
-    console.error("Error getting all activities:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function updateActivity(activityData: any) {
-  try {
-    const { _id, ...updateData } = activityData;
-    const collection = await getCollection('Activity');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return activityData;
-  } catch (error) {
-    console.error("Error updating activity:", error);
+    console.error("Error fetching vendor transaction response trail data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// Reward Services
-export async function getAllRewards() {
+// UserReferral collection functions
+export async function getUserReferralData(): Promise<UserReferralData[]> {
   try {
-    const collection = await getCollection('Reward');
-    return await collection.find().toArray();
+    const db = await connectToDatabase();
+    const collection = db.collection('UserReferral');
+    const result = await collection.find().toArray();
+    return castToType<UserReferralData>(result);
   } catch (error) {
-    console.error("Error getting all rewards:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function updateReward(rewardData: any) {
-  try {
-    const { _id, ...updateData } = rewardData;
-    const collection = await getCollection('Reward');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return rewardData;
-  } catch (error) {
-    console.error("Error updating reward:", error);
+    console.error("Error fetching user referral data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// Transaction Entry Services
-export async function getAllTransactionEntries() {
+// UserKycDetail collection functions
+export async function getUserKycDetailData(): Promise<UserKycDetailData[]> {
   try {
-    const collection = await getCollection('TransactionEntry');
-    return await collection.find().toArray();
+    const db = await connectToDatabase();
+    const collection = db.collection('UserKycDetail');
+    const result = await collection.find().toArray();
+    return castToType<UserKycDetailData>(result);
   } catch (error) {
-    console.error("Error getting all transaction entries:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function updateTransactionEntry(entryData: any) {
-  try {
-    const { _id, ...updateData } = entryData;
-    const collection = await getCollection('TransactionEntry');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return entryData;
-  } catch (error) {
-    console.error("Error updating transaction entry:", error);
+    console.error("Error fetching user KYC detail data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// UserKycDetail Services
-export async function getAllUserKycDetails() {
+// UserKyc collection functions
+export async function getUserKycData(): Promise<UserKycData[]> {
   try {
-    const collection = await getCollection('UserKycDetail');
-    return await collection.find().toArray();
+    const db = await connectToDatabase();
+    const collection = db.collection('UserKyc');
+    const result = await collection.find().toArray();
+    return castToType<UserKycData>(result);
   } catch (error) {
-    console.error("Error getting all user KYC details:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function updateUserKycDetail(detailData: any) {
-  try {
-    const { _id, ...updateData } = detailData;
-    const collection = await getCollection('UserKycDetail');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return detailData;
-  } catch (error) {
-    console.error("Error updating user KYC detail:", error);
+    console.error("Error fetching user KYC data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// Vendor Response Services
-export async function getAllVendorResponses() {
+// UserAuth collection functions
+export async function getUserAuthData(): Promise<UserAuthData[]> {
   try {
-    const collection = await getCollection('VendorTransactionResponseTrail');
-    return await collection.find().toArray();
+    const db = await connectToDatabase();
+    const collection = db.collection('UserAuth');
+    const result = await collection.find().toArray();
+    return castToType<UserAuthData>(result);
   } catch (error) {
-    console.error("Error getting all vendor responses:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-// User Referral Services
-export async function getAllUserReferrals() {
-  try {
-    const collection = await getCollection('UserReferral');
-    return await collection.find().toArray();
-  } catch (error) {
-    console.error("Error getting all user referrals:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function updateUserReferral(referralData: any) {
-  try {
-    const { _id, ...updateData } = referralData;
-    const collection = await getCollection('UserReferral');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return referralData;
-  } catch (error) {
-    console.error("Error updating user referral:", error);
+    console.error("Error fetching user auth data:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// User Auth Services
-export async function getAllUserAuth() {
+// Authentication functions
+export async function authenticateUser(email: string, password: string): Promise<{user: UserData, token: string} | null> {
   try {
-    const collection = await getCollection('UserAuth');
-    return await collection.find().toArray();
+    const db = await connectToDatabase();
+    const userCollection = db.collection('User');
+    const user = await userCollection.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      return null;
+    }
+    
+    // In a real implementation, you would verify the password hash
+    // For now, we'll just accept any password for the demo
+    return {
+      user: user as unknown as UserData,
+      token: `jwt-token-${user._id}`
+    };
   } catch (error) {
-    console.error("Error getting all user auth records:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-// Wallet History Services
-export async function getAllWalletHistory() {
-  try {
-    const collection = await getCollection('WalletHistory');
-    return await collection.find().toArray();
-  } catch (error) {
-    console.error("Error getting all wallet history:", error);
-    return [];
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-export async function updateWalletHistory(historyData: any) {
-  try {
-    const { _id, ...updateData } = historyData;
-    const collection = await getCollection('WalletHistory');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return historyData;
-  } catch (error) {
-    console.error("Error updating wallet history:", error);
+    console.error("Error authenticating user:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-// User Kyc Services
-export async function updateUserKyc(userKycData: any) {
+// Registration function
+export async function registerUser(userData: Partial<UserData>): Promise<{user: UserData, token: string} | null> {
   try {
-    const { _id, ...updateData } = userKycData;
-    const collection = await getCollection('UserKyc');
-    await collection.updateOne(
-      { _id },
-      { $set: updateData }
-    );
-    return userKycData;
-  } catch (error) {
-    console.error("Error updating user kyc:", error);
-    throw error;
-  } finally {
-    await closeDatabaseConnection();
-  }
-}
-
-// Addition of missing functions for API compatibility
-export async function getKycData() {
-  return getAllKycs();
-}
-
-export async function getActivityData() {
-  return getAllActivities();
-}
-
-export async function getRewardData() {
-  return getAllRewards();
-}
-
-export async function getTransactionData() {
-  return getAllTransactions();
-}
-
-export async function getTransactionEntryData() {
-  return getAllTransactionEntries();
-}
-
-export async function getUserData() {
-  return getAllUsers();
-}
-
-export async function getWalletData() {
-  return getAllWallets();
-}
-
-export async function getWalletHistoryData() {
-  return getAllWalletHistory();
-}
-
-export async function getVendorTransactionResponseTrailData() {
-  return getAllVendorResponses();
-}
-
-export async function getUserReferralData() {
-  return getAllUserReferrals();
-}
-
-export async function getUserKycDetailData() {
-  return getAllUserKycDetails();
-}
-
-export async function getUserKycData() {
-  return getAllKycs();
-}
-
-export async function getUserAuthData() {
-  return getAllUserAuth();
-}
-
-export { authenticateUser, registerUser };
-
-// Adding these functions for API compatibility
-export async function getDashboardStats() {
-  try {
-    const users = await getAllUsers();
-    const transactions = await getAllTransactions();
-    const kycs = await getAllKycs();
-    const activities = await getAllActivities();
+    const db = await connectToDatabase();
+    const userCollection = db.collection('User');
+    
+    // Check if user already exists
+    const existingUser = await userCollection.findOne({ email: userData.email?.toLowerCase() });
+    if (existingUser) {
+      throw new Error("User already exists");
+    }
+    
+    const newUser: UserData = {
+      _id: `user-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      userPhoneNumber: userData.userPhoneNumber || "",
+      userPhoneNumberCountryCode: userData.userPhoneNumberCountryCode || "+1",
+      status: "ACTIVE",
+      userPhoneNumberActivated: false,
+      userEmailActivated: false,
+      securityQuestionEnabled: false,
+      transactionPinEnabled: false,
+      countryCurrencyCode: userData.countryCurrencyCode || "CAD",
+      verificationVendorReference: "",
+      firstName: userData.firstName || "",
+      middleName: userData.middleName || "",
+      lastName: userData.lastName || "",
+      email: userData.email || "",
+      fcmRegistrationToken: "",
+      userGroup: "USER"
+    };
+    
+    // Convert the newUser to unknown first to avoid TypeScript conversion errors
+    await userCollection.insertOne(newUser as unknown as any);
     
     return {
-      totalUsers: users.length,
-      activeUsers: users.filter(u => u.status === 'ACTIVE').length,
-      totalTransactions: transactions.length,
-      totalAmount: transactions.reduce((sum, t) => sum + t.amount, 0),
-      pendingKyc: kycs.filter(k => !k.verified).length || 0,
-      completedKyc: kycs.filter(k => k.verified).length || 0,
-      recentTransactions: transactions.slice(0, 5),
-      recentActivities: activities.slice(0, 5)
+      user: newUser,
+      token: `jwt-token-${newUser._id}`
+    };
+  } catch (error) {
+    console.error("Error registering user:", error);
+    throw error;
+  }
+}
+
+// Dashboard stats function
+export async function getDashboardStats() {
+  try {
+    const db = await connectToDatabase();
+    const userCollection = db.collection('User');
+    const transactionCollection = db.collection('Transaction');
+    const kycCollection = db.collection('UserKycDetail');
+    
+    const totalUsers = await userCollection.countDocuments();
+    const activeUsers = await userCollection.countDocuments({ status: "ACTIVE" });
+    const transactions = await transactionCollection.find().toArray();
+    const totalTransactions = transactions.length;
+    const totalAmount = castToType<TransactionData>(transactions).reduce((sum, t) => sum + t.amount, 0);
+    const pendingKyc = 12; // Placeholder
+    const completedKyc = await kycCollection.countDocuments();
+    
+    const recentTransactions = await transactionCollection.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .toArray();
+      
+    const streamChannelCollection = db.collection('StreamChannel');
+    const recentActivities = await streamChannelCollection.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .toArray();
+    
+    return {
+      totalUsers,
+      activeUsers,
+      totalTransactions,
+      totalAmount,
+      pendingKyc,
+      completedKyc,
+      recentTransactions: castToType<TransactionData>(recentTransactions),
+      recentActivities: castToType<ActivityData>(recentActivities)
     };
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);
-    return {
-      totalUsers: 0,
-      activeUsers: 0,
-      totalTransactions: 0,
-      totalAmount: 0,
-      pendingKyc: 0,
-      completedKyc: 0,
-      recentTransactions: [],
-      recentActivities: []
-    };
+    throw error;
   }
 }
 
-export async function createTransactionEntry(entry: any) {
+// Add the missing updateKyc function
+export async function updateKyc(kycData: KycData): Promise<KycData> {
   try {
-    const collection = await getCollection('TransactionEntry');
-    const result = await collection.insertOne(entry);
-    return { ...entry, _id: result.insertedId };
+    const db = await connectToDatabase();
+    const kycCollection = db.collection('UserKycDetail');
+    
+    const updatedKyc = {
+      ...kycData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await kycCollection.updateOne({ _id: kycData._id }, { $set: updatedKyc });
+    return updatedKyc;
+  } catch (error) {
+    console.error("Error updating KYC:", error);
+    throw error;
+  }
+}
+
+// Add the missing updateReward function
+export async function updateReward(rewardData: RewardData): Promise<RewardData> {
+  try {
+    const db = await connectToDatabase();
+    const rewardCollection = db.collection('RewardCriteria');
+    
+    const updatedReward = {
+      ...rewardData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await rewardCollection.updateOne({ _id: rewardData._id }, { $set: updatedReward });
+    return updatedReward;
+  } catch (error) {
+    console.error("Error updating reward:", error);
+    throw error;
+  }
+}
+
+// Update functions
+export async function updateUser(userData: UserData): Promise<UserData> {
+  try {
+    const db = await connectToDatabase();
+    const userCollection = db.collection('User');
+    
+    const updatedUser = {
+      ...userData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await userCollection.updateOne({ _id: userData._id }, { $set: updatedUser });
+    return updatedUser;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+}
+
+export async function updateUserKyc(userKycData: UserKycData): Promise<UserKycData> {
+  try {
+    const db = await connectToDatabase();
+    const userKycCollection = db.collection('UserKyc');
+    
+    const updatedUserKyc = {
+      ...userKycData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await userKycCollection.updateOne({ _id: userKycData._id }, { $set: updatedUserKyc });
+    return updatedUserKyc;
+  } catch (error) {
+    console.error("Error updating user KYC:", error);
+    throw error;
+  }
+}
+
+export async function updateUserKycDetail(userKycDetailData: UserKycDetailData): Promise<UserKycDetailData> {
+  try {
+    const db = await connectToDatabase();
+    const userKycDetailCollection = db.collection('UserKycDetail');
+    
+    const updatedUserKycDetail = {
+      ...userKycDetailData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await userKycDetailCollection.updateOne({ _id: userKycDetailData._id }, { $set: updatedUserKycDetail });
+    return updatedUserKycDetail;
+  } catch (error) {
+    console.error("Error updating user KYC detail:", error);
+    throw error;
+  }
+}
+
+export async function updateWallet(walletData: WalletData): Promise<WalletData> {
+  try {
+    const db = await connectToDatabase();
+    const walletCollection = db.collection('Wallet');
+    
+    const updatedWallet = {
+      ...walletData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await walletCollection.updateOne({ _id: walletData._id }, { $set: updatedWallet });
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+    throw error;
+  }
+}
+
+export async function updateWalletHistory(historyData: WalletHistoryData): Promise<WalletHistoryData> {
+  try {
+    const db = await connectToDatabase();
+    const historyCollection = db.collection('WalletHistory');
+    
+    const updatedHistory = {
+      ...historyData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await historyCollection.updateOne({ _id: historyData._id }, { $set: updatedHistory });
+    return updatedHistory;
+  } catch (error) {
+    console.error("Error updating wallet history:", error);
+    throw error;
+  }
+}
+
+export async function updateTransaction(transactionData: TransactionData): Promise<TransactionData> {
+  try {
+    const db = await connectToDatabase();
+    const transactionCollection = db.collection('Transaction');
+    
+    const updatedTransaction = {
+      ...transactionData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await transactionCollection.updateOne({ _id: transactionData._id }, { $set: updatedTransaction });
+    return updatedTransaction;
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    throw error;
+  }
+}
+
+export async function updateTransactionEntry(entryData: TransactionEntryData): Promise<TransactionEntryData> {
+  try {
+    const db = await connectToDatabase();
+    const entryCollection = db.collection('TransactionEntry');
+    
+    const updatedEntry = {
+      ...entryData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await entryCollection.updateOne({ _id: entryData._id }, { $set: updatedEntry });
+    return updatedEntry;
+  } catch (error) {
+    console.error("Error updating transaction entry:", error);
+    throw error;
+  }
+}
+
+export async function updateActivity(activityData: ActivityData): Promise<ActivityData> {
+  try {
+    const db = await connectToDatabase();
+    const activityCollection = db.collection('StreamChannel');
+    
+    const updatedActivity = {
+      ...activityData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await activityCollection.updateOne({ _id: activityData._id }, { $set: updatedActivity });
+    return updatedActivity;
+  } catch (error) {
+    console.error("Error updating activity:", error);
+    throw error;
+  }
+}
+
+export async function createTransaction(transactionData: Partial<TransactionData>): Promise<TransactionData> {
+  try {
+    const db = await connectToDatabase();
+    const transactionCollection = db.collection('Transaction');
+    
+    const newTransaction: TransactionData = {
+      _id: `tx-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      actionId: transactionData.actionId || `action-${Date.now()}`,
+      reference: transactionData.reference || `REF-${Date.now()}`,
+      amount: transactionData.amount || 0,
+      currency: transactionData.currency || "CAD",
+      senderAccountId: transactionData.senderAccountId || "",
+      recipientAccountId: transactionData.recipientAccountId || "",
+      transactionType: transactionData.transactionType || "TRANSFER",
+      transactionStatus: transactionData.transactionStatus || "PENDING",
+      transactionSource: transactionData.transactionSource || "WEB_APP",
+      userId: transactionData.userId || "",
+      narration: transactionData.narration || "",
+      requeryCount: transactionData.requeryCount || 0,
+      processingMessage: transactionData.processingMessage || "",
+      vendor: transactionData.vendor || "",
+      vendorReference: transactionData.vendorReference || "",
+      conversionRate: transactionData.conversionRate || 1,
+      completedAt: transactionData.completedAt || ""
+    };
+    
+    await transactionCollection.insertOne(newTransaction as any);
+    return newTransaction;
+  } catch (error) {
+    console.error("Error creating transaction:", error);
+    throw error;
+  }
+}
+
+export async function createTransactionEntry(entryData: Partial<TransactionEntryData>): Promise<TransactionEntryData> {
+  try {
+    const db = await connectToDatabase();
+    const entryCollection = db.collection('TransactionEntry');
+    
+    const newEntry: TransactionEntryData = {
+      _id: `entry-${Date.now()}`,
+      entryType: entryData.entryType || "CREDIT",
+      amount: entryData.amount || 0,
+      currency: entryData.currency || "CAD",
+      accountId: entryData.accountId || "",
+      transactionId: entryData.transactionId || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    await entryCollection.insertOne(newEntry as any);
+    return newEntry;
   } catch (error) {
     console.error("Error creating transaction entry:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
-export async function createActivity(activity: any) {
+export async function createActivity(activityData: Partial<ActivityData>): Promise<ActivityData> {
   try {
-    const collection = await getCollection('Activity');
-    const result = await collection.insertOne(activity);
-    return { ...activity, _id: result.insertedId };
+    const db = await connectToDatabase();
+    const activityCollection = db.collection('StreamChannel');
+    
+    const newActivity: ActivityData = {
+      _id: `activity-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      userId: activityData.userId || "",
+      description: activityData.description || "",
+      accountId: activityData.accountId || "",
+      recentUserActivityType: activityData.recentUserActivityType || "TRANSACTION"
+    };
+    
+    await activityCollection.insertOne(newActivity as any);
+    return newActivity;
   } catch (error) {
     console.error("Error creating activity:", error);
     throw error;
-  } finally {
-    await closeDatabaseConnection();
   }
 }
