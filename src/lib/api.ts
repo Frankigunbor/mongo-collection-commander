@@ -143,6 +143,10 @@ export interface UserKycDetailData {
   verified: boolean;
   vendor: string;
   vendorReference: string;
+  verifiedAt?: string | null;
+  submittedAt?: string;
+  documentType?: string;
+  status?: string;
 }
 
 export interface UserKycData {
@@ -887,6 +891,91 @@ export async function updateReward(rewardData: RewardData): Promise<RewardData> 
     // Mock update
     return {
       ...rewardData,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+// Additional update functions needed by components
+export async function updateUserKyc(userKycData: UserKycData): Promise<UserKycData> {
+  try {
+    const updatedUserKyc = await updateUserKycInMongoDB(userKycData);
+    return updatedUserKyc;
+  } catch (error) {
+    console.error("Error updating user KYC, using mock update:", error);
+    // Mock update
+    return {
+      ...userKycData,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateUserKycDetail(userKycDetailData: UserKycDetailData): Promise<UserKycDetailData> {
+  try {
+    const updatedUserKycDetail = await updateUserKycDetailInMongoDB(userKycDetailData);
+    return updatedUserKycDetail;
+  } catch (error) {
+    console.error("Error updating user KYC detail, using mock update:", error);
+    // Mock update
+    return {
+      ...userKycDetailData,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateWallet(walletData: WalletData): Promise<WalletData> {
+  try {
+    const updatedWallet = await updateWalletInMongoDB(walletData);
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet, using mock update:", error);
+    // Mock update
+    return {
+      ...walletData,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateWalletHistory(historyData: WalletHistoryData): Promise<WalletHistoryData> {
+  try {
+    const updatedWalletHistory = await updateWalletHistoryInMongoDB(historyData);
+    return updatedWalletHistory;
+  } catch (error) {
+    console.error("Error updating wallet history, using mock update:", error);
+    // Mock update
+    return {
+      ...historyData,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateTransactionEntry(entryData: TransactionEntryData): Promise<TransactionEntryData> {
+  try {
+    const updatedTransactionEntry = await updateTransactionEntryInMongoDB(entryData);
+    return updatedTransactionEntry;
+  } catch (error) {
+    console.error("Error updating transaction entry, using mock update:", error);
+    // Mock update
+    return {
+      ...entryData,
+      updatedAt: new Date().toISOString()
+    };
+  }
+}
+
+export async function updateActivity(activityData: ActivityData): Promise<ActivityData> {
+  try {
+    const updatedActivity = await updateActivityInMongoDB(activityData);
+    return updatedActivity;
+  } catch (error) {
+    console.error("Error updating activity, using mock update:", error);
+    // Mock update
+    return {
+      ...activityData,
       updatedAt: new Date().toISOString()
     };
   }

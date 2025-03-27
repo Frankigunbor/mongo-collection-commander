@@ -200,7 +200,7 @@ const Users = () => {
         <Badge variant={
           row.status === 'ACTIVE' ? 'default' :
           row.status === 'INACTIVE' ? 'secondary' :
-          row.status === 'SUSPENDED' ? 'warning' : 'destructive'
+          row.status === 'SUSPENDED' ? 'outline' : 'destructive'
         }>
           {row.status}
         </Badge>
