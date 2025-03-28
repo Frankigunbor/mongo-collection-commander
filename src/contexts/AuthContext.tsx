@@ -34,8 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentUser) {
         // Create a user object from Firebase user
         const userData: UserData = {
-          // Using UID as the ID field
-          uid: currentUser.uid,
+          // Using currentUser.uid as the _id field since UserData expects _id not uid
+          _id: currentUser.uid,
           email: currentUser.email || '',
           firstName: currentUser.displayName?.split(' ')[0] || '',
           lastName: currentUser.displayName?.split(' ')[1] || '',
