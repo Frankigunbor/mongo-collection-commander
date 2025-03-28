@@ -15,7 +15,6 @@ import Dashboard from "./pages/Dashboard";
 import Rewards from "./pages/Rewards";
 import Transactions from "./pages/Transactions";
 import Login from "./pages/auth/Login";
-import SignUp from "./pages/auth/SignUp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 
 // New pages
@@ -46,7 +45,6 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<AdminLayout requireAuth={false}><Index /></AdminLayout>} />
               <Route path="/auth/login" element={<AdminLayout requireAuth={false}><Login /></AdminLayout>} />
-              <Route path="/auth/signup" element={<AdminLayout requireAuth={false}><SignUp /></AdminLayout>} />
               <Route path="/auth/forgot-password" element={<AdminLayout requireAuth={false}><ForgotPassword /></AdminLayout>} />
               
               {/* Protected routes */}

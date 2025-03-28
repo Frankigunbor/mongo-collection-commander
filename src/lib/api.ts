@@ -1082,7 +1082,8 @@ export interface RecentUserActivityData {
 //     throw error;
 //   }
 // }
-const API_BASE_URL = 'http://159.203.15.131:5000';
+const url2 =import.meta.env.VITE_URL;
+const API_BASE_URL = `${url2}`;
 
 export async function fetchRecentUserActivityData(): Promise<RecentUserActivityData[]> {
   try {
