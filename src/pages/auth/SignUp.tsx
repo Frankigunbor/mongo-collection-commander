@@ -42,13 +42,17 @@ const SignUp = () => {
     setIsLoading(true);
     
     try {
-      const success = await signup({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        userPhoneNumber: formData.phoneNumber,
-        userPhoneNumberCountryCode: "+1", // Default for demo
-      });
+      const success = await signup(
+        formData.email, 
+        formData.password, 
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          userPhoneNumber: formData.phoneNumber,
+          userPhoneNumberCountryCode: "+1", // Default for demo
+        }
+      );
       
       if (success) {
         toast({
@@ -150,7 +154,7 @@ const SignUp = () => {
                 type="password"
                 autoComplete="new-password"
                 required
-                minLength={8}
+                minLength={6}
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -164,7 +168,7 @@ const SignUp = () => {
                 type="password"
                 autoComplete="new-password"
                 required
-                minLength={8}
+                minLength={6}
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />

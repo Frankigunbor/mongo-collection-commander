@@ -118,17 +118,17 @@ const Login = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-card text-muted-foreground">
-                  For demo purposes
+                  Firebase Authentication
                 </span>
               </div>
             </div>
 
             <div className="mt-6 text-center text-sm">
               <p className="text-muted-foreground">
-                Use any email and password to login for demo
+                Use a valid email and password to register/login
               </p>
               <p className="mt-2 text-muted-foreground">
-                Email: demo@example.com, Password: password
+                Powered by Firebase Authentication
               </p>
             </div>
           </div>
