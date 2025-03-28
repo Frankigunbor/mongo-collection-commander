@@ -1068,7 +1068,21 @@ export interface RecentUserActivityData {
 }
 
 // Fetch function for RecentUserActivity
-const API_BASE_URL = 'http://159.203.15.131';
+// export async function fetchRecentUserActivityData(): Promise<RecentUserActivityData[]> {
+//   try {
+//     const response = await fetch('/api/recent-user-activities');
+    
+//     if (!response.ok) {
+//       throw new Error(`Error fetching recent user activities: ${response.statusText}`);
+//     }
+    
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching recent user activities:', error);
+//     throw error;
+//   }
+// }
+const API_BASE_URL = 'http://159.203.15.131:5000';
 
 export async function fetchRecentUserActivityData(): Promise<RecentUserActivityData[]> {
   try {
@@ -1110,6 +1124,28 @@ export async function fetchRecentUserActivityData(): Promise<RecentUserActivityD
 }
 
 // Update function for RecentUserActivity
+// export async function updateRecentUserActivity(activityData: RecentUserActivityData): Promise<RecentUserActivityData> {
+//   try {
+//     const response = await fetch(`${API_BASE_URL}/api/recent-user-activities/${activityData._id}`, {
+//       method: 'PUT',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(activityData),
+//     });
+    
+//     if (!response.ok) {
+//       throw new Error(`Error updating recent user activity: ${response.statusText}`);
+//     }
+    
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error updating recent user activity:', error);
+//     throw error;
+//   }
+// }
+
+
 export async function updateRecentUserActivity(activityData: RecentUserActivityData): Promise<RecentUserActivityData> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/recent-user-activities/${activityData._id}`, {

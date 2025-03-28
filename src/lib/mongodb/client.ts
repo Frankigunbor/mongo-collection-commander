@@ -1,10 +1,11 @@
+
 // This file now acts as a client to our backend API instead of connecting directly to MongoDB
 
 // Flag to check if we're running in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
 // API base URL - updated to use the deployed server
-const API_BASE_URL = 'http://159.203.15.131/api';
+const API_BASE_URL = 'http://159.203.15.131:5000/api';
 
 // Function to check connection status
 export async function checkConnectionStatus() {
