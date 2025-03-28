@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   createUserWithEmailAndPassword, 
@@ -32,9 +33,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setFirebaseUser(currentUser);
       
       if (currentUser) {
-        // Create a user object from Firebase user
+        // Create a user object from Firebase user with all required fields
         const userData: UserData = {
-          // Using currentUser.uid as the _id field since UserData expects _id not uid
           _id: currentUser.uid,
           email: currentUser.email || '',
           firstName: currentUser.displayName?.split(' ')[0] || '',
@@ -43,6 +43,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           userPhoneNumberCountryCode: '+1', // Default
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          status: 'ACTIVE', // Adding required fields
+          userPhoneNumberActivated: false,
+          userEmailActivated: true,
+          securityQuestionEnabled: false,
+          transactionPinEnabled: false,
+          countryCurrencyCode: 'CAD',
+          verificationVendorReference: '',
+          middleName: '',
+          fcmRegistrationToken: '',
+          userGroup: 'USER'
         };
         setUser(userData);
       } else {

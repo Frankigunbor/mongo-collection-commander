@@ -4,13 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Activity } from 'lucide-react';
 import { DataTable } from '@/components/ui-custom/DataTable';
-import { fetchRecentUserActivitiesData, RecentUserActivity } from '@/lib/api';
-import { fetchUserData } from '@/lib/api';
+import { fetchRecentUserActivityData, RecentUserActivityData, fetchUserData } from '@/lib/api';
 
 const RecentUserActivities = () => {
   const { data: recentUserActivities, isLoading } = useQuery({
     queryKey: ['recentUserActivities'],
-    queryFn: fetchRecentUserActivitiesData
+    queryFn: fetchRecentUserActivityData
   });
   
   const { data: users } = useQuery({
@@ -32,22 +31,22 @@ const RecentUserActivities = () => {
     {
       key: '_id',
       header: 'ID',
-      cell: (row: RecentUserActivity) => row._id.substring(0, 8) + '...',
+      cell: (row: RecentUserActivityData) => row._id.substring(0, 8) + '...',
     },
     {
       key: 'userId',
       header: 'User',
-      cell: (row: RecentUserActivity) => userMap[row.userId] || row.userId.substring(0, 8) + '...',
+      cell: (row: RecentUserActivityData) => userMap[row.userId] || row.userId.substring(0, 8) + '...',
     },
     {
       key: 'description',
       header: 'Description',
-      cell: (row: RecentUserActivity) => row.description,
+      cell: (row: RecentUserActivityData) => row.description,
     },
     {
       key: 'recentUserActivityType',
       header: 'Activity Type',
-      cell: (row: RecentUserActivity) => (
+      cell: (row: RecentUserActivityData) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getActivityTypeColor(row.recentUserActivityType)}`}>
           {row.recentUserActivityType}
         </span>
@@ -56,13 +55,13 @@ const RecentUserActivities = () => {
     {
       key: 'transactionId',
       header: 'Transaction ID',
-      cell: (row: RecentUserActivity) => row.transactionId ? row.transactionId.substring(0, 8) + '...' : 'N/A',
+      cell: (row: RecentUserActivityData) => row.transactionId ? row.transactionId.substring(0, 8) + '...' : 'N/A',
     },
     {
       key: 'createdAt',
       header: 'Date',
       sortable: true,
-      cell: (row: RecentUserActivity) => format(new Date(row.createdAt), 'MMM dd, yyyy HH:mm'),
+      cell: (row: RecentUserActivityData) => format(new Date(row.createdAt), 'MMM dd, yyyy HH:mm'),
     },
   ];
 
@@ -82,7 +81,7 @@ const RecentUserActivities = () => {
     }
   };
 
-  const handleViewDetails = (activity: RecentUserActivity) => {
+  const handleViewDetails = (activity: RecentUserActivityData) => {
     console.log("View activity details", activity);
     // Implement view details functionality here
   };
