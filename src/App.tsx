@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,7 @@ import Rewards from "./pages/Rewards";
 import Transactions from "./pages/Transactions";
 import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
 // New pages
 import TransactionEntries from "./pages/TransactionEntries";
@@ -45,6 +47,7 @@ function App() {
               <Route path="/" element={<AdminLayout requireAuth={false}><Index /></AdminLayout>} />
               <Route path="/auth/login" element={<AdminLayout requireAuth={false}><Login /></AdminLayout>} />
               <Route path="/auth/signup" element={<AdminLayout requireAuth={false}><SignUp /></AdminLayout>} />
+              <Route path="/auth/forgot-password" element={<AdminLayout requireAuth={false}><ForgotPassword /></AdminLayout>} />
               
               {/* Protected routes */}
               <Route path="/dashboard" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />

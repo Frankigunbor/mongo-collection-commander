@@ -1,450 +1,414 @@
 
-// import React, { useState } from 'react';
-// import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-// import { format } from 'date-fns';
-// import { DataTable } from '@/components/ui-custom/DataTable';
-// import { 
-//   fetchRecentUserActivityData, 
-//   RecentUserActivityData, 
-//   fetchUserData,
-//   UserData,
-//   updateRecentUserActivity
-// } from '@/lib/api';
-// import { ClipboardList, Clock } from 'lucide-react';
-// import { useToast } from '@/hooks/use-toast';
-// import { EditDialog, FieldConfig } from '@/components/ui-custom/EditDialog';
-// import { Button } from '@/components/ui/button';
-// import { StatusBadge } from '@/components/ui-custom/StatusBadge';
-
-
-// const RecentUserActivities = () => {
-//   const { toast } = useToast();
-//   const queryClient = useQueryClient();
-  
-//   const [selectedActivity, setSelectedActivity] = useState<RecentUserActivityData | null>(null);
-//   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
-//   const { data: activities, isLoading: activitiesLoading } = useQuery({
-//     queryKey: ['recentUserActivities'],
-//     queryFn: fetchRecentUserActivityData
-//   });
-  
-//   const { data: users } = useQuery({
-//     queryKey: ['users'],
-//     queryFn: fetchUserData
-//   });
-
-//   const updateActivityMutation = useMutation({
-//     mutationFn: updateRecentUserActivity,
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['recentUserActivities'] });
-//       toast({
-//         title: 'Success',
-//         description: 'Activity updated successfully',
-//       });
-//       setIsEditDialogOpen(false);
-//     },
-//     onError: (error) => {
-//       toast({
-//         title: 'Error',
-//         description: `Failed to update activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
-//         variant: 'destructive',
-//       });
-//     }
-//   });
-
-//   // Create a map of user IDs to user names for quick lookup
-//   const userMap = React.useMemo(() => {
-//     if (!users) return {};
-    
-//     return users.reduce((acc, user) => {
-//       acc[user._id] = `${user.firstName} ${user.lastName}`;
-//       return acc;
-//     }, {} as Record<string, string>);
-//   }, [users]);
-
-//   const handleEditActivity = (activity: RecentUserActivityData) => {
-//     setSelectedActivity(activity);
-//     setIsEditDialogOpen(true);
-//   };
-
-//   const handleSaveActivity = (updatedData: Record<string, any>) => {
-//     if (!selectedActivity) return;
-    
-//     updateActivityMutation.mutate({
-//       ...selectedActivity,
-//       ...updatedData,
-//     } as RecentUserActivityData);
-//   };
-
-//   const activityFields: FieldConfig[] = [
-//     { name: '_id', label: 'ID', type: 'text', readOnly: true },
-//     { 
-//       name: 'userId', 
-//       label: 'User', 
-//       type: 'select',
-//       options: users?.map(user => ({
-//         value: user._id,
-//         label: `${user.firstName} ${user.lastName}`
-//       })) || [],
-//       readOnly: true
-//     },
-//     { name: 'description', label: 'Description', type: 'text' },
-//     { name: 'transactionId', label: 'Transaction ID', type: 'text', readOnly: true },
-//     { 
-//       name: 'recentUserActivityType', 
-//       label: 'Activity Type', 
-//       type: 'select',
-//       options: [
-//         { value: 'TRANSACTION', label: 'Transaction' },
-//         { value: 'LOGIN', label: 'Login' },
-//         { value: 'KYC', label: 'KYC' },
-//         { value: 'PROFILE_UPDATE', label: 'Profile Update' },
-//         { value: 'WALLET', label: 'Wallet' }
-//       ]
-//     },
-//     { name: 'createdAt', label: 'Created At', type: 'date', readOnly: true },
-//     { name: 'updatedAt', label: 'Updated At', type: 'date', readOnly: true }
-//   ];
-
-//   const columns = [
-//     {
-//       key: '_id',
-//       header: 'ID',
-//       cell: (row: RecentUserActivityData) => row._id.substring(0, 8) + '...',
-//     },
-//     {
-//       key: 'userId',
-//       header: 'User',
-//       cell: (row: RecentUserActivityData) => userMap[row.userId] || row.userId.substring(0, 8) + '...',
-//     },
-//     {
-//       key: 'description',
-//       header: 'Description',
-//       cell: (row: RecentUserActivityData) => (
-//         <span className="line-clamp-1">{row.description}</span>
-//       ),
-//     },
-//     {
-//       key: 'transactionId',
-//       header: 'Transaction ID',
-//       cell: (row: RecentUserActivityData) => 
-//         row.transactionId ? row.transactionId.substring(0, 8) + '...' : 'N/A',
-//     },
-//     {
-//       key: 'recentUserActivityType',
-//       header: 'Activity Type',
-//       sortable: true,
-//       cell: (row: RecentUserActivityData) => (
-//         <StatusBadge status={row.recentUserActivityType} />
-//       ),
-//     },
-//     {
-//       key: 'createdAt',
-//       header: 'Created At',
-//       sortable: true,
-//       cell: (row: RecentUserActivityData) => format(new Date(row.createdAt), 'MMM dd, yyyy HH:mm'),
-//     },
-//   ];
-
-//   return (
-//     <div className="container mx-auto py-8">
-//       <div className="flex justify-between items-center mb-6">
-//         <div className="flex items-center gap-2">
-//           <ClipboardList className="h-8 w-8 text-primary" />
-//           <h1 className="text-3xl font-bold">Recent User Activities</h1>
-//         </div>
-//       </div>
-
-//       {activitiesLoading ? (
-//         <div className="flex items-center justify-center h-64">
-//           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-//         </div>
-//       ) : (
-//         <DataTable 
-//           data={activities || []} 
-//           columns={columns} 
-//           onView={(activity) => {
-//             console.log("View activity", activity);
-//           }}
-//           onEdit={handleEditActivity}
-//         />
-//       )}
-
-//       {selectedActivity && (
-//         <EditDialog
-//           title="Edit Activity"
-//           open={isEditDialogOpen}
-//           onOpenChange={setIsEditDialogOpen}
-//           onSave={handleSaveActivity}
-//           fields={activityFields}
-//           initialData={selectedActivity}
-//           isLoading={updateActivityMutation.isPending}
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default RecentUserActivities;
-
-
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
-import { DataTable } from '@/components/ui-custom/DataTable';
 import { 
-  fetchRecentUserActivityData, 
-  RecentUserActivityData, 
-  fetchUserData,
-  UserData,
-  updateRecentUserActivity,
-  createRecentUserActivity
-} from '@/lib/api';
-import { ClipboardList, Clock, Plus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { EditDialog, FieldConfig } from '@/components/ui-custom/EditDialog';
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/ui-custom/StatusBadge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
+import { Label } from '@/components/ui/label';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { DataTable } from '@/components/ui-custom/DataTable';
+import { useAuth } from '@/contexts/AuthContext';
 
-const RecentUserActivities = () => {
+// Define the RecentUserActivity interface
+interface RecentUserActivity {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  description: string;
+  transactionId: string;
+  recentUserActivityType: string;
+}
+
+// Fields configuration for the data table
+const fields = [
+  { key: '_id', label: 'ID' },
+  { key: 'createdAt', label: 'Created At' },
+  { key: 'updatedAt', label: 'Updated At' },
+  { key: 'userId', label: 'User ID' },
+  { key: 'description', label: 'Description' },
+  { key: 'transactionId', label: 'Transaction ID' },
+  { key: 'recentUserActivityType', label: 'Activity Type' },
+];
+
+// API functions for CRUD operations
+const fetchRecentUserActivities = async (): Promise<RecentUserActivity[]> => {
+  const response = await fetch('/api/recentuseractivities');
+  if (!response.ok) {
+    throw new Error('Failed to fetch recent user activities');
+  }
+  return response.json();
+};
+
+const createRecentUserActivity = async (data: Partial<RecentUserActivity>): Promise<RecentUserActivity> => {
+  const response = await fetch('/api/recentuseractivities', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to create recent user activity');
+  }
+  
+  return response.json();
+};
+
+const updateRecentUserActivity = async ({ id, data }: { id: string; data: Partial<RecentUserActivity> }): Promise<RecentUserActivity> => {
+  const response = await fetch(`/api/recentuseractivities/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to update recent user activity');
+  }
+  
+  return response.json();
+};
+
+const deleteRecentUserActivity = async (id: string): Promise<void> => {
+  const response = await fetch(`/api/recentuseractivities/${id}`, {
+    method: 'DELETE',
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to delete recent user activity');
+  }
+};
+
+// Main component for managing recent user activities
+const RecentUserActivities: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [selectedActivity, setSelectedActivity] = useState<RecentUserActivityData | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  // State for dialog visibility and form data
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  
-  const { data: activities, isLoading: activitiesLoading } = useQuery({
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<RecentUserActivity | null>(null);
+  const [formData, setFormData] = useState<Partial<RecentUserActivity>>({
+    userId: '',
+    description: '',
+    transactionId: '',
+    recentUserActivityType: '',
+  });
+
+  // Query for fetching recent user activities
+  const { data: activities, isLoading, error } = useQuery({
     queryKey: ['recentUserActivities'],
-    queryFn: fetchRecentUserActivityData
-  });
-  
-  const { data: users } = useQuery({
-    queryKey: ['users'],
-    queryFn: fetchUserData
+    queryFn: fetchRecentUserActivities,
+    enabled: isAuthenticated,
   });
 
-  const updateActivityMutation = useMutation({
-    mutationFn: updateRecentUserActivity,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['recentUserActivities'] });
-      toast({
-        title: 'Success',
-        description: 'Activity updated successfully',
-      });
-      setIsEditDialogOpen(false);
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to update activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: 'destructive',
-      });
-    }
-  });
-
-  const createActivityMutation = useMutation({
+  // Mutations for CRUD operations
+  const createMutation = useMutation({
     mutationFn: createRecentUserActivity,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recentUserActivities'] });
+      setIsCreateDialogOpen(false);
+      resetFormData();
       toast({
         title: 'Success',
-        description: 'Activity created successfully',
+        description: 'Recent user activity created successfully',
       });
-      setIsCreateDialogOpen(false);
     },
     onError: (error) => {
       toast({
         title: 'Error',
-        description: `Failed to create activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: `Failed to create recent user activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: 'destructive',
       });
-    }
+    },
   });
 
-  // Create a map of user IDs to user names for quick lookup
-  const userMap = React.useMemo(() => {
-    if (!users) return {};
-    
-    return users.reduce((acc, user) => {
-      acc[user._id] = `${user.firstName} ${user.lastName}`;
-      return acc;
-    }, {} as Record<string, string>);
-  }, [users]);
+  const updateMutation = useMutation({
+    mutationFn: updateRecentUserActivity,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recentUserActivities'] });
+      setIsEditDialogOpen(false);
+      resetFormData();
+      toast({
+        title: 'Success',
+        description: 'Recent user activity updated successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update recent user activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: 'destructive',
+      });
+    },
+  });
 
-  const handleEditActivity = (activity: RecentUserActivityData) => {
+  const deleteMutation = useMutation({
+    mutationFn: deleteRecentUserActivity,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recentUserActivities'] });
+      setIsDeleteDialogOpen(false);
+      toast({
+        title: 'Success',
+        description: 'Recent user activity deleted successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to delete recent user activity: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Form handlers
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createMutation.mutate(formData);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedActivity?._id) {
+      updateMutation.mutate({ id: selectedActivity._id, data: formData });
+    }
+  };
+
+  const handleEditClick = (activity: RecentUserActivity) => {
     setSelectedActivity(activity);
+    setFormData({
+      userId: activity.userId,
+      description: activity.description,
+      transactionId: activity.transactionId,
+      recentUserActivityType: activity.recentUserActivityType,
+    });
     setIsEditDialogOpen(true);
   };
 
-  const handleCreateActivity = () => {
-    setIsCreateDialogOpen(true);
+  const handleDeleteClick = (activity: RecentUserActivity) => {
+    setSelectedActivity(activity);
+    setIsDeleteDialogOpen(true);
   };
 
-  const handleSaveActivity = (updatedData: Record<string, any>) => {
-    if (!selectedActivity) return;
-    
-    updateActivityMutation.mutate({
-      ...selectedActivity,
-      ...updatedData,
-    } as RecentUserActivityData);
-  };
-
-  const handleCreateNewActivity = (data: Record<string, any>) => {
-    createActivityMutation.mutate(data as Partial<RecentUserActivityData>);
-  };
-
-  const activityFields: FieldConfig[] = [
-    { name: '_id', label: 'ID', type: 'text', readOnly: true },
-    { 
-      name: 'userId', 
-      label: 'User', 
-      type: 'select',
-      options: users?.map(user => ({
-        value: user._id,
-        label: `${user.firstName} ${user.lastName}`
-      })) || [],
-    },
-    { name: 'description', label: 'Description', type: 'textarea' },
-    { name: 'transactionId', label: 'Transaction ID', type: 'text' },
-    { 
-      name: 'recentUserActivityType', 
-      label: 'Activity Type', 
-      type: 'select',
-      options: [
-        { value: 'LOGIN', label: 'Login' },
-        { value: 'TRANSACTION', label: 'Transaction' },
-        { value: 'KYC', label: 'KYC' },
-        { value: 'PROFILE_UPDATE', label: 'Profile Update' },
-        { value: 'WALLET', label: 'Wallet' }
-      ]
-    },
-    { name: 'createdAt', label: 'Created At', type: 'date', readOnly: true },
-    { name: 'updatedAt', label: 'Updated At', type: 'date', readOnly: true }
-  ];
-
-  const createActivityFields: FieldConfig[] = [
-    { 
-      name: 'userId', 
-      label: 'User', 
-      type: 'select',
-      options: users?.map(user => ({
-        value: user._id,
-        label: `${user.firstName} ${user.lastName}`
-      })) || [],
-      required: true
-    },
-    { name: 'description', label: 'Description', type: 'textarea', required: true },
-    { name: 'transactionId', label: 'Transaction ID', type: 'text' },
-    { 
-      name: 'recentUserActivityType', 
-      label: 'Activity Type', 
-      type: 'select',
-      options: [
-        { value: 'LOGIN', label: 'Login' },
-        { value: 'TRANSACTION', label: 'Transaction' },
-        { value: 'KYC', label: 'KYC' },
-        { value: 'PROFILE_UPDATE', label: 'Profile Update' },
-        { value: 'WALLET', label: 'Wallet' }
-      ],
-      required: true
+  const confirmDelete = () => {
+    if (selectedActivity?._id) {
+      deleteMutation.mutate(selectedActivity._id);
     }
+  };
+
+  const resetFormData = () => {
+    setFormData({
+      userId: '',
+      description: '',
+      transactionId: '',
+      recentUserActivityType: '',
+    });
+    setSelectedActivity(null);
+  };
+
+  // Actions for the DataTable component
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: handleEditClick,
+    },
+    {
+      label: 'Delete',
+      onClick: handleDeleteClick,
+    },
   ];
 
-  const columns = [
-    {
-      key: '_id',
-      header: 'ID',
-      cell: (row: RecentUserActivityData) => row._id.substring(0, 8) + '...',
+  if (error) {
+    return (
+      <div className="container mx-auto py-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>Failed to load recent user activities</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>{error instanceof Error ? error.message : 'Unknown error'}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Define form fields for create and edit dialogs
+  const formFields = [
+    { 
+      id: 'userId', 
+      label: 'User ID', 
+      type: 'text',
+      placeholder: 'Enter user ID'
     },
-    {
-      key: 'userId',
-      header: 'User',
-      cell: (row: RecentUserActivityData) => userMap[row.userId] || row.userId.substring(0, 8) + '...',
+    { 
+      id: 'description', 
+      label: 'Description', 
+      type: 'text',
+      placeholder: 'Enter activity description' 
     },
-    {
-      key: 'description',
-      header: 'Description',
-      cell: (row: RecentUserActivityData) => (
-        <span className="line-clamp-1">{row.description}</span>
-      ),
+    { 
+      id: 'transactionId', 
+      label: 'Transaction ID', 
+      type: 'text',
+      placeholder: 'Enter transaction ID' 
     },
-    {
-      key: 'transactionId',
-      header: 'Transaction ID',
-      cell: (row: RecentUserActivityData) => 
-        row.transactionId ? row.transactionId.substring(0, 8) + '...' : 'N/A',
-    },
-    {
-      key: 'recentUserActivityType',
-      header: 'Activity Type',
-      sortable: true,
-      cell: (row: RecentUserActivityData) => (
-        <StatusBadge status={row.recentUserActivityType} />
-      ),
-    },
-    {
-      key: 'createdAt',
-      header: 'Created At',
-      sortable: true,
-      cell: (row: RecentUserActivityData) => format(new Date(row.createdAt), 'MMM dd, yyyy HH:mm'),
+    { 
+      id: 'recentUserActivityType', 
+      label: 'Activity Type', 
+      type: 'text',
+      placeholder: 'Enter activity type (e.g., TRANSACTION)' 
     },
   ];
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-          <ClipboardList className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Recent User Activities</h1>
-        </div>
-        <Button 
-          onClick={handleCreateActivity}
-          className="flex items-center gap-1"
-        >
-          <Plus className="h-4 w-4" /> Add Activity
-        </Button>
-      </div>
-
-      {activitiesLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      ) : (
-        <DataTable 
-          data={activities || []} 
-          columns={columns} 
-          onView={(activity) => {
-            console.log("View activity", activity);
-          }}
-          onEdit={handleEditActivity}
-        />
-      )}
-
-      {/* Edit Dialog */}
-      {selectedActivity && (
-        <EditDialog
-          title="Edit Activity"
-          open={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
-          onSave={handleSaveActivity}
-          fields={activityFields}
-          initialData={selectedActivity}
-          isLoading={updateActivityMutation.isPending}
-        />
-      )}
+    <div className="container mx-auto py-6">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Recent User Activities</CardTitle>
+            <CardDescription>View and manage user activity logs</CardDescription>
+          </div>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>Add New Activity</Button>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            data={activities || []}
+            fields={fields}
+            isLoading={isLoading}
+            actions={actions}
+          />
+        </CardContent>
+      </Card>
 
       {/* Create Dialog */}
-      <EditDialog
-        title="Add New Recent User Activity"
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onSave={handleCreateNewActivity}
-        fields={createActivityFields}
-        initialData={{}}
-        isLoading={createActivityMutation.isPending}
-      />
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Activity</DialogTitle>
+            <DialogDescription>
+              Create a new user activity record.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateSubmit}>
+            <div className="grid gap-4 py-4">
+              {formFields.map((field) => (
+                <div key={field.id} className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor={field.id} className="text-right">
+                    {field.label}
+                  </Label>
+                  <Input
+                    id={field.id}
+                    name={field.id}
+                    value={formData[field.id as keyof typeof formData] || ''}
+                    onChange={handleInputChange}
+                    className="col-span-3"
+                    placeholder={field.placeholder}
+                  />
+                </div>
+              ))}
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Activity</DialogTitle>
+            <DialogDescription>
+              Update the user activity record.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <div className="grid gap-4 py-4">
+              {formFields.map((field) => (
+                <div key={field.id} className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor={`edit-${field.id}`} className="text-right">
+                    {field.label}
+                  </Label>
+                  <Input
+                    id={`edit-${field.id}`}
+                    name={field.id}
+                    value={formData[field.id as keyof typeof formData] || ''}
+                    onChange={handleInputChange}
+                    className="col-span-3"
+                    placeholder={field.placeholder}
+                  />
+                </div>
+              ))}
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? 'Updating...' : 'Update'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this activity record? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              type="button" 
+              variant="destructive" 
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   createUserWithEmailAndPassword, 
@@ -35,7 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentUser) {
         // Create a user object from Firebase user
         const userData: UserData = {
-          id: currentUser.uid,
+          // Using UID as the ID field
+          uid: currentUser.uid,
           email: currentUser.email || '',
           firstName: currentUser.displayName?.split(' ')[0] || '',
           lastName: currentUser.displayName?.split(' ')[1] || '',
