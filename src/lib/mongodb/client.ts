@@ -5,7 +5,7 @@
 const isBrowser = typeof window !== 'undefined';
 
 // API base URL - adjust this for your local development
-const API_BASE_URL = 'http://159.203.15.131:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Function to check connection status
 export async function checkConnectionStatus() {
