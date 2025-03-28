@@ -1082,7 +1082,7 @@ export interface RecentUserActivityData {
 //     throw error;
 //   }
 // }
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://159.203.15.131:5000';
 
 export async function fetchRecentUserActivityData(): Promise<RecentUserActivityData[]> {
   try {

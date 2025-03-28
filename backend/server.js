@@ -393,8 +393,8 @@ app.get('/api/recent-user-activities', async (req, res) => {
     const result = await activityCollection.find({}).sort({ createdAt: -1 }).toArray();
     
     // Log details about the retrieved activities
-    console.log('Fetched Recent User Activities:', JSON.stringify(result, null, 2));
-    console.log('Number of Activities:', result.length);
+    // console.log('Fetched Recent User Activities:', JSON.stringify(result, null, 2));
+    // console.log('Number of Activities:', result.length);
     
     // Add a check for empty results
     if (result.length === 0) {
