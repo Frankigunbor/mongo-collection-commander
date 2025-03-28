@@ -86,14 +86,6 @@ const RecentUserActivities = () => {
     // Implement view details functionality here
   };
 
-  // Action buttons for each row
-  const actions = [
-    {
-      label: 'View Details',
-      onClick: handleViewDetails,
-    },
-  ];
-
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
@@ -112,7 +104,6 @@ const RecentUserActivities = () => {
           data={recentUserActivities || []} 
           columns={columns} 
           onView={handleViewDetails}
-          actions={actions}
         />
       )}
     </div>
