@@ -1,3 +1,4 @@
+
 // This file now acts as a client to our backend API instead of connecting directly to MongoDB
 
 // Flag to check if we're running in a browser environment
@@ -9,7 +10,14 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://159.203.15.131/api'
 // Function to check connection status
 export async function checkConnectionStatus() {
   try {
-    const response = await fetch(`${API_BASE_URL}/status`);
+    const response = await fetch(`${API_BASE_URL}/status`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      mode: 'cors'
+    });
     const data = await response.json();
     return data;
   } catch (error) {
@@ -29,7 +37,14 @@ export async function connectToDatabase() {
           collection: (name) => ({
             find: () => ({
               toArray: async () => {
-                const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`);
+                const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`, {
+                  method: 'GET',
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  mode: 'cors'
+                });
                 return await response.json();
               },
               sort: (sortCriteria) => ({
@@ -37,7 +52,14 @@ export async function connectToDatabase() {
                   try {
                     // For simplicity, we're not fully implementing sorting on the client
                     // In a real implementation, you would send sort criteria to the backend
-                    const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`);
+                    const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`, {
+                      method: 'GET',
+                      headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                      },
+                      mode: 'cors'
+                    });
                     const data = await response.json();
                     
                     // Simplified sort implementation for demonstration
@@ -55,7 +77,14 @@ export async function connectToDatabase() {
                 limit: (limitCount) => ({
                   toArray: async () => {
                     try {
-                      const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`);
+                      const response = await fetch(`${API_BASE_URL}/${nameToEndpoint(name)}`, {
+                        method: 'GET',
+                        headers: {
+                          'Accept': 'application/json',
+                          'Content-Type': 'application/json'
+                        },
+                        mode: 'cors'
+                      });
                       const data = await response.json();
                       
                       // Sort by createdAt descending as default behavior

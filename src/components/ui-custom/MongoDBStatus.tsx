@@ -10,23 +10,30 @@ export const MongoDBStatus = () => {
   const [error, setError] = useState<string | null>(null);
   const [databaseInfo, setDatabaseInfo] = useState<{name: string}>({ name: "" });
   const [isBrowser, setIsBrowser] = useState<boolean>(false);
+  const [apiUrl, setApiUrl] = useState<string>('');
 
   useEffect(() => {
     // Set browser environment flag
     setIsBrowser(typeof window !== 'undefined');
+    const url = import.meta.env.VITE_API_URL || 'http://159.203.15.131/api';
+    setApiUrl(url);
     
     const checkConnection = async () => {
       try {
         setStatus('connecting');
+        console.log('Checking connection to:', url);
         const connectionStatus = await checkConnectionStatus();
+        console.log('Connection status result:', connectionStatus);
         
         if (connectionStatus.status === 'connected') {
           setStatus('connected');
           setDatabaseInfo({ name: connectionStatus.database || 'broadsend-backend' });
           setError(null);
+          console.log('Successfully connected to database:', connectionStatus.database);
         } else {
           setStatus('error');
           setError(connectionStatus.message || 'Unknown error connecting to MongoDB');
+          console.error('Connection error:', connectionStatus.message);
           toast({
             title: "Database Connection Error",
             description: connectionStatus.message || 'Unknown error connecting to MongoDB',
@@ -37,6 +44,7 @@ export const MongoDBStatus = () => {
         setStatus('error');
         const errorMessage = err instanceof Error ? err.message : 'Unknown error connecting to MongoDB';
         setError(errorMessage);
+        console.error('Connection error exception:', errorMessage);
         toast({
           title: "Database Connection Error",
           description: errorMessage,
@@ -91,7 +99,8 @@ export const MongoDBStatus = () => {
 
       <div className="text-xs text-amber-500 mt-2">
         <p>API Server: {import.meta.env.VITE_URL || 'http://159.203.15.131'}</p>
-        <p>Note: Make sure the backend server is running properly.</p>
+        <p>API Endpoint for status: {apiUrl}/status</p>
+        <p>Note: Make sure the backend server is running properly and CORS is enabled.</p>
       </div>
     </div>
   );

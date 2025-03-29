@@ -2,14 +2,17 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Activity } from 'lucide-react';
+import { Activity, AlertCircle } from 'lucide-react';
 import { DataTable } from '@/components/ui-custom/DataTable';
 import { fetchRecentUserActivityData, RecentUserActivityData, fetchUserData } from '@/lib/api';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const RecentUserActivities = () => {
-  const { data: recentUserActivities, isLoading } = useQuery({
+  const { data: recentUserActivities, isLoading, error } = useQuery({
     queryKey: ['recentUserActivities'],
-    queryFn: fetchRecentUserActivityData
+    queryFn: fetchRecentUserActivityData,
+    retry: 3,
+    retryDelay: 1000
   });
   
   const { data: users } = useQuery({
@@ -76,6 +79,8 @@ const RecentUserActivities = () => {
         return 'bg-yellow-100 text-yellow-800';
       case 'SIGNUP':
         return 'bg-purple-100 text-purple-800';
+      case 'SYSTEM':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -94,6 +99,20 @@ const RecentUserActivities = () => {
           <h1 className="text-3xl font-bold">Recent User Activities</h1>
         </div>
       </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            Failed to load recent user activities. {(error as Error).message}
+            <div className="mt-2 text-xs">
+              API URL: {import.meta.env.VITE_URL}/api/recent-user-activities<br />
+              Note: The application is showing fallback data instead.
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
