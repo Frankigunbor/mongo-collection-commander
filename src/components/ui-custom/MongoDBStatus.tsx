@@ -15,7 +15,7 @@ export const MongoDBStatus = () => {
   useEffect(() => {
     // Set browser environment flag
     setIsBrowser(typeof window !== 'undefined');
-    const url = import.meta.env.VITE_API_URL || 'http://159.203.15.131/api';
+    const url = import.meta.env.VITE_API_URL || 'http://159.203.15.131:5000/api';
     setApiUrl(url);
     
     const checkConnection = async () => {
@@ -98,7 +98,7 @@ export const MongoDBStatus = () => {
       </div>
 
       <div className="text-xs text-amber-500 mt-2">
-        <p>API Server: {import.meta.env.VITE_URL || 'http://159.203.15.131'}</p>
+        <p>API Server: {import.meta.env.VITE_URL || 'http://159.203.15.131:5000'}</p>
         <p>API Endpoint for status: {apiUrl}/status</p>
         <p>Note: Make sure the backend server is running properly and CORS is enabled.</p>
       </div>

@@ -5,7 +5,7 @@
 const isBrowser = typeof window !== 'undefined';
 
 // API base URL - use environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://159.203.15.131/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://159.203.15.131:5000/api';
 
 // Function to check connection status
 export async function checkConnectionStatus() {
