@@ -4,12 +4,14 @@
 // Flag to check if we're running in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
-// API base URL - adjust this for your local development
-const API_BASE_URL = 'http://159.203.15.131:5000/api';
+// API base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_URL || 'http://localhost:5000';
 
 // Function to check connection status
 export async function checkConnectionStatus() {
   try {
+    console.log(`Checking MongoDB connection status at ${API_BASE_URL}/status`);
     const response = await fetch(`${API_BASE_URL}/status`);
     const data = await response.json();
     return data;

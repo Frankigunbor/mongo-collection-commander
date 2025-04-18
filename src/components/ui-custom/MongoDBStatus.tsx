@@ -90,8 +90,8 @@ export const MongoDBStatus = () => {
       </div>
 
       <div className="text-xs text-amber-500 mt-2">
-        <p>API Server: http://localhost:5000</p>
-        <p>Note: Make sure the backend server is running on your local machine.</p>
+        <p>API Server: {import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}</p>
+        <p>Note: Make sure the backend server is running on port 5000.</p>
       </div>
     </div>
   );
